@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 
-from .base import BaseWidget
+from .widget import BaseWidget
 
 __all__ = ['MainWindow']
 
@@ -16,7 +16,7 @@ class MainWindow(BaseWidget):
     def layout(self):
         widget = self.qt.centralWidget()
         if widget is not None:
-            return widget.property("qt")
+            return widget.property(self.QtProperty)
         return None
 
     @layout.setter

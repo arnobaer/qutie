@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from .base import BaseWidget
+from .widget import BaseWidget
 
 __all__ = ['Splitter']
 
@@ -23,7 +23,7 @@ class Splitter(BaseWidget):
     def children(self):
         children = []
         for index in range(self.qt.count()):
-            children.append(self.qt.widget(index).property("qt"))
+            children.append(self.qt.widget(index).property(self.QtProperty))
         return tuple(children)
 
     @property

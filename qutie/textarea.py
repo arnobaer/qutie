@@ -2,7 +2,7 @@ import os
 
 from PyQt5 import QtWidgets
 
-from .base import BaseWidget
+from .widget import BaseWidget
 
 __all__ = ['TextArea']
 

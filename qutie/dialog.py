@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 
-from .base import Widget
+from .widget import Widget
 
 __all__ = ['Dialog']
 

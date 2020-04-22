@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from .base import BaseWidget
+from .widget import BaseWidget
 
 __all__ = ['Button']
 
@@ -10,7 +10,8 @@ class Button(BaseWidget):
 
     def __init__(self, *, text=None, clicked=None, **kwargs):
         super().__init__(**kwargs)
-        self.text = text or ""
+        if text is not None:
+            self.text = text
         self.clicked = clicked
         def clicked_event():
             if callable(self.clicked):

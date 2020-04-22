@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from .base import to_alignment, from_alignment
-from .base import BaseWidget
+from .widget import BaseWidget
 
 __all__ = ['Table']
 

@@ -1,8 +1,8 @@
 from PyQt5 import QtWidgets
 
-from .base import BaseWidget
+from .widget import BaseWidget
 
-__all__ = ['Column', 'Row', 'Space']
+__all__ = ['Column', 'Row', 'Spacer']
 
 class BoxLayout(BaseWidget):
 
@@ -22,7 +22,7 @@ class BoxLayout(BaseWidget):
     def children(self):
         children = []
         for index in range(self.qt.layout().count()):
-            children.append(self.qt.layout().itemAt(index).widget().property("qt"))
+            children.append(self.qt.layout().itemAt(index).widget().property(self.QtProperty))
         return tuple(children)
 
     def append(self, child):
@@ -43,7 +43,7 @@ class Row(BoxLayout):
 
     QtLayoutClass = QtWidgets.QHBoxLayout
 
-class Space(BaseWidget):
+class Spacer(BaseWidget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
