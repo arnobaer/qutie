@@ -13,7 +13,7 @@ w = ui.Widget(
     layout=ui.Column(
         ui.Label(text="Hello world!"),
         ui.Row(
-            ui.Button(text="Click!", clicked=lambda: ui.show_info("Hello world!")),
+            ui.Button(text="Click!", clicked=lambda: ui.show_info(text="Hello world!")),
             ui.Button(text="Quit", clicked=app.quit)
         )
     )

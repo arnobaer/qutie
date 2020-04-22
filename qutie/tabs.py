@@ -45,11 +45,14 @@ class Tabs(BaseWidget):
 
     @property
     def current(self):
-        return self.qt.currentIndex()
+        index = self.qt.currentIndex()
+        if index is not None:
+            return self.qt.widget(index).property(self.QtProperty)
+        return None
 
     @current.setter
-    def current(self, index):
-        self.qt.setCurrentIndex(index)
+    def current(self, tab):
+        self.qt.setCurrentIndex(self.indexOf(tab.qt))
 
     @property
     def children(self):

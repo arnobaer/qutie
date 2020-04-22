@@ -26,6 +26,7 @@ class BoxLayout(BaseWidget):
         return tuple(children)
 
     def append(self, child):
+        print("XXX", child)
         self.qt.layout().addWidget(child.qt)
 
     def insert(self, index, child):

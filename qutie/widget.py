@@ -46,7 +46,12 @@ class BaseWidget(Object):
 
     @width.setter
     def width(self, width):
-        self.qt.setMinimumWidth(width)
+        if width is None:
+            self.qt.setMinimumWidth(0)
+            self.qt.setMaximumWidth(QtWidgets.QWIDGETSIZE_MAX)
+        else:
+            self.qt.setMinimumWidth(width)
+            self.qt.setMaximumWidth(width)
 
     @property
     def height(self):
@@ -54,7 +59,12 @@ class BaseWidget(Object):
 
     @height.setter
     def height(self, height):
-        self.qt.setMinimumHeight(height)
+        if width is None:
+            self.qt.setMinimumHeight(0)
+            self.qt.setMaximumHeight(QtWidgets.QWIDGETSIZE_MAX)
+        else:
+            self.qt.setMinimumHeight(height)
+            self.qt.setMaximumHeight(height)
 
     @property
     def size(self):
@@ -99,11 +109,12 @@ class BaseWidget(Object):
 
     @property
     def tooltip_duration(self):
-        return self.qt.toolTipDuration()
+        """Tooltip duration in seconds. Minimum duration is 1 millisecond."""
+        return self.qt.toolTipDuration() / 1000.
 
     @tooltip_duration.setter
     def tooltip_duration(self, duration):
-        self.qt.setToolTipDuration(duration)
+        self.qt.setToolTipDuration(duration * 1000.)
 
     def close(self):
         self.qt.close()

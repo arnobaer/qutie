@@ -15,13 +15,17 @@ class MessageBox(BaseWidget):
 
     QtClass = QtWidgets.QMessageBox
 
-    def __init__(self, icon, title, text, details, width=None, **kwargs):
+    def __init__(self, icon=None, title=None, text=None, details=None, width=None, **kwargs):
         super().__init__(**kwargs)
         self._spacer_item = QtWidgets.QSpacerItem(320, 0)
-        self.qt.setIcon(icon)
-        self.title = title
-        self.qt.setText(text)
-        self.qt.setDetailedText(details)
+        if icon is not None:
+            self.qt.setIcon(icon)
+        if title is not None:
+            self.title = title
+        if text is not None:
+            self.qt.setText(text)
+        if details is not None:
+            self.qt.setDetailedText(details)
         self.width = width or 460
         layout = self.qt.layout()
         # Workaround to resize message box
@@ -38,21 +42,21 @@ class MessageBox(BaseWidget):
     def run(self):
         return self.qt.exec_()
 
-def show_info(title, text, details=None, **kwargs):
+def show_info(text, *, title=None, details=None, **kwargs):
     """Show information message box.
     >>> show_info("Info", "NO-body expects the Spanish Inquisition!")
     """
     dialog = MessageBox(QtWidgets.QMessageBox.Information, title, text, details, **kwargs)
     dialog.run()
 
-def show_warning(title, text, details=None, **kwargs):
+def show_warning(text, *, title=None, details=None, **kwargs):
     """Show warning message box.
     >>> show_warning("Warning", "NO-body expects the Spanish Inquisition!")
     """
     dialog = MessageBox(QtWidgets.QMessageBox.Warning, title, text, details, **kwargs)
     dialog.run()
 
-def show_error(title, text, details=None, **kwargs):
+def show_error(text, *, title=None, details=None, **kwargs):
     """Show warning message box.
     >>> show_error("Error", "NO-body expects the Spanish Inquisition!")
     """
@@ -70,7 +74,7 @@ def show_exception(exception, tb=None, **kwargs):
         tb = traceback.format_exc() or None
     show_error(title="An exception occured", text=format(exception), details=tb, **kwargs)
 
-def show_question(title, text, details=None, **kwargs):
+def show_question(text, *, title=None, details=None, **kwargs):
     """Show question message box, returns True for yes and False for no.
     >>> show_question("Question", "Fancy a cup of Yorkshire Tea?")
     True

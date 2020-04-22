@@ -1,5 +1,7 @@
 from PyQt5 import QtCore
 
+from .base import Base
+
 __all__ = [
     'Object',
 ]
@@ -24,15 +26,15 @@ def from_alignment(alignment):
         QtCore.Qt.AlignCenter: "center"
     }[alignment]
 
-class Object:
+class Object(Base):
     """Object as base for all components."""
 
     QtClass = QtCore.QObject
     QtProperty = "qt"
 
     def __init__(self, *args, destroyed=None, object_name_changed=None):
-        self.__qt = self.QtClass(*args)
-        self.__qt.setProperty(self.QtProperty, self)
+        super().__init__(*args)
+        self.qt.setProperty(self.QtProperty, self)
 
         self.destroyed = destroyed
         def destroyed_event(obj):
@@ -45,10 +47,6 @@ class Object:
             if callable(self.destroyed):
                 self.destroyed(self.object_name)
         self.qt.objectNameChanged.connect(object_name_changed_event)
-
-    @property
-    def qt(self):
-        return self.__qt
 
     @property
     def object_name(self):
