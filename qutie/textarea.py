@@ -10,19 +10,19 @@ class TextArea(BaseWidget):
 
     QtClass = QtWidgets.QTextEdit
 
-    def __init__(self, *, text=None, readonly=False, richtext=False, **kwargs):
+    def __init__(self, value=None, *, readonly=False, richtext=False, **kwargs):
         super().__init__(**kwargs)
-        if text is not None:
-            self.text = text
         self.readonly = readonly
         self.richtext = richtext
+        if value is not None:
+            self.value = value
 
     @property
-    def text(self):
+    def value(self):
         return self.qt.toPlainText()
 
-    @text.setter
-    def text(self, value):
+    @value.setter
+    def value(self, value):
         self.qt.setPlainText(value)
 
     @property

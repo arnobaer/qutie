@@ -6,9 +6,7 @@ from qutie import Widget
 class WidgetTest(unittest.TestCase):
 
     def setUp(self):
-        self.app = Application.instance()
-        if not self.app:
-            self.app = Application()
+        self.app = Application.instance() or Application(name='unittest')
 
     def testEmpty(self):
         widget = Widget()

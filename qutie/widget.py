@@ -176,6 +176,9 @@ class BaseWidget(Object):
     def hide(self):
         self.qt.hide()
 
+    def resize(self, width, height):
+        self.qt.resize(width, height)
+
 class Widget(BaseWidget):
     """Widget for components with layout."""
 
@@ -233,6 +236,3 @@ class Widget(BaseWidget):
             self.qt.showMaximized()
         else:
             self.qt.showNormal()
-
-    def resize(self, width, height):
-        self.qt.resize(width, height)

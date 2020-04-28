@@ -8,11 +8,14 @@ class Action(Object):
 
     QtClass = QtWidgets.QAction
 
-    def __init__(self, *, text=None, tooltip=None, shortcut=None,
-                 triggered=None, toggled=None, **kwargs):
+    def __init__(self, text=None, *, checkable=None, checked=False, tooltip=None,
+                 shortcut=None, triggered=None, toggled=None, **kwargs):
         super().__init__(**kwargs)
         if text is not None:
             self.text = text
+        if checkable is not None:
+            self.checkable = checkable
+        self.checked = checked
         if tooltip is not None:
             self.tooltip = tooltip
         if shortcut is not None:
@@ -39,6 +42,22 @@ class Action(Object):
         self.qt.setText(value)
 
     @property
+    def checked(self):
+        return self.qt.isChecked()
+
+    @checked.setter
+    def checked(self, value):
+        self.qt.setChecked(value)
+
+    @property
+    def checkable(self):
+        return self.qt.isCheckable()
+
+    @checkable.setter
+    def checkable(self, value):
+        self.qt.setCheckable(value)
+
+    @property
     def tooltip(self):
         return self.qt.toolTip()
 
@@ -56,3 +75,9 @@ class Action(Object):
             self.qt.setShortcut(QtGui.QKeySequence())
         else:
             self.qt.setShortcut(QtGui.QKeySequence(value))
+
+    def trigger(self):
+        self.qt.trigger()
+
+    def toggle(self):
+        self.qt.toggle()

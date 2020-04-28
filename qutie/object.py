@@ -6,26 +6,6 @@ __all__ = [
     'Object',
 ]
 
-def to_alignment(alignment):
-    return {
-        "left": QtCore.Qt.AlignLeft,
-        "right": QtCore.Qt.AlignRight,
-        "top": QtCore.Qt.AlignTop,
-        "bottom": QtCore.Qt.AlignBottom,
-        "center": QtCore.Qt.AlignCenter
-    }[alignment]
-
-def from_alignment(alignment):
-    return {
-        QtCore.Qt.AlignLeft: "left",
-        QtCore.Qt.AlignRight: "right",
-        QtCore.Qt.AlignTop: "top",
-        QtCore.Qt.AlignBottom: "bottom",
-        QtCore.Qt.AlignHCenter: "hcenter",
-        QtCore.Qt.AlignVCenter: "vcenter",
-        QtCore.Qt.AlignCenter: "center"
-    }[alignment]
-
 class Object(Base):
     """Object as base for all components."""
 

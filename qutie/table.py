@@ -187,7 +187,7 @@ class TableItem(Base):
     QtClass = QtWidgets.QTableWidgetItem
 
     def __init__(self, value=None, color=None, background=None, enabled=True,
-                 readonly=True, checked=None, checkable=False, **kwargs):
+                 readonly=True, checked=None, checkable=None, **kwargs):
         super().__init__(**kwargs)
         self.qt.setData(self.qt.UserType, self)
         self.__default_foreground = self.qt.foreground()
@@ -197,8 +197,10 @@ class TableItem(Base):
         self.background = background
         self.enabled = enabled
         self.readonly = readonly
-        self.checked = checked
-        self.checkable = checkable
+        if checkable is not None:
+            self.checkable = checkable
+        if checked is not None:
+            self.checked = checked
 
     @property
     def value(self):
@@ -267,13 +269,11 @@ class TableItem(Base):
             flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
             self.qt.setFlags(flags)
         else:
-            flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
-            self.qt.setFlags(flags)
             self.qt.setCheckState(QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
 
     @property
     def checkable(self):
-        return self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
+        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
 
     @checkable.setter
     def checkable(self, value):
@@ -282,3 +282,4 @@ class TableItem(Base):
         else:
             flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
         self.qt.setFlags(flags)
+        self.qt.setCheckState(self.checked)

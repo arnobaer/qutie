@@ -10,7 +10,7 @@ class CoreApplication(Object):
 
     QtClass = QtCore.QCoreApplication
 
-    def __init__(self, *, name=None, version=None, organization=None,
+    def __init__(self, name=None, *, version=None, organization=None,
                  domain=None, name_changed=None, version_changed=None,
                  organization_changed=None, domain_changed=None):
         super().__init__(sys.argv)
@@ -95,9 +95,9 @@ class GuiApplication(CoreApplication):
 
     QtClass = QtGui.QGuiApplication
 
-    def __init__(self, *, display_name=None, display_name_changed=None,
+    def __init__(self, name=None, *, display_name=None, display_name_changed=None,
                  last_window_closed=None, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name=name, **kwargs)
         if display_name is not None:
             self.display_name = display_name
 
@@ -125,8 +125,8 @@ class Application(GuiApplication):
 
     QtClass = QtWidgets.QApplication
 
-    def __init__(self, focus_changed=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, name=None, *, focus_changed=None, **kwargs):
+        super().__init__(name=name, **kwargs)
 
         self.focus_changed = focus_changed
         def focus_changed_event(old, now):

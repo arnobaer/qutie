@@ -1,3 +1,5 @@
+from PyQt5 import QtCore
+
 __all__ = [
     'Base',
 ]
