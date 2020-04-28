@@ -26,7 +26,6 @@ class BoxLayout(BaseWidget):
         return tuple(children)
 
     def append(self, child):
-        print("XXX", child)
         self.qt.layout().addWidget(child.qt)
 
     def insert(self, index, child):
@@ -46,6 +45,19 @@ class Row(BoxLayout):
 
 class Spacer(BaseWidget):
 
-    def __init__(self, **kwargs):
+    QtSizePolicy = {
+        'fixed': QtWidgets.QSizePolicy.Fixed,
+        'minimum': QtWidgets.QSizePolicy.Minimum,
+        'maximum': QtWidgets.QSizePolicy.Maximum,
+        'preferred': QtWidgets.QSizePolicy.Preferred,
+        'expanding': QtWidgets.QSizePolicy.Expanding,
+        'minimum_expanding': QtWidgets.QSizePolicy.MinimumExpanding,
+        'ignored': QtWidgets.QSizePolicy.Ignored
+    }
+
+    def __init__(self, horizontal=True, vertical=True, **kwargs):
         super().__init__(**kwargs)
-        self.qt.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.qt.setSizePolicy(
+            self.QtSizePolicy.get('expanding' if horizontal else 'fixed'),
+            self.QtSizePolicy.get('expanding' if vertical else 'fixed')
+        )

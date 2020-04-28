@@ -17,12 +17,13 @@ class Tab(Widget):
         return self.qt.windowTitle()
 
     @title.setter
-    def title(self, title):
-        self.qt.setWindowTitle(title)
-        if self.qt.parent():
-            if self.qt.parent().parent():
-                index = self.qt.parent().parent().indexOf(self.qt)
-                self.qt.parent().parent().setTabText(index, title)
+    def title(self, value):
+        self.qt.setWindowTitle(value)
+        parent = self.qt.parent()
+        if parent:
+            if parent.parent():
+                index = parent.parent().indexOf(self.qt)
+                parent.parent().setTabText(index, value)
 
 class Tabs(BaseWidget):
 
@@ -40,19 +41,20 @@ class Tabs(BaseWidget):
         self.qt.insertTab(index, tab.qt, tab.title)
 
     def remove(self, tab):
-        index = self.qt.indexOf(tab.qt)
-        self.qt.removeTab(index)
+        if tab is not None:
+            index = self.qt.indexOf(tab.qt)
+            self.qt.removeTab(index)
 
     @property
     def current(self):
         index = self.qt.currentIndex()
-        if index is not None:
+        if index >= 0:
             return self.qt.widget(index).property(self.QtProperty)
         return None
 
     @current.setter
-    def current(self, tab):
-        self.qt.setCurrentIndex(self.indexOf(tab.qt))
+    def current(self, value):
+        self.qt.setCurrentIndex(self.indexOf(value.qt))
 
     @property
     def children(self):

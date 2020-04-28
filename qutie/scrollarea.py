@@ -21,7 +21,6 @@ class ScrollArea(Widget):
         return self.qt.widget().property(self.QtProperty).layout
 
     @layout.setter
-    def layout(self, layout):
-        print("LLL", layout)
+    def layout(self, value):
         if self.qt.widget():
-            self.qt.widget().property(self.QtProperty).layout = layout
+            self.qt.widget().property(self.QtProperty).layout = value

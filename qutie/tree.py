@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .base import Base
 from .widget import BaseWidget
@@ -19,10 +19,14 @@ class Tree(BaseWidget):
 
     QtClass = QtWidgets.QTreeWidget
 
-    def __init__(self, header=None, activated=None, changed=None, clicked=None,
+    def __init__(self, header=None, sortable=False, indentation=None,
+                 activated=None, changed=None, clicked=None,
                  double_clicked=None, selected=None, **kwargs):
         super().__init__(**kwargs)
         self.header = header or []
+        self.sortable = sortable
+        if indentation is not None:
+            self.indentation = indentation
 
         self.activated = activated
         def activated_event(item, index):
@@ -70,9 +74,25 @@ class Tree(BaseWidget):
         return self.qt.headerLabels()
 
     @header.setter
-    def header(self, items):
-        self.qt.setColumnCount(len(items))
-        self.qt.setHeaderLabels(items)
+    def header(self, value):
+        self.qt.setColumnCount(len(value))
+        self.qt.setHeaderLabels(value)
+
+    @property
+    def sortable(self):
+        return self.qt.isSortingEnabled()
+
+    @sortable.setter
+    def sortable(self, value):
+        return self.qt.setSortingEnabled(value)
+
+    @property
+    def indentation(self):
+        return self.qt.indentation()
+
+    @indentation.setter
+    def indentation(self, value):
+        return self.qt.setIndentation(value)
 
     def append(self, item):
         """Append item or item labels, returns appended item.
@@ -113,12 +133,16 @@ class Tree(BaseWidget):
         return self.qt.header().stretchLastSection()
 
     @stretch.setter
-    def stretch(self, state):
-        self.qt.header().setStretchLastSection(state)
+    def stretch(self, value):
+        self.qt.header().setStretchLastSection(value)
 
     def fit(self):
         for column in range(self.qt.columnCount()):
             self.qt.resizeColumnToContents(column)
+
+    def ensure_visible(self, item):
+        """Scroll to item to ensure item is visible."""
+        self.qt.scrollToItem(item.qt)
 
     def __getitem__(self, index):
         item = self.qt.topLevelItem(index)
@@ -178,17 +202,28 @@ class TreeItem(Base):
         return self.qt.isExpanded()
 
     @expanded.setter
-    def expanded(self, expand):
-        self.qt.setExpanded(expand)
+    def expanded(self, value):
+        self.qt.setExpanded(value)
 
     def __getitem__(self, index):
         return TreeItemColumn(index, self.qt)
 
+    def __len__(self):
+        return self.qt.columnCount()
+
 class TreeItemColumn:
 
     def __init__(self, column, qt):
-        self.column = column
-        self.qt = qt
+        self.__column = column
+        self.__qt = qt
+
+    @property
+    def column(self):
+        return self.__column
+
+    @property
+    def qt(self):
+        return self.__qt
 
     @property
     def value(self):
@@ -203,12 +238,12 @@ class TreeItemColumn:
         return self.qt.foreground(self.column).color().name()
 
     @color.setter
-    def color(self, color):
-        if color is None:
+    def color(self, value):
+        if value is None:
             brush = self.qt._default_foreground
         else:
             brush = self.qt.foreground(self.column)
-            brush.setColor(QtGui.QColor(color))
+            brush.setColor(QtGui.QColor(value))
         self.qt.setForeground(self.column, brush)
 
     @property
@@ -216,13 +251,13 @@ class TreeItemColumn:
         return self.qt.background(self.column).color().name()
 
     @background.setter
-    def background(self, color):
-        if color is None:
+    def background(self, value):
+        if value is None:
             brush = self.qt._default_background
         else:
             brush = self.qt.background(self.column)
             brush.setStyle(QtCore.Qt.SolidPattern)
-            brush.setColor(QtGui.QColor(color))
+            brush.setColor(QtGui.QColor(value))
         self.qt.setBackground(self.column, brush)
 
     @property
@@ -230,22 +265,22 @@ class TreeItemColumn:
         return self.qt.checkState(self.column) == QtCore.Qt.Checked
 
     @checked.setter
-    def checked(self, state):
-        if state is None:
+    def checked(self, value):
+        if value is None:
             flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
             self.qt.setFlags(flags)
         else:
             flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
             self.qt.setFlags(flags)
-            self.qt.setCheckState(self.column, QtCore.Qt.Checked if state else QtCore.Qt.Unchecked)
+            self.qt.setCheckState(self.column, QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
 
     @property
     def checkable(self):
         return self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
-    def checkable(self, state):
-        if state:
+    def checkable(self, value):
+        if value:
             flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
         else:
             flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable

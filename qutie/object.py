@@ -53,8 +53,8 @@ class Object(Base):
         return self.qt.objectName()
 
     @object_name.setter
-    def object_name(self, name):
-        self.qt.setObjectName(name)
+    def object_name(self, value):
+        self.qt.setObjectName(value)
 
     @property
     def parent(self):

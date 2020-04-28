@@ -18,5 +18,5 @@ class FieldSet(Widget):
         return self.qt.title()
 
     @title.setter
-    def title(self, title):
-        self.qt.setTitle(title)
+    def title(self, value):
+        self.qt.setTitle(value)

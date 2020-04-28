@@ -22,24 +22,24 @@ class TextArea(BaseWidget):
         return self.qt.toPlainText()
 
     @text.setter
-    def text(self, text):
-        self.qt.setPlainText(text)
+    def text(self, value):
+        self.qt.setPlainText(value)
 
     @property
     def readoly(self):
         return self.qt.readOnly()
 
     @readoly.setter
-    def readoly(self, enable):
-        self.qt.setReadOnly(enable)
+    def readoly(self, value):
+        self.qt.setReadOnly(value)
 
     @property
     def richtext(self):
         return self.qt.acceptRichText()
 
     @richtext.setter
-    def richtext(self, enable):
-        self.qt.setAcceptRichText(enable)
+    def richtext(self, value):
+        self.qt.setAcceptRichText(value)
 
     def append(self, text):
         self.text = os.linesep.join((self.text, text))

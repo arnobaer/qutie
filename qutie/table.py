@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .base import Base
 from .widget import BaseWidget
@@ -18,14 +18,15 @@ class Table(BaseWidget):
 
     QtClass = QtWidgets.QTableWidget
 
-    def __init__(self, header=None, rows=None, stretch=False, activated=None,
-                 changed=None, clicked=None, double_clicked=None, selected=None,
-                 **kwargs):
+    def __init__(self, header=None, rows=None, stretch=True, sortable=False,
+                 activated=None, changed=None, clicked=None,
+                 double_clicked=None, selected=None, **kwargs):
         super().__init__(**kwargs)
         self.header = header or []
         for row in rows or []:
             self.append(row)
         self.stretch = stretch
+        self.sortable = sortable
         self.activated = activated
         def activated_event():
             if callable(self.activated):
@@ -70,19 +71,43 @@ class Table(BaseWidget):
 
         self.qt.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.qt.horizontalHeader().setHighlightSections(False)
-        self.qt.verticalHeader().hide()
+        self.qt.verticalHeader().setHighlightSections(False)
+        self.vertical_header = False
 
     @property
     def header(self):
+        """Horizontal header labels.
+
+        >>> table.header = 'Key', 'Value'
+        >>> table.header
+        ('Key', 'Value')
+        """
         return self.qt.horizontalHeaderLabels()
 
     @header.setter
-    def header(self, items):
-        self.qt.setColumnCount(len(items))
-        self.qt.setHorizontalHeaderLabels(items)
+    def header(self, value):
+        self.qt.setColumnCount(len(value))
+        self.qt.setHorizontalHeaderLabels(value)
+
+    @property
+    def vertical_header(self):
+        return self.qt.verticalHeader().visible()
+
+    @vertical_header.setter
+    def vertical_header(self, value):
+        self.qt.verticalHeader().setVisible(value)
+
+    @property
+    def sortable(self):
+        return self.qt.isSortingEnabled()
+
+    @sortable.setter
+    def sortable(self, value):
+        return self.qt.setSortingEnabled(value)
 
     def append(self, items):
         """Append items, returns appended items.
+
         >>> table.append(TableItem(value="Spam"), TableItem(value="Eggs"))
         or
         >>> table.append(["Spam", "Eggs"])
@@ -93,6 +118,7 @@ class Table(BaseWidget):
 
     def insert(self, row, items):
         """Insert items at row, returns inserted items.
+
         >>> table.insert(0, TableItem(value="Spam"), TableItem(value="Eggs"))
         or
         >>> table.insert(0, ["Spam", "Eggs"])
@@ -101,6 +127,7 @@ class Table(BaseWidget):
             if not isinstance(item, TableItem):
                 item = TableItem(value=item)
             self.qt.setItem(row, column, item.qt)
+            self.qt.resizeRowToContents(row)
         return self[row]
 
     def clear(self):
@@ -115,11 +142,17 @@ class Table(BaseWidget):
 
     @property
     def stretch(self):
+        """Stretch last column.
+
+        >>> table.stretch = True
+        >>> table.stretch
+        True
+        """
         return self.qt.horizontalHeader().stretchLastSection()
 
     @stretch.setter
-    def stretch(self, state):
-        self.qt.horizontalHeader().setStretchLastSection(state)
+    def stretch(self, value):
+        self.qt.horizontalHeader().setStretchLastSection(value)
 
     def fit(self):
         self.qt.resizeColumnsToContents()
@@ -153,7 +186,8 @@ class TableItem(Base):
 
     QtClass = QtWidgets.QTableWidgetItem
 
-    def __init__(self, value=None, color=None, background=None, enabled=True, readonly=True, checked=None, checkable=False, **kwargs):
+    def __init__(self, value=None, color=None, background=None, enabled=True,
+                 readonly=True, checked=None, checkable=False, **kwargs):
         super().__init__(**kwargs)
         self.qt.setData(self.qt.UserType, self)
         self.__default_foreground = self.qt.foreground()
@@ -179,12 +213,12 @@ class TableItem(Base):
         return self.qt.foreground().color().name()
 
     @color.setter
-    def color(self, color):
-        if color is None:
+    def color(self, value):
+        if value is None:
             brush = self.__default_foreground
         else:
             brush = self.qt.foreground()
-            brush.setColor(QtGui.QColor(color))
+            brush.setColor(QtGui.QColor(value))
         self.qt.setForeground(brush)
 
     @property
@@ -192,13 +226,13 @@ class TableItem(Base):
         return self.qt.background().color().name()
 
     @background.setter
-    def background(self, color):
-        if color is None:
+    def background(self, value):
+        if value is None:
             brush = self.__default_background
         else:
             brush = self.qt.background()
             brush.setStyle(QtCore.Qt.SolidPattern)
-            brush.setColor(QtGui.QColor(color))
+            brush.setColor(QtGui.QColor(value))
         self.qt.setBackground(brush)
 
     @property
@@ -206,8 +240,8 @@ class TableItem(Base):
         return bool(self.qt.flags() & QtCore.Qt.ItemIsEnabled)
 
     @enabled.setter
-    def enabled(self, state):
-        if state:
+    def enabled(self, value):
+        if value:
             self.qt.setFlags(self.qt.flags() | QtCore.Qt.ItemIsEnabled)
         else:
             self.qt.setFlags(self.qt.flags() & ~QtCore.Qt.ItemIsEnabled)
@@ -217,8 +251,8 @@ class TableItem(Base):
         return bool(self.qt.flags() & QtCore.Qt.ItemIsEditable)
 
     @readonly.setter
-    def readonly(self, state):
-        if state:
+    def readonly(self, value):
+        if value:
             self.qt.setFlags(self.qt.flags() & ~QtCore.Qt.ItemIsEditable)
         else:
             self.qt.setFlags(self.qt.flags() | QtCore.Qt.ItemIsEditable)
@@ -228,22 +262,22 @@ class TableItem(Base):
         return self.qt.checkState() == QtCore.Qt.Checked
 
     @checked.setter
-    def checked(self, state):
-        if state is None:
+    def checked(self, value):
+        if value is None:
             flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
             self.qt.setFlags(flags)
         else:
             flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
             self.qt.setFlags(flags)
-            self.qt.setCheckState(QtCore.Qt.Checked if state else QtCore.Qt.Unchecked)
+            self.qt.setCheckState(QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
 
     @property
     def checkable(self):
         return self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
-    def checkable(self, state):
-        if state:
+    def checkable(self, value):
+        if value:
             flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
         else:
             flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable

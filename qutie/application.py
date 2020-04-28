@@ -58,38 +58,38 @@ class CoreApplication(Object):
         return self.qt.applicationName()
 
     @name.setter
-    def name(self, name):
-        self.qt.setApplicationName(name)
+    def name(self, value):
+        self.qt.setApplicationName(value)
 
     @property
     def version(self):
         return self.qt.applicationVersion()
 
     @version.setter
-    def version(self, version):
-        self.qt.setApplicationVersion(version)
+    def version(self, value):
+        self.qt.setApplicationVersion(value)
 
     @property
     def organization(self):
         return self.qt.organizationName()
 
     @organization.setter
-    def organization(self, organization):
-        self.qt.setOrganizationName(organization)
+    def organization(self, value):
+        self.qt.setOrganizationName(value)
 
     @property
     def domain(self):
         return self.qt.organizationDomain()
 
     @domain.setter
-    def domain(self, domain):
-        self.qt.setOrganizationDomain(domain)
+    def domain(self, value):
+        self.qt.setOrganizationDomain(value)
 
     def run(self):
         return self.qt.exec_()
 
     def quit(self):
-        return self.qt.quit()
+        self.qt.quit()
 
 class GuiApplication(CoreApplication):
 
@@ -118,8 +118,8 @@ class GuiApplication(CoreApplication):
         return self.qt.applicationDisplayName()
 
     @display_name.setter
-    def display_name(self, name):
-        self.qt.setApplicationDisplayName(name)
+    def display_name(self, value):
+        self.qt.setApplicationDisplayName(value)
 
 class Application(GuiApplication):
 

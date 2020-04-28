@@ -21,13 +21,13 @@ class Label(BaseWidget):
         return from_alignment(self.qt.alignment())
 
     @alignment.setter
-    def alignment(self, alignment):
-        self.qt.setAlignment(to_alignment(alignment))
+    def alignment(self, value):
+        self.qt.setAlignment(to_alignment(value))
 
     @property
     def text(self):
         return self.qt.text()
 
     @text.setter
-    def text(self, text):
-        self.qt.setText(text)
+    def text(self, value):
+        self.qt.setText(value)

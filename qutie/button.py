@@ -8,20 +8,67 @@ class Button(BaseWidget):
 
     QtClass = QtWidgets.QPushButton
 
-    def __init__(self, *, text=None, clicked=None, **kwargs):
+    def __init__(self, *, text=None, checkable=None, checked=None,
+                 clicked=None, toggled=None, pressed=None, released=None,
+                 **kwargs):
         super().__init__(**kwargs)
         if text is not None:
             self.text = text
+        if checkable is not None:
+            self.checkable = checkable
+        if checked is not None:
+            self.checked = checked
+
         self.clicked = clicked
         def clicked_event():
             if callable(self.clicked):
                 self.clicked()
         self.qt.clicked.connect(clicked_event)
 
+        self.toggled = toggled
+        def toggled_event(checked):
+            if callable(self.toggled):
+                self.toggled(checked)
+        self.qt.toggled.connect(toggled_event)
+
+        self.pressed = pressed
+        def pressed_event():
+            if callable(self.pressed):
+                self.pressed()
+        self.qt.pressed.connect(pressed_event)
+
+        self.released = released
+        def released_event():
+            if callable(self.released):
+                self.released()
+        self.qt.released.connect(released_event)
+
     @property
     def text(self):
         return self.qt.text()
 
     @text.setter
-    def text(self, text):
-        self.qt.setText(text)
+    def text(self, value):
+        self.qt.setText(value)
+
+    @property
+    def checkable(self):
+        return self.qt.isCheckable()
+
+    @checkable.setter
+    def checkable(self, value):
+        self.qt.setCheckable(value)
+
+    @property
+    def checked(self):
+        return self.qt.isChecked()
+
+    @checked.setter
+    def checked(self, value):
+        self.qt.setChecked(value)
+
+    def click(self):
+        self.qt.click()
+
+    def toggle(self):
+        self.qt.toggle()

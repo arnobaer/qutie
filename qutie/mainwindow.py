@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 
+from .action import Action
 from .widget import BaseWidget
 
 __all__ = ['MainWindow']
@@ -10,6 +11,8 @@ class MainWindow(BaseWidget):
 
     def __init__(self, *, layout=None, **kwargs):
         super().__init__(**kwargs)
+        self.qt.menuBar()
+        self.qt.statusBar()
         self.layout = layout
 
     @property
@@ -20,10 +23,10 @@ class MainWindow(BaseWidget):
         return None
 
     @layout.setter
-    def layout(self, layout):
-        if layout is None:
+    def layout(self, value):
+        if value is None:
             self.qt.setCentralWidget(None)
         else:
-            if not isinstance(layout, BaseWidget):
-                raise ValueError(layout)
-            self.qt.setCentralWidget(layout.qt)
+            if not isinstance(value, BaseWidget):
+                raise ValueError(value)
+            self.qt.setCentralWidget(value.qt)

@@ -34,19 +34,19 @@ class Splitter(BaseWidget):
         }[self.qt.orientation()]
 
     @orientation.setter
-    def orientation(self, orientation):
+    def orientation(self, value):
         self.qt.setOrientation({
             "horizontal": QtCore.Qt.Horizontal,
             "vertical": QtCore.Qt.Vertical
-        }[orientation])
+        }[value])
 
     @property
     def collapsible(self):
         return self.qt.childrenCollapsible()
 
     @collapsible.setter
-    def collapsible(self, enable):
-        self.qt.setChildrenCollapsible(enable)
+    def collapsible(self, value):
+        self.qt.setChildrenCollapsible(value)
 
     def append(self, child):
         if not isinstance(child, BaseWidget):

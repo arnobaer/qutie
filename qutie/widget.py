@@ -37,75 +37,123 @@ class BaseWidget(Object):
         return self.qt.windowTitle()
 
     @title.setter
-    def title(self, title):
-        self.qt.setWindowTitle(title)
+    def title(self, value):
+        self.qt.setWindowTitle(value)
 
     @property
     def width(self):
         return self.qt.width()
 
+    @property
+    def minimum_width(self):
+        return self.qt.minimumWidth()
+
+    @minimum_width.setter
+    def minimum_width(self, value):
+        self.qt.setMinimumWidth(value)
+
+    @property
+    def maximum_width(self):
+        return self.qt.maximumWidth()
+
+    @maximum_width.setter
+    def maximum_width(self, value):
+        self.qt.setMaximumWidth(value)
+
     @width.setter
-    def width(self, width):
-        if width is None:
+    def width(self, value):
+        if value is None:
             self.qt.setMinimumWidth(0)
             self.qt.setMaximumWidth(QtWidgets.QWIDGETSIZE_MAX)
         else:
-            self.qt.setMinimumWidth(width)
-            self.qt.setMaximumWidth(width)
+            self.qt.setMinimumWidth(value)
+            self.qt.setMaximumWidth(value)
 
     @property
     def height(self):
         return self.qt.height()
 
+    @property
+    def minimum_height(self):
+        return self.qt.minimumHeight()
+
+    @minimum_height.setter
+    def minimum_height(self, value):
+        self.qt.setMinimumHeight(value)
+
+    @property
+    def maximum_height(self):
+        return self.qt.maximumHeight()
+
+    @maximum_height.setter
+    def maximum_height(self, value):
+        self.qt.setMaximumHeight(value)
+
     @height.setter
-    def height(self, height):
-        if width is None:
+    def height(self, value):
+        if value is None:
             self.qt.setMinimumHeight(0)
             self.qt.setMaximumHeight(QtWidgets.QWIDGETSIZE_MAX)
         else:
-            self.qt.setMinimumHeight(height)
-            self.qt.setMaximumHeight(height)
+            self.qt.setMinimumHeight(value)
+            self.qt.setMaximumHeight(value)
 
     @property
     def size(self):
         return self.width, self.height
 
     @size.setter
-    def size(self, size):
-        self.width = size[0]
-        self.height = size[1]
+    def size(self, value):
+        self.width = value[0]
+        self.height = value[1]
+
+    @property
+    def minimum_size(self):
+        return self.qt.minimumWidth(), self.qt.minimumHeight()
+
+    @minimum_size.setter
+    def minimum_size(self, value):
+        return self.qt.setMinimumSize(value[0], value[1])
+
+    @property
+    def maximum_size(self):
+        return self.qt.maximumWidth(), self.qt.maximumHeight()
+
+    @maximum_size.setter
+    def maximum_size(self, value):
+        return self.qt.setMaximumSize(value[0], value[1])
 
     @property
     def enabled(self):
         return self.qt.isEnabled()
 
     @enabled.setter
-    def enabled(self, enabled):
-        self.qt.setEnabled(enabled)
+    def enabled(self, value):
+        self.qt.setEnabled(value)
 
     @property
     def visible(self):
         return self.qt.visible()
 
     @visible.setter
-    def visible(self, visible):
-        self.qt.setVisible(visible)
+    def visible(self, value):
+        self.qt.setVisible(value)
 
     @property
     def stylesheet(self):
         return self.qt.styleSheet()
 
     @stylesheet.setter
-    def stylesheet(self, stylesheet):
-        self.qt.setStyleSheet(stylesheet)
+    def stylesheet(self, value):
+        self.qt.setStyleSheet(value)
 
     @property
     def tooltip(self):
         return self.qt.toolTip()
 
     @tooltip.setter
-    def tooltip(self, tooltip):
-        self.qt.setToolTip(tooltip)
+    def tooltip(self, value):
+        self.qt.setToolTip(value)
 
     @property
     def tooltip_duration(self):
@@ -113,8 +161,8 @@ class BaseWidget(Object):
         return self.qt.toolTipDuration() / 1000.
 
     @tooltip_duration.setter
-    def tooltip_duration(self, duration):
-        self.qt.setToolTipDuration(duration * 1000.)
+    def tooltip_duration(self, value):
+        self.qt.setToolTipDuration(value * 1000.)
 
     def close(self):
         self.qt.close()
@@ -133,7 +181,7 @@ class Widget(BaseWidget):
 
     QtLayoutClass = QtWidgets.QVBoxLayout
 
-    def __init__(self, *, layout=None, **kwargs):
+    def __init__(self, *, layout=None, modal=False, **kwargs):
         super().__init__(**kwargs)
         self.qt.setLayout(self.QtLayoutClass())
         if layout is not None:
@@ -141,16 +189,50 @@ class Widget(BaseWidget):
 
     @property
     def layout(self):
-        if self.qt.layout() is not None:
-            if self.qt.layout().count():
-                return self.qt.layout().itemAt(0).widget().property(self.QtProperty)
+        layout = self.qt.layout()
+        if layout is not None:
+            if layout.count():
+                return layout.itemAt(0).widget().property(self.QtProperty)
         return None
 
     @layout.setter
-    def layout(self, layout):
+    def layout(self, value):
         while self.qt.layout().count():
             self.qt.layout().takeAt(0)
-        if layout is not None:
-            if not isinstance(layout, BaseWidget):
-                raise ValueError(layout)
-            self.qt.layout().addWidget(layout.qt)
+        if value is not None:
+            if not isinstance(value, BaseWidget):
+                raise ValueError(value)
+            self.qt.layout().addWidget(value.qt)
+
+    @property
+    def modal(self):
+        return self.qt.isModal()
+
+    @modal.setter
+    def modal(self, value):
+        self.qt.setModal(value)
+
+    @property
+    def minimized(self):
+        return self.qt.isMinimized()
+
+    @minimized.setter
+    def minimized(self, value):
+        if value:
+            self.qt.showMinimized()
+        else:
+            self.qt.showNormal()
+
+    @property
+    def maximized(self):
+        return self.qt.isMaximized()
+
+    @maximized.setter
+    def maximized(self, value):
+        if value:
+            self.qt.showMaximized()
+        else:
+            self.qt.showNormal()
+
+    def resize(self, width, height):
+        self.qt.resize(width, height)
