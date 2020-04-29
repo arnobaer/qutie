@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .base import Base
+from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['List']
@@ -100,8 +101,8 @@ class ListItem(Base):
 
     QtPropertyRole = QtCore.Qt.UserRole + 1
 
-    def __init__(self, value, *, color=None, background=None, enabled=True,
-                 checked=None, checkable=False, **kwargs):
+    def __init__(self, value, *, color=None, background=None, icon=None,
+                 enabled=True, checked=None, checkable=False, **kwargs):
         super().__init__(**kwargs)
         self.qt.setData(self.QtPropertyRole, self)
         self.__default_foreground = self.qt.foreground()
@@ -109,6 +110,8 @@ class ListItem(Base):
         self.value = value
         self.color = color
         self.background = background
+        if icon is not None:
+            self.icon = icon
         self.enabled = enabled
         self.checkable = checkable
         self.checked = checked
@@ -148,6 +151,22 @@ class ListItem(Base):
             brush.setStyle(QtCore.Qt.SolidPattern)
             brush.setColor(QtGui.QColor(value))
         self.qt.setBackground(brush)
+
+    @property
+    def icon(self):
+        icon = self.qt.icon()
+        if icon.isNull():
+            return None
+        return Icon(icon)
+
+    @icon.setter
+    def icon(self, value):
+        if value is None:
+            self.qt.setIcon(QtGui.QIcon())
+        else:
+            if not isinstance(value, Icon):
+                value = Icon(value)
+            self.qt.setIcon(value.qt)
 
     @property
     def enabled(self):

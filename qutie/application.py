@@ -2,6 +2,7 @@ import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from .icon import Icon
 from .object import Object
 
 __all__ = ['Application']
@@ -95,11 +96,13 @@ class GuiApplication(CoreApplication):
 
     QtClass = QtGui.QGuiApplication
 
-    def __init__(self, name=None, *, display_name=None, display_name_changed=None,
-                 last_window_closed=None, **kwargs):
+    def __init__(self, name=None, *, display_name=None, icon=None,
+                 display_name_changed=None, last_window_closed=None, **kwargs):
         super().__init__(name=name, **kwargs)
         if display_name is not None:
             self.display_name = display_name
+        if icon is not None:
+            self.icon = icon
 
         self.display_name_changed = display_name_changed
         def display_name_changed_event():
@@ -120,6 +123,20 @@ class GuiApplication(CoreApplication):
     @display_name.setter
     def display_name(self, value):
         self.qt.setApplicationDisplayName(value)
+
+    @property
+    def icon(self):
+        return Icon._from_qt(self.qt.windowIcon())
+
+    @icon.setter
+    def icon(self, value):
+        if value is None:
+            self.qt.setWindowIcon(QtGui.QIcon())
+        else:
+            if not isinstance(value, Icon):
+                value = Icon(value)
+            self.qt.setWindowIcon(value.qt)
+
 
 class Application(GuiApplication):
 

@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .base import Base
+from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['Tree']
@@ -259,6 +260,22 @@ class TreeItemColumn:
             brush.setStyle(QtCore.Qt.SolidPattern)
             brush.setColor(QtGui.QColor(value))
         self.qt.setBackground(self.column, brush)
+
+    @property
+    def icon(self):
+        icon = self.qt.icon(self.column)
+        if icon.isNull():
+            return None
+        return Icon(icon)
+
+    @icon.setter
+    def icon(self, value):
+        if value is None:
+            self.qt.setIcon(self.column, QtGui.QIcon())
+        else:
+            if not isinstance(value, Icon):
+                value = Icon(value)
+            self.qt.setIcon(self.column, value.qt)
 
     @property
     def checked(self):

@@ -1,28 +1,36 @@
 import qutie as ui
 
-app = ui.Application(__name__)
+app = ui.Application("demo", version="1.0a")
+app.display_name=f"Demo {app.version}"
+app.icon = 'orange'
 
 tree = ui.Tree(
     header=("Key", "Value")
 )
 
-item = tree.append(["green", "#33cc33"])
+item = tree.append(["Color", "#33cc33"])
 item[0].color = "#33cc33"
-item.append(["r", 51])
-item.append(["g", 204])
-item.append(["b", 51])
+item[0].icon = "#33cc33"
+item.append(["red", 51])[0].icon = 'red'
+item.append(["green", 204])[0].icon = 'green'
+item.append(["blue", 51])[0].icon = 'blue'
 
 item = tree.append(["checked=0"])
 item[0].checked = False
+item[0].icon = '#123456'
 
 item = tree.append(["checked=1"])
 item[0].checked = True
+item[0].icon = '#341256'
 
 item = tree.append(["checkable=0"])
 item[0].checkable = False
+item[0].icon = 'yellow'
+item[0].icon = None
 
 item = tree.append(["checkable=1"])
 item[0].checkable = True
+item[0].icon = ui.Icon.from_theme('document-open')
 
 item = tree.append(["checkable=0", "checked=0"])
 item[0].checkable = False
@@ -40,12 +48,15 @@ item = tree.append(["checkable=1", "checked=1"])
 item[0].checkable = True
 item[0].checked = True
 
+tree.fit()
+
 table = ui.Table(
     header=("Key", "Value")
 )
 
 item = table.append(["green", "spam"])
 item[0].color = "green"
+item[0].icon = 'blue'
 
 item = table.append(["checked=0"])
 item[0].checked = False
@@ -75,6 +86,8 @@ item = table.append(["checkable=1", "checked=1"])
 item[0].checkable = True
 item[0].checked = True
 
+table.fit()
+
 list_ = ui.List(
     values=("red",)
 )
@@ -82,6 +95,7 @@ list_[0].color = "red"
 
 item = list_.append("green")
 item.color = "green"
+item.icon = ui.Icon.from_color('blue')
 
 item = list_.append("checked=0")
 item.checked = False
@@ -125,6 +139,9 @@ tabs.append(ui.Tab(
     title="List",
     layout=list_
 ))
+special_number = ui.Number(special_value='Off', minimum=0, maximum=7)
+def reset_special_number():
+    special_number.value = special_number.minimum
 tabs.append(ui.Tab(
     title="Numbers",
     layout=ui.ScrollArea(
@@ -141,7 +158,10 @@ tabs.append(ui.Tab(
                 ui.Label("0...3, value=1"),
                 ui.Number(1, minimum=0, maximum=3),
                 ui.Label("0...7, special_value='Off'"),
-                ui.Number(special_value='Off', minimum=0, maximum=7),
+                ui.Row(
+                    special_number,
+                    ui.Button("&Reset", width=56, clicked=reset_special_number)
+                ),
                 ui.Label("readonly"),
                 ui.Number(42, readonly=True),
                 ui.Label("readonly, styled"),
@@ -169,9 +189,11 @@ tabs.append(ui.Tab(
     layout=ui.Row(
         ui.Column(
             ui.Label("Select, current='red'"),
-            ui.Select(["green", "red", "blue"], current='red'),
+            ui.Select(["green", "red", "blue"], current="red"),
             ui.Label("Select, readonly=False"),
-            ui.Select(["Item"], readonly=False),
+            ui.Select(["spam", 42, 4.2, True], current=42, changed=lambda item: ui.show_info(f"Selected: {item} ({type(item).__name__})")),
+            ui.Label("Select, editable=True"),
+            ui.Select(["green", "red", "blue"], editable=True),
             ui.Spacer()
         ),
         ui.Spacer(),
@@ -187,16 +209,45 @@ def on_quit():
     if ui.show_question("Quit application?"):
         app.quit()
 
+
+def on_preferences():
+    def on_click(button):
+        if button == 'restore_defaults':
+            ui.show_info("Reset to defaults.")
+    def on_help():
+        ui.show_info("Helpful information.")
+    dialog = ui.Dialog(title="Preferences")
+    dialog.layout = ui.Column(
+        ui.Spacer(),
+        ui.Row(
+            ui.DialogButtonBox(
+                buttons=('restore_defaults', 'close', 'help'),
+                accepted=dialog.close,
+                rejected=dialog.close,
+                clicked=on_click,
+                help_requested=on_help,
+            )
+        )
+    )
+    dialog.run()
+
 window = ui.MainWindow(
-    title="Main Window",
-    layout=tabs
+    layout=tabs,
+    close_event=lambda: ui.show_question("Quit application?")
 )
+
 file_menu = window.menubar.append("&File")
 file_menu.append_action(ui.Action(
     text="&Quit",
-    tooltip="Quit application",
+    statustip="Quit application",
     shortcut="Ctrl+Q",
     triggered=on_quit
+))
+
+edit_menu = window.menubar.append("&Edit")
+edit_menu.append_action(ui.Action(
+    text="&Preferences",
+    triggered=on_preferences
 ))
 
 window.progress = ui.ProgressBar(0, minimum=0, maximum=len(tabs))

@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 
+from .icon import Icon
 from .object import Object
 
 __all__ = [
@@ -12,8 +13,8 @@ class BaseWidget(Object):
     QtClass = QtWidgets.QWidget
 
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
-                 visible=None, stylesheet=None, tooltip=None,
-                 tooltip_duration=None, **kwargs):
+                 visible=None, stylesheet=None, icon=None, tooltip=None,
+                 tooltip_duration=None, close_event=None, **kwargs):
         super().__init__(**kwargs)
         if title is not None:
             self.title = title
@@ -27,10 +28,22 @@ class BaseWidget(Object):
             self.enabled = enabled
         if stylesheet is not None:
             self.stylesheet = stylesheet
+        if icon is not None:
+            self.icon = icon
         if tooltip is not None:
             self.tooltip = tooltip
         if tooltip_duration is not None:
             self.tooltip_duration = tooltip_duration
+
+        # Overwrite slot closeEvent
+        self.close_event = close_event
+        def closeEvent(event):
+            if callable(self.close_event):
+                if self.close_event() == False:
+                    event.ignore()
+                    return
+            super(type(self.qt), self.qt).closeEvent(event)
+        self.qt.closeEvent = closeEvent
 
     @property
     def title(self):
@@ -146,6 +159,22 @@ class BaseWidget(Object):
     @stylesheet.setter
     def stylesheet(self, value):
         self.qt.setStyleSheet(value)
+
+    @property
+    def icon(self):
+        icon = self.qt.windowIcon()
+        if icon.isNull():
+            return None
+        return Icon(icon)
+
+    @icon.setter
+    def icon(self, value):
+        if value is None:
+            self.qt.setWindowIcon(QtGui.QIcon())
+        else:
+            if not isinstance(value, Icon):
+                value = Icon(value)
+            self.qt.setWindowIcon(value.qt)
 
     @property
     def tooltip(self):

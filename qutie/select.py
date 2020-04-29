@@ -9,14 +9,14 @@ class Select(BaseWidget):
 
     QtClass = QtWidgets.QComboBox
 
-    def __init__(self, values=None, current=None, readonly=True, changed=None, **kwargs):
+    def __init__(self, values=None, current=None, editable=False, changed=None, **kwargs):
         super().__init__(**kwargs)
         if values is not None:
             self.values = values
         if values and current is None:
             current = values[0]
         self.current = current
-        self.readonly = readonly
+        self.editable = editable
 
         self.changed = changed
         def changed_event(index):
@@ -59,12 +59,12 @@ class Select(BaseWidget):
         self.qt.setCurrentIndex(index)
 
     @property
-    def readonly(self):
-        return not self.qt.isEditable()
+    def editable(self):
+        return self.qt.isEditable()
 
-    @readonly.setter
-    def readonly(self, value):
-        self.qt.setEditable(not value)
+    @editable.setter
+    def editable(self, value):
+        self.qt.setEditable(value)
 
     @property
     def changed(self):
@@ -79,6 +79,10 @@ class Select(BaseWidget):
 
     def __getitem__(self, index):
         return self.qt.itemData(index)
+
+    def __setitem__(self, index, value):
+        self.qt.setItemText(index, format(value))
+        self.qt.setItemData(index, value)
 
     def __iter__(self):
         return (self.qt.itemData(index) for index in range(len(self)))

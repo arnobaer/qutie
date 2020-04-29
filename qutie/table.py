@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .base import Base
+from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['Table']
@@ -186,8 +187,9 @@ class TableItem(Base):
 
     QtClass = QtWidgets.QTableWidgetItem
 
-    def __init__(self, value=None, color=None, background=None, enabled=True,
-                 readonly=True, checked=None, checkable=None, **kwargs):
+    def __init__(self, value=None, color=None, background=None, icon=None,
+                 enabled=True, readonly=True, checked=None, checkable=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self.qt.setData(self.qt.UserType, self)
         self.__default_foreground = self.qt.foreground()
@@ -195,6 +197,8 @@ class TableItem(Base):
         self.value = value
         self.color = color
         self.background = background
+        if icon is not None:
+            self.icon = icon
         self.enabled = enabled
         self.readonly = readonly
         if checkable is not None:
@@ -236,6 +240,22 @@ class TableItem(Base):
             brush.setStyle(QtCore.Qt.SolidPattern)
             brush.setColor(QtGui.QColor(value))
         self.qt.setBackground(brush)
+
+    @property
+    def icon(self):
+        icon = self.qt.icon()
+        if icon.isNull():
+            return None
+        return Icon(icon)
+
+    @icon.setter
+    def icon(self, value):
+        if value is None:
+            self.qt.setIcon(QtGui.QIcon())
+        else:
+            if not isinstance(value, Icon):
+                value = Icon(value)
+            self.qt.setIcon(value.qt)
 
     @property
     def enabled(self):

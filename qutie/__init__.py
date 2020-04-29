@@ -4,6 +4,7 @@ from .button import *
 from .checkbox import *
 from .dialog import *
 from .fieldset import *
+from .icon import *
 from .label import *
 from .layout import *
 from .list import *
@@ -12,6 +13,7 @@ from .menu import *
 from .messagebox import *
 from .number import *
 from .object import *
+from .pixmap import *
 from .progressbar import *
 from .scrollarea import *
 from .select import *

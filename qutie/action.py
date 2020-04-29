@@ -9,7 +9,8 @@ class Action(Object):
     QtClass = QtWidgets.QAction
 
     def __init__(self, text=None, *, checkable=None, checked=False, tooltip=None,
-                 shortcut=None, triggered=None, toggled=None, **kwargs):
+                 statustip=None, shortcut=None, triggered=None, toggled=None,
+                 **kwargs):
         super().__init__(**kwargs)
         if text is not None:
             self.text = text
@@ -18,6 +19,8 @@ class Action(Object):
         self.checked = checked
         if tooltip is not None:
             self.tooltip = tooltip
+        if statustip is not None:
+            self.statustip = statustip
         if shortcut is not None:
             self.shortcut = shortcut
 
@@ -64,6 +67,14 @@ class Action(Object):
     @tooltip.setter
     def tooltip(self, value):
         self.qt.setToolTip(value)
+
+    @property
+    def statustip(self):
+        return self.qt.statusTip()
+
+    @statustip.setter
+    def statustip(self, value):
+        self.qt.setStatusTip(value)
 
     @property
     def shortcut(self):
