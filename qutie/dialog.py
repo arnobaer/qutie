@@ -1,8 +1,16 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 
 from .widget import BaseWidget, Widget
 
-__all__ = ['Dialog', 'DialogButtonBox']
+__all__ = [
+    'Dialog',
+    'DialogButtonBox',
+    'filename_open',
+    'filenames_open',
+    'directory_open',
+    'filename_save'
+]
 
 class Dialog(Widget):
 
@@ -124,3 +132,37 @@ class DialogButtonBox(BaseWidget):
             'horizontal': QtCore.Qt.Horizontal,
             'vertical': QtCore.Qt.Vertical
         }[value])
+
+def filename_open(path=None, *, filter=None, title=None):
+    """Shows a filename selection dialog, returns selected filename path.
+
+    >>> filename_open("/home/user", filter="Text (*.txt)")
+    '/home/user/example.txt'
+    """
+    return QtWidgets.QFileDialog.getOpenFileName(None, title or "Open file", path, filter)[0] or None
+
+def filenames_open(path=None, *, filter=None, title=None):
+    """Shows a multiple filenames selection dialog, returns list of selected
+    filename paths.
+
+    >>> filename_open("/home/user", filter="Text (*.txt)")
+    ['/home/user/example.txt', '/home/user/another.txt']
+    """
+    return QtWidgets.QFileDialog.getOpenFileNames(None, title or "Open files", path, filter)[0] or None
+
+def directory_open(path=None, *, title=None):
+    """Shows a multiple filenames selection dialog, returns selected directory
+    path.
+
+    >>> filename_open(""/home/user")
+    '/tmp'
+    """
+    return QtWidgets.QFileDialog.getExistingDirectory(None, title or "Open directory", path) or None
+
+def filename_save(path=None, *, filter=None, title=None):
+    """Shows a save filename selection dialog, returns selected filename path.
+
+    >>> filename_save("/home/user/example.txt", filter="Text (*.txt)")
+    '/home/user/other.txt
+    """
+    return QtWidgets.QFileDialog.getSaveFileName(None, title or "Save file", path, filter)[0] or None

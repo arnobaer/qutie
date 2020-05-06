@@ -1,4 +1,5 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 
 from .widget import BaseWidget
 
@@ -22,7 +23,7 @@ class Button(BaseWidget):
             self.default = default
         if auto_default is not None:
             self.auto_default = auto_default
-        
+
         self.clicked = clicked
         def clicked_event():
             if callable(self.clicked):

@@ -1,4 +1,5 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 from .action import Action
 from .widget import BaseWidget
@@ -9,8 +10,10 @@ class Menu(BaseWidget):
 
     QtClass = QtWidgets.QMenu
 
-    def __init__(self, text=None, **kwargs):
+    def __init__(self, *items, text=None, **kwargs):
         super().__init__(**kwargs)
+        for items in items:
+            self.append(items)
         if text is not None:
             self.text = text
 
@@ -22,41 +25,45 @@ class Menu(BaseWidget):
     def text(self, value):
         self.qt.setTitle(value)
 
-    def append_menu(self, menu):
-        if isinstance(menu, str):
-            menu = Menu(text=menu)
-        self.qt.addMenu(menu.qt)
-        return menu
-
-    def insert_menu(self, before, menu):
-        if isinstance(menu, str):
-            menu = Menu(text=menu)
-        if isinstance(before, Menu):
-            self.qt.insertMenu(before.qt.menuAction(), menu.qt)
+    def append(self, item):
+        if isinstance(item, Action):
+            self.qt.addAction(item.qt)
+        elif isinstance(item, Menu):
+            self.qt.addMenu(item.qt)
+        elif isinstance(item, str):
+            item = Action(item)
+            self.qt.addAction(item.qt)
         else:
-            self.qt.insertMenu(before.qt, menu.qt)
-        return menu
+            raise ValueError(item)
+        return item
 
-    def append_action(self, action):
-        if isinstance(action, str):
-            action = Action(text=action)
-        self.qt.addAction(action.qt)
-        return action
-
-    def insert_action(self, before, action):
-        if isinstance(menu, str):
-            action = Action(text=action)
-        if isinstance(before, Menu):
-            self.qt.insertAction(before.qt.menuAction(), action.qt)
+    def insert(self, before, item):
+        if isinstance(item, Action):
+            if isinstance(before, Menu):
+                self.qt.insertAction(before.qt.menuAction(), action.qt)
+            else:
+                self.qt.insertAction(before.qt, action.qt)
+        elif isinstance(item, Menu):
+            if isinstance(before, Menu):
+                self.qt.insertMenu(before.qt.menuAction(), menu.qt)
+            else:
+                self.qt.insertMenu(before.qt, menu.qt)
+        elif isinstance(item, str):
+            tem = Action(item)
+            if isinstance(before, Menu):
+                self.qt.insertAction(before.qt.menuAction(), action.qt)
+            else:
+                self.qt.insertAction(before.qt, action.qt)
         else:
-            self.qt.insertAction(before.qt, action.qt)
-        return menu
+            raise ValueError(item)
+        return item
 
-    def append_separator(self):
-        self.qt.addSeparator()
+    def __getitem__(self, index):
+        item = self.qt.actions()[index]
+        return item.property(self.QtProperty)
 
-    def insert_separator(self, before):
-        if isinstance(before, Menu):
-            self.qt.insertSeparator(before.qt.menuAction())
-        else:
-            self.qt.insertSeparator(before.qt)
+    def __iter__(self):
+        return iter(item.property(self.QtProperty) for item in self.qt.actions())
+
+    def __len__(self):
+        return len(self.qt.actions())

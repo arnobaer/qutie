@@ -17,6 +17,7 @@ from .pixmap import *
 from .progressbar import *
 from .scrollarea import *
 from .select import *
+from .settings import *
 from .splitter import *
 from .table import *
 from .tabs import *

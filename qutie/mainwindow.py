@@ -30,6 +30,16 @@ class MenuBar(BaseWidget):
             self.qt.insertMenu(before.qt, item.qt)
         return item
 
+    def __getitem__(self, index):
+        item = self.qt.actions()[index]
+        return item.property(self.QtProperty)
+
+    def __iter__(self):
+        return iter(item.property(self.QtProperty) for item in self.qt.actions())
+
+    def __len__(self):
+        return len(self.qt.actions())
+
 class StatusBar(BaseWidget):
 
     QtClass = QtWidgets.QStatusBar

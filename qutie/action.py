@@ -1,4 +1,5 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 from .object import Object
 
@@ -9,8 +10,8 @@ class Action(Object):
     QtClass = QtWidgets.QAction
 
     def __init__(self, text=None, *, checkable=None, checked=False, tooltip=None,
-                 statustip=None, shortcut=None, triggered=None, toggled=None,
-                 **kwargs):
+                 statustip=None, shortcut=None, separator=None, triggered=None,
+                 toggled=None, **kwargs):
         super().__init__(**kwargs)
         if text is not None:
             self.text = text
@@ -23,6 +24,8 @@ class Action(Object):
             self.statustip = statustip
         if shortcut is not None:
             self.shortcut = shortcut
+        if separator is not None:
+            self.separator = separator
 
         self.triggered = triggered
         def triggered_event():
@@ -86,6 +89,14 @@ class Action(Object):
             self.qt.setShortcut(QtGui.QKeySequence())
         else:
             self.qt.setShortcut(QtGui.QKeySequence(value))
+
+    @property
+    def separator(self):
+        return self.qt.isSeparator()
+
+    @separator.setter
+    def separator(self, value):
+        self.qt.setSeparator(value)
 
     def trigger(self):
         self.qt.trigger()

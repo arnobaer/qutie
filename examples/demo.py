@@ -236,24 +236,38 @@ window = ui.MainWindow(
     close_event=lambda: ui.show_question("Quit application?")
 )
 
-file_menu = window.menubar.append("&File")
-file_menu.append_action(ui.Action(
+edit_menu = window.menubar.append("&Edit")
+edit_menu.append(ui.Action(
+    text="&Preferences",
+    triggered=on_preferences
+))
+abc_menu = edit_menu.append(ui.Menu(
+    ui.Action("ABC", separator=True),
+    ui.Action("B"),
+    ui.Action(separator=True),
+    ui.Action("C"),
+    text="&More..."
+))
+
+file_menu = window.menubar.insert(edit_menu, "&File")
+file_menu.append(ui.Action(
     text="&Quit",
     statustip="Quit application",
     shortcut="Ctrl+Q",
     triggered=on_quit
 ))
 
-edit_menu = window.menubar.append("&Edit")
-edit_menu.append_action(ui.Action(
-    text="&Preferences",
-    triggered=on_preferences
-))
-
 window.progress = ui.ProgressBar(0, minimum=0, maximum=len(tabs))
 window.statusbar.append(window.progress)
 
-window.resize(800, 600)
 window.show()
 
+settings = ui.Settings()
+settings.setdefault('size', (640, 480))
+window.resize(*settings.get('size'))
+tabs.qt.setCurrentIndex(settings.get('tab', 0, int))
+
 app.run()
+
+settings['size'] = window.size
+settings['tab'] = tabs.qt.currentIndex()
