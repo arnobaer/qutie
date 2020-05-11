@@ -4,14 +4,19 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
+from .object import EventMixin
 from .icon import Icon
 from .object import Object
 
 __all__ = ['Application']
 
+class QCoreApplication(QtCore.QCoreApplication, EventMixin):
+
+    pass
+
 class CoreApplication(Object):
 
-    QtClass = QtCore.QCoreApplication
+    QtClass = QCoreApplication
 
     def __init__(self, name=None, *, version=None, organization=None,
                  domain=None, name_changed=None, version_changed=None,
@@ -94,9 +99,13 @@ class CoreApplication(Object):
     def quit(self):
         self.qt.quit()
 
+class QGuiApplication(QtGui.QGuiApplication, EventMixin):
+
+    pass
+
 class GuiApplication(CoreApplication):
 
-    QtClass = QtGui.QGuiApplication
+    QtClass = QGuiApplication
 
     def __init__(self, name=None, *, display_name=None, icon=None,
                  display_name_changed=None, last_window_closed=None, **kwargs):
@@ -139,10 +148,13 @@ class GuiApplication(CoreApplication):
                 value = Icon(value)
             self.qt.setWindowIcon(value.qt)
 
+class QApplication(QtWidgets.QApplication, EventMixin):
+
+    pass
 
 class Application(GuiApplication):
 
-    QtClass = QtWidgets.QApplication
+    QtClass = QApplication
 
     def __init__(self, name=None, *, focus_changed=None, **kwargs):
         super().__init__(name=name, **kwargs)

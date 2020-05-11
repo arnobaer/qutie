@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 
+from .object import EventMixin
 from .icon import Icon
 from .object import Object
 
@@ -7,10 +8,14 @@ __all__ = [
     'Widget',
 ]
 
+class QWidget(QtWidgets.QWidget, EventMixin):
+
+    pass
+
 class BaseWidget(Object):
     """Base widget for components without layout."""
 
-    QtClass = QtWidgets.QWidget
+    QtClass = QWidget
 
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
                  visible=None, stylesheet=None, icon=None, tooltip=None,

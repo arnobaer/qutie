@@ -2,11 +2,16 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
+from .object import EventMixin
 from .base import Base
 from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['Table']
+
+class QTableWidget(QtWidgets.QTableWidget, EventMixin):
+
+    pass
 
 class Table(BaseWidget):
     """Table
@@ -20,7 +25,7 @@ class Table(BaseWidget):
     >>> table.clear()
     """
 
-    QtClass = QtWidgets.QTableWidget
+    QtClass = QTableWidget
 
     def __init__(self, header=None, rows=None, stretch=True, sortable=False,
                  activated=None, changed=None, clicked=None,

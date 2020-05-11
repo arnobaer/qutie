@@ -1,3 +1,5 @@
+import random
+
 import qutie as ui
 
 app = ui.Application("demo", version="1.0a")
@@ -307,6 +309,13 @@ with ui.Settings() as settings:
         window.move(*position)
     window.maximized = settings.setdefault('window/maximized', False)
     tabs.current_index = settings.get('tab', 0)
+
+w = ui.Widget(title="Window")
+def show_alert(message):
+    ui.show_warning(text=message, title="Alert")
+w.alert = show_alert
+w.layout = ui.Button("Trigger Alert", clicked=lambda: w.emit('alert', random.choice(["Alert!", "This is not an exercise!"])))
+w.show()
 
 app.run()
 

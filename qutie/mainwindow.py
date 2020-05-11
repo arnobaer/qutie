@@ -1,10 +1,15 @@
 from PyQt5 import QtWidgets
 
+from .object import EventMixin
 from .action import Action
 from .menu import Menu
 from .widget import BaseWidget
 
 __all__ = ['MainWindow']
+
+class QMainWindow(QtWidgets.QMainWindow, EventMixin):
+
+    pass
 
 class MenuBar(BaseWidget):
 
@@ -53,7 +58,7 @@ class StatusBar(BaseWidget):
 
 class MainWindow(BaseWidget):
 
-    QtClass = QtWidgets.QMainWindow
+    QtClass = QMainWindow
 
     def __init__(self, *, layout=None, **kwargs):
         super().__init__(**kwargs)

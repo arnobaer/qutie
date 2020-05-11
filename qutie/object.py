@@ -6,15 +6,24 @@ __all__ = [
     'Object',
 ]
 
+class EventMixin:
+
+    eventTriggered = QtCore.pyqtSignal(str, object, object)
+
+class QObject(QtCore.QObject, EventMixin):
+
+    pass
+
 class Object(Base):
     """Object as base for all components."""
 
-    QtClass = QtCore.QObject
+    QtClass = QObject
     QtProperty = "qt"
 
     def __init__(self, *args, destroyed=None, object_name_changed=None):
         super().__init__(*args)
         self.qt.setProperty(self.QtProperty, self)
+        #self.qt.eventTriggered = QtCore.pyqtSignal(str, object, object)
 
         self.destroyed = destroyed
         def destroyed_event(obj):
@@ -27,6 +36,14 @@ class Object(Base):
             if callable(self.destroyed):
                 self.destroyed(self.object_name)
         self.qt.objectNameChanged.connect(object_name_changed_event)
+
+        if hasattr(self.qt, 'eventTriggered'):
+            def trigger_event(name, args, kwargs):
+                if hasattr(self, name):
+                    attr = getattr(self, name)
+                    if callable(attr):
+                        attr(*args, **kwargs)
+            self.qt.eventTriggered.connect(trigger_event)
 
     @property
     def object_name(self):
@@ -42,6 +59,7 @@ class Object(Base):
             return self.qt.parent().property(self.QtProperty)
         return None
 
-    @property
-    def children(self):
-        return self.qt.children()
+    def emit(self, _, *args, **kwargs):
+        """Emit custom user event."""
+        if hasattr(self.qt, 'eventTriggered'):
+            self.qt.eventTriggered.emit(_, args, kwargs)

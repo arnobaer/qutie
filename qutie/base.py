@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 
 __all__ = [
-    'Base',
+    'Base'
 ]
 
 class Base:

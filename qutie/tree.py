@@ -2,11 +2,16 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
+from .object import EventMixin
 from .base import Base
 from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['Tree']
+
+class QTreeWidget(QtWidgets.QTreeWidget, EventMixin):
+
+    pass
 
 class Tree(BaseWidget):
     """Tree
@@ -21,7 +26,7 @@ class Tree(BaseWidget):
     >>> tree.clear()
     """
 
-    QtClass = QtWidgets.QTreeWidget
+    QtClass = QTreeWidget
 
     def __init__(self, header=None, sortable=False, indentation=None,
                  activated=None, changed=None, clicked=None,
