@@ -12,10 +12,11 @@ class List(BaseWidget):
 
     QtClass = QtWidgets.QListWidget
 
-    def __init__(self, values=None, *, changed=None, **kwargs):
+    def __init__(self, items=None, *, changed=None, clicked=None,
+                 double_clicked=None, **kwargs):
         super().__init__(**kwargs)
-        if values is not None:
-            self.values = values
+        if items is not None:
+            self.items = items
 
         self.changed = changed
         def changed_event(index):
@@ -24,15 +25,33 @@ class List(BaseWidget):
                 self.changed(value, index)
         self.qt.currentRowChanged[int].connect(changed_event)
 
+        self.clicked = clicked
+        def clicked_event(item):
+            if callable(self.clicked):
+                data = item.data(ListItem.QtPropertyRole)
+                if data is not None:
+                    index = self.qt.row(item)
+                    self.clicked(index, data)
+        self.qt.itemClicked.connect(clicked_event)
+
+        self.double_clicked = double_clicked
+        def double_clicked_event(item):
+            if callable(self.double_clicked):
+                data = item.data(ListItem.QtPropertyRole)
+                if data is not None:
+                    index = self.qt.row(item)
+                    self.double_clicked(index, data)
+        self.qt.itemDoubleClicked.connect(double_clicked_event)
+
     @property
-    def values(self):
+    def items(self):
         return list(self)
 
-    @values.setter
-    def values(self, values):
+    @items.setter
+    def items(self, items):
         self.clear()
-        for value in values:
-            self.append(value)
+        for item in items:
+            self.append(item)
 
     @property
     def current(self):
@@ -47,6 +66,17 @@ class List(BaseWidget):
         if index < 0:
             raise IndexError(item)
         self.qt.setCurrentItem(item.qt)
+
+    @property
+    def current_index(self):
+        index = self.qt.currentIndex()
+        if index >= 0:
+            return index
+        return None
+
+    @current_index.setter
+    def current_index(self, value):
+        self.qt.setCurrentIndex(value)
 
     def clear(self):
         self.qt.clear()

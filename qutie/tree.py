@@ -10,6 +10,7 @@ __all__ = ['Tree']
 
 class Tree(BaseWidget):
     """Tree
+
     >>> tree = Tree(header=["Key", "Value"])
     >>> tree.append(["Spam", "Eggs"])
     >>> for item in tree:
@@ -201,6 +202,18 @@ class TreeItem(Base):
         return item
 
     @property
+    def checkable(self):
+        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
+
+    @checkable.setter
+    def checkable(self, value):
+        if value:
+            flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
+        else:
+            flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
+        self.qt.setFlags(flags)
+
+    @property
     def expanded(self):
         return self.qt.isExpanded()
 
@@ -290,16 +303,3 @@ class TreeItemColumn:
             self.qt.setFlags(flags)
         else:
             self.qt.setCheckState(self.column, QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
-
-    @property
-    def checkable(self):
-        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
-
-    @checkable.setter
-    def checkable(self, value):
-        if value:
-            flags = self.qt.flags() | QtCore.Qt.ItemIsUserCheckable
-            self.qt.setCheckState(self.column, self.checked)
-        else:
-            flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
-        self.qt.setFlags(flags)

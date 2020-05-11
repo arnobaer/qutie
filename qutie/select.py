@@ -61,6 +61,17 @@ class Select(BaseWidget):
         self.qt.setCurrentIndex(index)
 
     @property
+    def current_index(self):
+        index = self.qt.currentIndex()
+        if index >= 0:
+            return index
+        return None
+
+    @current_index.setter
+    def current_index(self, value):
+        self.qt.setCurrentIndex(value)
+
+    @property
     def editable(self):
         return self.qt.isEditable()
 

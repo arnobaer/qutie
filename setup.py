@@ -8,7 +8,7 @@ setup(
     description="Yet another pythonic UI library using PyQt5",
     packages=find_packages(exclude=['tests']),
     install_requires=[
-        'PyQt5>=5.8'
+        'PyQt5>=5.14'
     ],
     test_suite='tests',
     license="GPLv3",

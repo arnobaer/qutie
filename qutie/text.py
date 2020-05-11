@@ -10,7 +10,7 @@ class Text(BaseWidget):
     QtClass = QtWidgets.QLineEdit
 
     def __init__(self, value=None, *, readonly=False, clearable=False,
-                 changed=None, **kwargs):
+                 changed=None, editing_finished=None, **kwargs):
         super().__init__(**kwargs)
         self.readonly = readonly
         self.clearable = clearable
@@ -22,6 +22,12 @@ class Text(BaseWidget):
             if callable(self.changed):
                 self.changed(text)
         self.qt.textChanged.connect(changed_event)
+
+        self.editing_finished = editing_finished
+        def editing_finished_event():
+            if callable(self.editing_finished):
+                self.editing_finished()
+        self.qt.editingFinished.connect(editing_finished_event)
 
     @property
     def value(self):
@@ -52,8 +58,16 @@ class Text(BaseWidget):
         return self.__changed
 
     @changed.setter
-    def changed(self, changed):
-        self.__changed = changed
+    def changed(self, value):
+        self.__changed = value
+
+    @property
+    def editing_finished(self):
+        return self.__editing_finished
+
+    @editing_finished.setter
+    def editing_finished(self, value):
+        self.__editing_finished = value
 
     def clear(self):
         self.qt.clear()

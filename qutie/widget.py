@@ -137,6 +137,33 @@ class BaseWidget(Object):
         return self.qt.setMaximumSize(value[0], value[1])
 
     @property
+    def position(self):
+        return self.qt.x(), self.qt.y()
+
+
+    @property
+    def minimized(self):
+        return self.qt.isMinimized()
+
+    @minimized.setter
+    def minimized(self, value):
+        if value:
+            self.qt.showMinimized()
+        else:
+            self.qt.showNormal()
+
+    @property
+    def maximized(self):
+        return self.qt.isMaximized()
+
+    @maximized.setter
+    def maximized(self, value):
+        if value:
+            self.qt.showMaximized()
+        else:
+            self.qt.showNormal()
+
+    @property
     def enabled(self):
         return self.qt.isEnabled()
 
@@ -208,6 +235,9 @@ class BaseWidget(Object):
     def resize(self, width, height):
         self.qt.resize(width, height)
 
+    def move(self, x, y):
+        self.qt.move(x, y)
+
 class Widget(BaseWidget):
     """Widget for components with layout."""
 
@@ -243,25 +273,3 @@ class Widget(BaseWidget):
     @modal.setter
     def modal(self, value):
         self.qt.setModal(value)
-
-    @property
-    def minimized(self):
-        return self.qt.isMinimized()
-
-    @minimized.setter
-    def minimized(self, value):
-        if value:
-            self.qt.showMinimized()
-        else:
-            self.qt.showNormal()
-
-    @property
-    def maximized(self):
-        return self.qt.isMaximized()
-
-    @maximized.setter
-    def maximized(self, value):
-        if value:
-            self.qt.showMaximized()
-        else:
-            self.qt.showNormal()

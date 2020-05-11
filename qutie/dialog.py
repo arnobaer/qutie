@@ -9,7 +9,10 @@ __all__ = [
     'filename_open',
     'filenames_open',
     'directory_open',
-    'filename_save'
+    'filename_save',
+    'get_number',
+    'get_text',
+    'get_item'
 ]
 
 class Dialog(Widget):
@@ -163,6 +166,64 @@ def filename_save(path=None, *, filter=None, title=None):
     """Shows a save filename selection dialog, returns selected filename path.
 
     >>> filename_save("/home/user/example.txt", filter="Text (*.txt)")
-    '/home/user/other.txt
+    '/home/user/other.txt'
     """
     return QtWidgets.QFileDialog.getSaveFileName(None, title or "Save file", path, filter)[0] or None
+
+def get_number(value=0, *, minimum=None, maximum=None, decimals=0, title=None, label=None):
+    """Number input dialog, optionally editable.
+
+    >>> get_number(value=4.2, minimum=0, maximum=10, decimals=1)
+    'Pear'
+    """
+    value = float(value)
+    if minimum is None:
+        minimum = float('-inf')
+    if maximum is None:
+        maximum = float('-inf')
+    if title is None:
+        title = ""
+    if label is None:
+        label = ""
+    value, success = QtWidgets.QInputDialog.getDouble(
+        None, title, label, value, minimum, maximum, decimals
+    )
+    if success:
+        return value
+    return None
+
+def get_text(text=None, *, title=None, label=None):
+    """Text input dialog.
+
+    >>> get_text()
+    'Pear'
+    """
+    text = format(text)
+    if title is None:
+        title = ""
+    if label is None:
+        label = ""
+    value, success = QtWidgets.QInputDialog.getText(
+        None, title, label, QtWidgets.QLineEdit.Normal, text
+    )
+    if success:
+        return value
+    return None
+
+def get_item(items, *, current=0, editable=False, title=None, label=None):
+    """Select item from input list dialog, optionally editable.
+
+    >>> get_item(["Apple", "Pear", "Nut"])
+    'Pear'
+    """
+    items = [format(item) for item in items]
+    if title is None:
+        title = ""
+    if label is None:
+        label = ""
+    item, success = QtWidgets.QInputDialog.getItem(
+        None, title, label, items, current, editable
+    )
+    if success:
+        return item
+    return None

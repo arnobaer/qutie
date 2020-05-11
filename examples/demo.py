@@ -24,28 +24,28 @@ item[0].checked = True
 item[0].icon = '#341256'
 
 item = tree.append(["checkable=0"])
-item[0].checkable = False
+item.checkable = False
 item[0].icon = 'yellow'
 item[0].icon = None
 
 item = tree.append(["checkable=1"])
-item[0].checkable = True
+item.checkable = True
 item[0].icon = ui.Icon.from_theme('document-open')
 
 item = tree.append(["checkable=0", "checked=0"])
-item[0].checkable = False
+item.checkable = False
 item[0].checked = False
 
 item = tree.append(["checkable=1", "checked=0"])
-item[0].checkable = True
+item.checkable = True
 item[0].checked = False
 
 item = tree.append(["checkable=0", "checked=1"])
-item[0].checkable = False
+item.checkable = False
 item[0].checked = True
 
 item = tree.append(["checkable=1", "checked=1"])
-item[0].checkable = True
+item.checkable = True
 item[0].checked = True
 
 tree.fit()
@@ -89,7 +89,7 @@ item[0].checked = True
 table.fit()
 
 list_ = ui.List(
-    values=("red",)
+    items=("red",)
 )
 list_[0].color = "red"
 
@@ -135,9 +135,15 @@ tabs = ui.Tabs(
         layout=table
     ),
 )
+splitter = ui.Splitter(
+    list_,
+    ui.Label("Aside")
+)
+splitter.sizes = [3, 2]
+splitter.handle_width = 1
 tabs.append(ui.Tab(
     title="List",
-    layout=list_
+    layout=splitter
 ))
 special_number = ui.Number(special_value='Off', minimum=0, maximum=7)
 def reset_special_number():
@@ -148,7 +154,7 @@ tabs.append(ui.Tab(
         layout=ui.Row(
             ui.Column(
                 ui.Label("Unbound"),
-                ui.Number(),
+                ui.Number(editing_finished=lambda: ui.show_info("Editing finished.")),
                 ui.Label("Unbound, decimals=1"),
                 ui.Number(42, decimals=1),
                 ui.Label("Unbound, decimals=3, step=.01"),
@@ -211,14 +217,39 @@ def on_quit():
 
 
 def on_preferences():
+    defaults = ["Apples", "Pears", "Nuts"]
     def on_click(button):
         if button == 'restore_defaults':
+            item_list.items = defaults
             ui.show_info("Reset to defaults.")
     def on_help():
         ui.show_info("Helpful information.")
+    def on_add():
+        item = ui.get_item(defaults)
+        if item:
+            item_list.append(item)
+    def on_remove():
+        item = item_list.current
+        item_list.remove(item)
+    def on_edit(index, item):
+        value = ui.get_text(item.value, title="Item", label="Edit item")
+        if value is not None:
+            item.value = value
     dialog = ui.Dialog(title="Preferences")
+    item_list = ui.List()
+    item_list.double_clicked = on_edit
+    add_button = ui.Button("&Add", clicked=on_add)
+    remove_button = ui.Button("&Del", clicked=on_remove)
     dialog.layout = ui.Column(
-        ui.Spacer(),
+        ui.Row(
+            item_list,
+            ui.Column(
+                add_button,
+                remove_button,
+                ui.Spacer()
+            ),
+            stretch=(1,0)
+        ),
         ui.Row(
             ui.DialogButtonBox(
                 buttons=('restore_defaults', 'close', 'help'),
@@ -229,7 +260,13 @@ def on_preferences():
             )
         )
     )
+    # Load settings
+    with ui.Settings() as settings:
+        item_list.items = settings.setdefault("items", defaults)
     dialog.run()
+    # Store settings
+    with ui.Settings() as settings:
+        settings["items"] = [item.value for item in item_list.items]
 
 window = ui.MainWindow(
     layout=tabs,
@@ -262,12 +299,20 @@ window.statusbar.append(window.progress)
 
 window.show()
 
-settings = ui.Settings()
-settings.setdefault('size', (640, 480))
-window.resize(*settings.get('size'))
-tabs.qt.setCurrentIndex(settings.get('tab', 0, int))
+with ui.Settings() as settings:
+    settings.setdefault('window/size', (640, 480))
+    window.resize(*settings.get('window/size'))
+    position = settings.setdefault('window/position', None)
+    if position:
+        window.move(*position)
+    window.maximized = settings.setdefault('window/maximized', False)
+    tabs.current_index = settings.get('tab', 0)
 
 app.run()
 
-settings['size'] = window.size
-settings['tab'] = tabs.qt.currentIndex()
+with ui.Settings() as settings:
+    if not window.maximized:
+        settings['window/size'] = window.size
+        settings['window/position'] = window.position
+    settings['window/maximized'] = window.maximized
+    settings['window/tab'] = tabs.current_index

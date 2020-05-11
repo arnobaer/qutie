@@ -12,9 +12,10 @@ class Number(BaseWidget):
     prefix_format = "{} "
     suffix_format = " {}"
 
-    def __init__(self, value=0, *, minimum=None, maximum=None, step=1,
+    def __init__(self, value=0, *, minimum=None, maximum=None, step=1.0,
                  decimals=0, prefix=None, suffix=None, readonly=False,
-                 adaptive=False, special_value=None, changed=None, **kwargs):
+                 adaptive=False, special_value=None, changed=None,
+                 editing_finished=False, **kwargs):
         super().__init__(**kwargs)
         self.minimum = -float('inf') if minimum is None else minimum
         self.maximum = float('inf') if maximum is None else maximum
@@ -33,6 +34,12 @@ class Number(BaseWidget):
             if callable(self.changed):
                 self.changed(value)
         self.qt.valueChanged.connect(changed_event)
+
+        self.editing_finished = editing_finished
+        def editing_finished_event():
+            if callable(self.editing_finished):
+                self.editing_finished()
+        self.qt.editingFinished.connect(editing_finished_event)
 
     @property
     def value(self):
@@ -136,5 +143,13 @@ class Number(BaseWidget):
         return self.__changed
 
     @changed.setter
-    def changed(self, changed):
-        self.__changed = changed
+    def changed(self, value):
+        self.__changed = value
+
+    @property
+    def editing_finished(self):
+        return self.__editing_finished
+
+    @editing_finished.setter
+    def editing_finished(self, value):
+        self.__editing_finished = value

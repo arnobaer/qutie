@@ -1,50 +1,58 @@
-from PyQt5 import QtCore
+import os
+import json
 
-from .object import Object
+from appdirs import user_config_dir
+
+from .application import Application
 
 __all__ = ['Settings']
 
-class Settings(Object):
+class Settings:
+    """Storing persistent application settings on any platform.
 
-    QtClass = QtCore.QSettings
+    >>> with Settings('HEPHY', 'comet') as settings:
+    ...    settings['app'] = {'name': 'My App', users=['Monty', 'John'])
+    ...    name = settings.get('app').get('name')
+    """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    settings_filename = 'settings.json'
+    """Filename used to store settings in JSON format."""
 
-    def get(self, key, default=None, type=None):
-        if type is not None:
-            return self.qt.value(key, default, type)
-        return self.qt.value(key, default)
+    def __init__(self, organization=None, application=None, persistent=True):
+        if organization is None:
+            organization = Application.instance().organization
+        if application is None:
+            application = Application.instance().name
+        self.__application = application
+        self.__organization = organization
+        self.__persistent = persistent
+        self.__path = user_config_dir(appname=application, appauthor=organization)
+        self.__filename = os.path.join(self.__path, self.settings_filename)
+        self.__settings = {}
 
-    def setdefault(self, key, default):
-        if key not in self.keys():
-            self[key] = default
-        return self.get(key)
+    @property
+    def organization(self):
+        return self.__organization
 
-    def keys(self):
-        return (key for key in self.qt.allKeys())
+    @property
+    def application(self):
+        return self.__application
 
-    def values(self):
-        return (self.get(key) for key in self.keys())
+    def __enter__(self):
+        """Read application settings from filesystem (if existing)."""
+        if os.path.isfile(self.__filename):
+            with open(self.__filename, 'r') as f:
+                try:
+                    self.__settings = json.load(f)
+                except json.JSONDecodeError:
+                    self.__settings = {}
+        return self.__settings
 
-    def items(self):
-        return ((key, self.get(key)) for key in self.keys())
-
-    def clear(self):
-        self.qt.clear()
-
-    def __getitem__(self, key):
-        return self.qt.value(key)
-
-    def __setitem__(self, key, value):
-        return self.qt.setValue(key, value)
-
-    def __delitem__(self, key):
-        print("DEL")
-        self.qt.remove(key)
-
-    def __iter__(self):
-        return self.keys()
-
-    def __len__(self):
-        return len(self.qt.allKeys())
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Write application settings to filesystem."""
+        if self.__persistent:
+            if not os.path.exists(self.__path):
+                os.makedirs(self.__path)
+            with open(self.__filename, 'w') as f:
+                # Can raise exception!
+                f.write(json.dumps(self.__settings))

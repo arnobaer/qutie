@@ -10,6 +10,7 @@ __all__ = ['Table']
 
 class Table(BaseWidget):
     """Table
+
     >>> table = Table(header=["Key", "Value"])
     >>> table.append(["Spam", "Eggs"])
     >>> table.insert(["Ham", "Spam"])

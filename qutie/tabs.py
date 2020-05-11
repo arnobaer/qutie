@@ -66,6 +66,17 @@ class Tabs(BaseWidget):
         self.qt.setCurrentIndex(self.indexOf(value.qt))
 
     @property
+    def current_index(self):
+        index = self.qt.currentIndex()
+        if index >= 0:
+            return index
+        return None
+
+    @current_index.setter
+    def current_index(self, value):
+        self.qt.setCurrentIndex(value)
+
+    @property
     def children(self):
         children = []
         for index in self.qt.count():
