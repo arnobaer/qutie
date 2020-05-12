@@ -5,17 +5,17 @@ from .qt import bind
 
 from .base import Base
 from .icon import Icon
-from .widget import BaseWidget
+from .list import BaseItemView
 
-__all__ = ['Table']
+__all__ = ['Table', 'TableItem']
 
 @bind(QtWidgets.QTableWidget)
-class Table(BaseWidget):
+class Table(BaseItemView):
     """Table
 
     >>> table = Table(header=["Key", "Value"])
     >>> table.append(["Spam", "Eggs"])
-    >>> table.insert(["Ham", "Spam"])
+    >>> table.insert(0, ["Ham", "Spam"])
     >>> for row in table:
     ...     for item in row:
     ...         item.color = "blue"
@@ -23,14 +23,19 @@ class Table(BaseWidget):
     """
 
     def __init__(self, rows=None, *, header=None, stretch=True, sortable=False,
-                 activated=None, changed=None, clicked=None,
-                 double_clicked=None, selected=None, **kwargs):
+                 vertical_header=False, activated=None, changed=None,
+                 clicked=None, double_clicked=None, selected=None, **kwargs):
         super().__init__(**kwargs)
+        self.qt.horizontalHeader().setHighlightSections(False)
+        self.qt.verticalHeader().setHighlightSections(False)
         self.header = header or []
         for row in rows or []:
             self.append(row)
         self.stretch = stretch
         self.sortable = sortable
+        self.vertical_header = vertical_header
+        self.selection_mode = 'single'
+        self.selection_behavior = 'rows'
         self.activated = activated
         self.changed = changed
         self.clicked = clicked
@@ -42,10 +47,6 @@ class Table(BaseWidget):
         self.qt.itemClicked.connect(self.__handle_clicked)
         self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
         self.qt.itemSelectionChanged.connect(self.__handle_selected)
-        self.qt.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.qt.horizontalHeader().setHighlightSections(False)
-        self.qt.verticalHeader().setHighlightSections(False)
-        self.vertical_header = False
 
     @property
     def header(self):
@@ -77,6 +78,42 @@ class Table(BaseWidget):
     @sortable.setter
     def sortable(self, value):
         self.qt.setSortingEnabled(value)
+
+    @property
+    def selection_behavior(self):
+        return {
+            QtWidgets.QAbstractItemView.SelectItems: 'items',
+            QtWidgets.QAbstractItemView.SelectRows: 'rows',
+            QtWidgets.QAbstractItemView.SelectColumns: 'columns'
+        }[self.qt.selectionBehavior()]
+
+    @selection_behavior.setter
+    def selection_behavior(self, value):
+        self.qt.setSelectionBehavior({
+            'items': QtWidgets.QAbstractItemView.SelectItems,
+            'rows': QtWidgets.QAbstractItemView.SelectRows,
+            'columns': QtWidgets.QAbstractItemView.SelectColumns
+        }[value])
+
+    @property
+    def selection_mode(self):
+        return {
+            QtWidgets.QAbstractItemView.SingleSelection: 'single',
+            QtWidgets.QAbstractItemView.ContiguousSelection: 'contiguous',
+            QtWidgets.QAbstractItemView.ExtendedSelection: 'extended',
+            QtWidgets.QAbstractItemView.MultiSelection: 'multi',
+            QtWidgets.QAbstractItemView.NoSelection: 'no'
+        }[self.qt.selectionMode()]
+
+    @selection_mode.setter
+    def selection_mode(self, value):
+        self.qt.setSelectionMode({
+            'single': QtWidgets.QAbstractItemView.SingleSelection,
+            'contiguous': QtWidgets.QAbstractItemView.ContiguousSelection,
+            'extended': QtWidgets.QAbstractItemView.ExtendedSelection,
+            'multi': QtWidgets.QAbstractItemView.MultiSelection,
+            'no': QtWidgets.QAbstractItemView.NoSelection
+        }[value])
 
     @property
     def activated(self):
@@ -157,7 +194,6 @@ class Table(BaseWidget):
         >>> table.append(["Spam", "Eggs"])
         """
         row = self.qt.rowCount()
-        self.qt.setRowCount(self.qt.rowCount() + 1)
         return self.insert(row, items)
 
     def insert(self, row, items):
@@ -167,6 +203,7 @@ class Table(BaseWidget):
         or
         >>> table.insert(0, ["Spam", "Eggs"])
         """
+        self.qt.insertRow(row)
         for column, item in enumerate(items):
             if not isinstance(item, TableItem):
                 item = TableItem(value=item)
@@ -174,7 +211,16 @@ class Table(BaseWidget):
             self.qt.resizeRowToContents(row)
         return self[row]
 
+    def row(self, item):
+        """Return item row."""
+        return self.qt.row(item.qt)
+
+    def column(self, item):
+        """Return item column."""
+        return self.qt.column(item.qt)
+
     def clear(self):
+        """Clear table contents."""
         self.qt.clearContents()
 
     @property
@@ -183,6 +229,7 @@ class Table(BaseWidget):
         item = self.qt.currentItem()
         if item is not None:
             return item.data(item.UserType)
+        return None
 
     @property
     def stretch(self):
@@ -198,15 +245,21 @@ class Table(BaseWidget):
     def stretch(self, value):
         self.qt.horizontalHeader().setStretchLastSection(value)
 
-    def fit(self):
-        self.qt.resizeColumnsToContents()
+    def fit(self, column=None):
+        if column is None:
+            self.qt.resizeColumnsToContents()
+        else:
+            self.qt.resizeColumnToContents(column)
         self.qt.resizeRowsToContents()
 
     def __getitem__(self, row):
         items = []
         for column in range(self.qt.columnCount()):
             item = self.qt.item(row, column)
-            items.append(item.data(item.UserType) if item is not None else item)
+            if item:
+                items.append(item.data(item.UserType))
+            else:
+                items.append(None)
         return items
 
     def __setitem__(self, row, items):

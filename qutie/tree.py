@@ -5,12 +5,12 @@ from .qt import bind
 
 from .base import Base
 from .icon import Icon
-from .widget import BaseWidget
+from .list import BaseItemView
 
 __all__ = ['Tree']
 
 @bind(QtWidgets.QTreeWidget)
-class Tree(BaseWidget):
+class Tree(BaseItemView):
     """Tree
 
     >>> tree = Tree(header=["Key", "Value"])
@@ -176,7 +176,7 @@ class Tree(BaseWidget):
             return item.data(0, item.UserType)
 
     def index(self, item):
-        return self.qt.topLevelItemIndex(item.qt)
+        return self.qt.indexOfTopLevelItem(item.qt)
 
     @property
     def stretch(self):
@@ -186,8 +186,11 @@ class Tree(BaseWidget):
     def stretch(self, value):
         self.qt.header().setStretchLastSection(value)
 
-    def fit(self):
-        for column in range(self.qt.columnCount()):
+    def fit(self, column=None):
+        if column is None:
+            for column in range(self.qt.columnCount()):
+                self.qt.resizeColumnToContents(column)
+        else:
             self.qt.resizeColumnToContents(column)
 
     def ensure_visible(self, item):
@@ -222,9 +225,9 @@ class TreeItem(Base):
         super().__init__(**kwargs)
         self.qt._default_foreground = self.qt.foreground(0)
         self.qt._default_background = self.qt.background(0)
+        self.qt.setData(0, self.qt.UserType, self)
         for column, value in enumerate(values):
-            self.qt.setData(column, self.qt.Type, value)
-            self.qt.setData(column, self.qt.UserType, self)
+            self[column].value = value
 
     @property
     def children(self):
@@ -266,8 +269,8 @@ class TreeItem(Base):
     def expanded(self, value):
         self.qt.setExpanded(value)
 
-    def __getitem__(self, index):
-        return TreeItemColumn(index, self.qt)
+    def __getitem__(self, column):
+        return TreeItemColumn(column, self.qt)
 
     def __len__(self):
         return self.qt.columnCount()

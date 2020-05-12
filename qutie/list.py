@@ -9,14 +9,41 @@ from .widget import BaseWidget
 
 __all__ = ['List', 'ListItem']
 
-@bind(QtWidgets.QListWidget)
-class List(BaseWidget):
+@bind(QtWidgets.QAbstractItemView)
+class BaseItemView(BaseWidget):
 
-    def __init__(self, items=None, *, changed=None, selected=None, clicked=None,
-                 double_clicked=None, **kwargs):
+    def __init__(self, *, icon_size=None, **kwargs):
+        super().__init__(**kwargs)
+        if icon_size is not None:
+            self.icon_size = icon_size
+
+    @property
+    def icon_size(self):
+        size = self.qt.iconSize()
+        return size.width(), size.height()
+
+    @icon_size.setter
+    def icon_size(self, value):
+        if isinstance(value, int):
+            value = value, value
+        self.qt.setIconSize(QtCore.QSize(*value))
+
+@bind(QtWidgets.QListWidget)
+class List(BaseItemView):
+
+    def __init__(self, items=None, *, view_mode=None, resize_mode=None,
+                 changed=None, selected=None, clicked=None, double_clicked=None,
+                 **kwargs):
         super().__init__(**kwargs)
         if items is not None:
             self.items = items
+        if view_mode is not None:
+            self.view_mode = view_mode
+        if resize_mode is not None:
+            self.resize_mode = resize_mode
+        # HACK: adjust default icons size
+        if 'icon_size' not in kwargs:
+            self.icon_size = 16
         self.changed = changed
         self.selected = selected
         self.clicked = clicked
@@ -36,6 +63,34 @@ class List(BaseWidget):
         self.clear()
         for item in items:
             self.append(item)
+
+    @property
+    def view_mode(self):
+        return {
+            QtWidgets.QListView.ListMode: 'list',
+            QtWidgets.QListView.IconMode: 'icon'
+        }[self.qt.viewMode()]
+
+    @view_mode.setter
+    def view_mode(self, value):
+        self.qt.setViewMode({
+            'list': QtWidgets.QListView.ListMode,
+            'icon': QtWidgets.QListView.IconMode
+        }[value])
+
+    @property
+    def resize_mode(self):
+        return {
+            QtWidgets.QListView.Fixed: 'fixed',
+            QtWidgets.QListView.Adjust: 'adjust'
+        }[self.qt.resizeMode()]
+
+    @resize_mode.setter
+    def resize_mode(self, value):
+        self.qt.setResizeMode({
+            'fixed': QtWidgets.QListView.Fixed,
+            'adjust': QtWidgets.QListView.Adjust
+        }[value])
 
     @property
     def current(self):
