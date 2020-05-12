@@ -38,6 +38,10 @@ class Settings:
     def application(self):
         return self.__application
 
+    @property
+    def filename(self):
+        return self.__filename
+
     def __enter__(self):
         """Read application settings from filesystem (if existing)."""
         if os.path.isfile(self.__filename):

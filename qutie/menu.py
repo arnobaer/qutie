@@ -1,14 +1,14 @@
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
 from .action import Action
 from .widget import BaseWidget
 
 __all__ = ['Menu']
 
+@bind(QtWidgets.QMenu)
 class Menu(BaseWidget):
-
-    QtClass = QtWidgets.QMenu
 
     def __init__(self, *items, text=None, **kwargs):
         super().__init__(**kwargs)
@@ -58,12 +58,15 @@ class Menu(BaseWidget):
             raise ValueError(item)
         return item
 
+    def index(self, item):
+        return self.qt.actions().index(item)
+
     def __getitem__(self, index):
         item = self.qt.actions()[index]
-        return item.property(self.QtProperty)
+        return item.property(self.QtPropertyKey)
 
     def __iter__(self):
-        return iter(item.property(self.QtProperty) for item in self.qt.actions())
+        return iter(item.property(self.QtPropertyKey) for item in self.qt.actions())
 
     def __len__(self):
         return len(self.qt.actions())

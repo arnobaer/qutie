@@ -1,13 +1,13 @@
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtWidgets
+from .qt import bind
 
 from .widget import BaseWidget
 
 __all__ = ['Text']
 
+@bind(QtWidgets.QLineEdit)
 class Text(BaseWidget):
-
-    QtClass = QtWidgets.QLineEdit
 
     def __init__(self, value=None, *, readonly=False, clearable=False,
                  changed=None, editing_finished=None, **kwargs):
@@ -16,18 +16,11 @@ class Text(BaseWidget):
         self.clearable = clearable
         if value is not None:
             self.value = value
-
         self.changed = changed
-        def changed_event(text):
-            if callable(self.changed):
-                self.changed(text)
-        self.qt.textChanged.connect(changed_event)
-
         self.editing_finished = editing_finished
-        def editing_finished_event():
-            if callable(self.editing_finished):
-                self.editing_finished()
-        self.qt.editingFinished.connect(editing_finished_event)
+        # Connect signals
+        self.qt.textChanged.connect(self.__handle_changed)
+        self.qt.editingFinished.connect(self.__handle_editing_finished)
 
     @property
     def value(self):
@@ -61,6 +54,10 @@ class Text(BaseWidget):
     def changed(self, value):
         self.__changed = value
 
+    def __handle_changed(self, text):
+        if callable(self.changed):
+            self.changed(text)
+
     @property
     def editing_finished(self):
         return self.__editing_finished
@@ -68,6 +65,10 @@ class Text(BaseWidget):
     @editing_finished.setter
     def editing_finished(self, value):
         self.__editing_finished = value
+
+    def __handle_editing_finished(self):
+        if callable(self.editing_finished):
+            self.editing_finished()
 
     def clear(self):
         self.qt.clear()

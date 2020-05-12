@@ -1,18 +1,15 @@
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
-from .object import EventMixin
 from .base import Base
 from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['Tree']
 
-class QTreeWidget(QtWidgets.QTreeWidget, EventMixin):
-
-    pass
-
+@bind(QtWidgets.QTreeWidget)
 class Tree(BaseWidget):
     """Tree
 
@@ -26,57 +23,27 @@ class Tree(BaseWidget):
     >>> tree.clear()
     """
 
-    QtClass = QTreeWidget
-
-    def __init__(self, header=None, sortable=False, indentation=None,
+    def __init__(self, items=None, *, header=None, sortable=False, indentation=None,
                  activated=None, changed=None, clicked=None,
                  double_clicked=None, selected=None, **kwargs):
         super().__init__(**kwargs)
+        if items is not None:
+            self.items = items
         self.header = header or []
         self.sortable = sortable
         if indentation is not None:
             self.indentation = indentation
-
         self.activated = activated
-        def activated_event(item, index):
-            if callable(self.activated):
-                data = item.data(0, item.UserType)
-                if data is not None:
-                    self.activated(index, data)
-        self.qt.itemActivated.connect(activated_event)
-
         self.changed = changed
-        def changed_event(item, index):
-            if callable(self.changed):
-                data = item.data(0, item.UserType)
-                if data is not None:
-                    self.changed(index, data)
-        self.qt.itemChanged.connect(changed_event)
-
         self.clicked = clicked
-        def clicked_event(item, index):
-            if callable(self.clicked):
-                data = item.data(0, item.UserType)
-                if data is not None:
-                    self.clicked(index, data)
-        self.qt.itemClicked.connect(clicked_event)
-
         self.double_clicked = double_clicked
-        def double_clicked_event(item, index):
-            if callable(self.double_clicked):
-                data = item.data(0, item.UserType)
-                if data is not None:
-                    self.double_clicked(index, data)
-        self.qt.itemDoubleClicked.connect(double_clicked_event)
-
         self.selected = selected
-        def selected_event():
-            if callable(self.selected):
-                items = self.qt.selectedItems()
-                if items:
-                    first = items[0].data(0, items[0].UserType)
-                    self.selected(first)
-        self.qt.itemSelectionChanged.connect(selected_event)
+        # Connect signals
+        self.qt.itemActivated.connect(self.__handle_activated)
+        self.qt.itemChanged.connect(self.__handle_changed)
+        self.qt.itemClicked.connect(self.__handle_clicked)
+        self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
+        self.qt.itemSelectionChanged.connect(self.__handle_selected)
 
     @property
     def header(self):
@@ -93,7 +60,7 @@ class Tree(BaseWidget):
 
     @sortable.setter
     def sortable(self, value):
-        return self.qt.setSortingEnabled(value)
+        self.qt.setSortingEnabled(value)
 
     @property
     def indentation(self):
@@ -101,7 +68,78 @@ class Tree(BaseWidget):
 
     @indentation.setter
     def indentation(self, value):
-        return self.qt.setIndentation(value)
+        self.qt.setIndentation(value)
+
+    @property
+    def activated(self):
+        return self.__activated
+
+    @activated.setter
+    def activated(self, value):
+        self.__activated = value
+
+    def __handle_activated(self, item, index):
+        if callable(self.activated):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.activated(index, data)
+
+    @property
+    def changed(self):
+        return self.__changed
+
+    @changed.setter
+    def changed(self, value):
+        self.__changed = value
+
+    def __handle_changed(self, item, index):
+        if callable(self.changed):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.changed(index, data)
+
+    @property
+    def clicked(self):
+        return self.__clicked
+
+    @clicked.setter
+    def clicked(self, value):
+        self.__clicked = value
+
+    def __handle_clicked(self, item, index):
+        if callable(self.clicked):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.clicked(index, data)
+
+    @property
+    def double_clicked(self):
+        return self.__double_clicked
+
+    @double_clicked.setter
+    def double_clicked(self, value):
+        self.__double_clicked = value
+
+    def __handle_double_clicked(self, item, index):
+        if callable(self.double_clicked):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.double_clicked(index, data)
+
+    @property
+    def selected(self):
+        return self.__selected
+
+    @selected.setter
+    def selected(self, value):
+        self.__selected = value
+
+    def __handle_selected(self):
+        if callable(self.selected):
+            items = self.qt.selectedItems()
+            if items:
+                first = items[0].data(0, items[0].UserType)
+                self.selected(first)
 
     def append(self, item):
         """Append item or item labels, returns appended item.
@@ -136,6 +174,9 @@ class Tree(BaseWidget):
         item = self.qt.currentItem()
         if item is not None:
             return item.data(0, item.UserType)
+
+    def index(self, item):
+        return self.qt.topLevelItemIndex(item.qt)
 
     @property
     def stretch(self):
@@ -174,9 +215,8 @@ class Tree(BaseWidget):
             items.append(self[index])
         return iter(items)
 
+@bind(QtWidgets.QTreeWidgetItem)
 class TreeItem(Base):
-
-    QtClass = QtWidgets.QTreeWidgetItem
 
     def __init__(self, values, **kwargs):
         super().__init__(**kwargs)

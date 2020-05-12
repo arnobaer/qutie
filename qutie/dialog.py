@@ -1,7 +1,10 @@
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtWidgets
+from .qt import bind
 
-from .widget import BaseWidget, Widget
+from .widget import BaseWidget
+from .widget import Widget
+from .mixins import OrientationMixin
 
 __all__ = [
     'Dialog',
@@ -15,9 +18,8 @@ __all__ = [
     'get_item'
 ]
 
+@bind(QtWidgets.QDialog)
 class Dialog(Widget):
-
-    QtClass = QtWidgets.QDialog
 
     def __init__(self, *, accepted=None, rejected=None, **kwargs):
         super().__init__(**kwargs)
@@ -46,9 +48,9 @@ class Dialog(Widget):
             self.qt.Rejected: False
         }[self.qt.exec_()]
 
-class DialogButtonBox(BaseWidget):
+@bind(QtWidgets.QDialogButtonBox)
+class DialogButtonBox(BaseWidget, OrientationMixin):
 
-    QtClass = QtWidgets.QDialogButtonBox
     QtStandardButtons = {
         'ok': QtWidgets.QDialogButtonBox.Ok,
         'open': QtWidgets.QDialogButtonBox.Open,
@@ -77,34 +79,15 @@ class DialogButtonBox(BaseWidget):
             self.buttons = buttons
         if orientation is not None:
             self.orientation = orientation
-
         self.accepted = accepted
-        def accepted_event():
-            if callable(self.accepted):
-                self.accepted()
-        self.qt.accepted.connect(accepted_event)
-
         self.rejected = rejected
-        def rejected_event():
-            if callable(self.rejected):
-                self.rejected()
-        self.qt.rejected.connect(rejected_event)
-
         self.clicked = clicked
-        def clicked_event(button):
-            if callable(self.clicked):
-                button = self.qt.standardButton(button)
-                for key, value in self.QtStandardButtons.items():
-                    if button == value:
-                        self.clicked(key)
-                        break
-        self.qt.clicked.connect(clicked_event)
-
         self.help_requested = help_requested
-        def help_requested_event():
-            if callable(self.help_requested):
-                self.help_requested()
-        self.qt.helpRequested.connect(help_requested_event)
+        # Connect signals
+        self.qt.accepted.connect(self.__handle_accepted)
+        self.qt.rejected.connect(self.__handle_rejected)
+        self.qt.clicked.connect(self.__handle_clicked)
+        self.qt.helpRequested.connect(self.__handle_help_requested)
 
     @property
     def buttons(self):
@@ -123,18 +106,56 @@ class DialogButtonBox(BaseWidget):
         self.qt.setStandardButtons(buttons)
 
     @property
-    def orientation(self):
-        return {
-            QtCore.Qt.Horizontal: 'horizontal',
-            QtCore.Qt.Vertical: 'vertical'
-        }[self.qt.orientation()]
+    def accepted(self):
+        return self.__accepted
 
-    @orientation.setter
-    def orientation(self, value):
-        self.qt.setOrientation({
-            'horizontal': QtCore.Qt.Horizontal,
-            'vertical': QtCore.Qt.Vertical
-        }[value])
+    @accepted.setter
+    def accepted(self, value):
+        self.__accepted = value
+
+    def __handle_accepted(self):
+        if callable(self.accepted):
+            self.accepted()
+
+    @property
+    def rejected(self):
+        return self.__rejected
+
+    @rejected.setter
+    def rejected(self, value):
+        self.__rejected = value
+
+    def __handle_rejected(self):
+        if callable(self.rejected):
+            self.rejected()
+
+    @property
+    def clicked(self):
+        return self.__clicked
+
+    @clicked.setter
+    def clicked(self, value):
+        self.__clicked = value
+
+    def __handle_clicked(self, button):
+        if callable(self.clicked):
+            button = self.qt.standardButton(button)
+            for key, value in self.QtStandardButtons.items():
+                if button == value:
+                    self.clicked(key)
+                    break
+
+    @property
+    def help_requested(self):
+        return self.__help_requested
+
+    @help_requested.setter
+    def help_requested(self, value):
+        self.__help_requested = value
+
+    def __handle_help_requested(self):
+        if callable(self.help_requested):
+            self.help_requested()
 
 def filename_open(path=None, *, filter=None, title=None):
     """Shows a filename selection dialog, returns selected filename path.
@@ -142,7 +163,9 @@ def filename_open(path=None, *, filter=None, title=None):
     >>> filename_open("/home/user", filter="Text (*.txt)")
     '/home/user/example.txt'
     """
-    return QtWidgets.QFileDialog.getOpenFileName(None, title or "Open file", path, filter)[0] or None
+    if title is None:
+        title = "Open file"
+    return QtWidgets.QFileDialog.getOpenFileName(None, title, path, filter)[0] or None
 
 def filenames_open(path=None, *, filter=None, title=None):
     """Shows a multiple filenames selection dialog, returns list of selected
@@ -151,7 +174,9 @@ def filenames_open(path=None, *, filter=None, title=None):
     >>> filename_open("/home/user", filter="Text (*.txt)")
     ['/home/user/example.txt', '/home/user/another.txt']
     """
-    return QtWidgets.QFileDialog.getOpenFileNames(None, title or "Open files", path, filter)[0] or None
+    if title is None:
+        title = "Open files"
+    return QtWidgets.QFileDialog.getOpenFileNames(None, title, path, filter)[0] or None
 
 def directory_open(path=None, *, title=None):
     """Shows a multiple filenames selection dialog, returns selected directory
@@ -168,7 +193,9 @@ def filename_save(path=None, *, filter=None, title=None):
     >>> filename_save("/home/user/example.txt", filter="Text (*.txt)")
     '/home/user/other.txt'
     """
-    return QtWidgets.QFileDialog.getSaveFileName(None, title or "Save file", path, filter)[0] or None
+    if title is None:
+        title = "Save file"
+    return QtWidgets.QFileDialog.getSaveFileName(None, title, path, filter)[0] or None
 
 def get_number(value=0, *, minimum=None, maximum=None, decimals=0, title=None, label=None):
     """Number input dialog, optionally editable.

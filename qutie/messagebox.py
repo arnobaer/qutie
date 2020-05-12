@@ -1,5 +1,8 @@
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+import traceback
+
+from .qt import QtCore
+from .qt import QtWidgets
+from .qt import bind
 
 from .widget import BaseWidget
 
@@ -12,10 +15,10 @@ __all__ = [
     'show_question'
 ]
 
+@bind(QtWidgets.QMessageBox)
 class MessageBox(BaseWidget):
     """Message box dialog."""
 
-    QtClass = QtWidgets.QMessageBox
     QtIcons = {
         'information': QtWidgets.QMessageBox.Information,
         'warning': QtWidgets.QMessageBox.Warning,
@@ -46,7 +49,6 @@ class MessageBox(BaseWidget):
     def __init__(self, *, icon=None, title=None, text=None, details=None,
                  informative=None, buttons=None, width=None, **kwargs):
         super().__init__(**kwargs)
-        self._spacer_item = QtWidgets.QSpacerItem(420, 0)
         if icon is not None:
             self.icon = icon
         if title is not None:

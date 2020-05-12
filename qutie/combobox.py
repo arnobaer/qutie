@@ -1,41 +1,36 @@
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
 from .base import Base
 from .widget import BaseWidget
 
-__all__ = ['Select']
+__all__ = ['ComboBox']
 
-class Select(BaseWidget):
+@bind(QtWidgets.QComboBox)
+class ComboBox(BaseWidget):
 
-    QtClass = QtWidgets.QComboBox
-
-    def __init__(self, values=None, current=None, editable=False, changed=None, **kwargs):
+    def __init__(self, items=None, *, current=None, editable=False,
+                 changed=None, **kwargs):
         super().__init__(**kwargs)
-        if values is not None:
-            self.values = values
-        if values and current is None:
-            current = values[0]
+        if items is not None:
+            self.items = items
         self.current = current
         self.editable = editable
-
         self.changed = changed
-        def changed_event(index):
-            if callable(self.changed):
-                value = self.values[index]
-                self.changed(value)
-        self.qt.currentIndexChanged.connect(changed_event)
+        # Connect signals
+        self.qt.currentIndexChanged.connect(self.__handle_changed)
 
     @property
-    def values(self):
-        return [self.qt.itemData(index) for index in range(self.qt.count())]
+    def items(self):
+        return list(self)
 
-    @values.setter
-    def values(self, values):
+    @items.setter
+    def items(self, items):
         self.clear()
-        for value in values:
-            self.append(value)
+        for item in items:
+            self.append(item)
 
     def clear(self):
         self.qt.clear()
@@ -56,20 +51,15 @@ class Select(BaseWidget):
         return self.qt.itemData(self.qt.currentIndex())
 
     @current.setter
-    def current(self, value):
-        index = self.qt.findData(value)
+    def current(self, item):
+        index = self.qt.findData(item)
         self.qt.setCurrentIndex(index)
 
-    @property
-    def current_index(self):
-        index = self.qt.currentIndex()
-        if index >= 0:
-            return index
-        return None
-
-    @current_index.setter
-    def current_index(self, value):
-        self.qt.setCurrentIndex(value)
+    def index(self, item):
+        index = self.qt.findData(item)
+        if index < 0:
+            raise ValueError("item not in list")
+        return index
 
     @property
     def editable(self):
@@ -87,6 +77,11 @@ class Select(BaseWidget):
     def changed(self, changed):
         self.__changed = changed
 
+    def __handle_changed(self, index):
+        if callable(self.changed):
+            value = self.items[index]
+            self.changed(value)
+
     def __len__(self):
         return self.qt.count()
 
@@ -98,4 +93,4 @@ class Select(BaseWidget):
         self.qt.setItemData(index, value)
 
     def __iter__(self):
-        return (self.qt.itemData(index) for index in range(len(self)))
+        return (self[row] for row in range(len(self)))

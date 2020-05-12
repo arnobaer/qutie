@@ -2,8 +2,10 @@ from .action import *
 from .application import *
 from .button import *
 from .checkbox import *
+from .combobox import *
 from .dialog import *
-from .fieldset import *
+from .frame import *
+from .groupbox import *
 from .icon import *
 from .label import *
 from .layout import *
@@ -16,7 +18,6 @@ from .object import *
 from .pixmap import *
 from .progressbar import *
 from .scrollarea import *
-from .select import *
 from .settings import *
 from .splitter import *
 from .table import *
@@ -25,5 +26,6 @@ from .text import *
 from .textarea import *
 from .tree import *
 from .widget import *
+from .worker import *
 
 __version__ = '1.0.0'

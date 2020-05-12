@@ -1,6 +1,6 @@
-from PyQt5 import QtWidgets
+from .qt import QtWidgets
+from .qt import bind
 
-from .object import EventMixin
 from .icon import Icon
 from .object import Object
 
@@ -8,18 +8,14 @@ __all__ = [
     'Widget',
 ]
 
-class QWidget(QtWidgets.QWidget, EventMixin):
-
-    pass
-
+@bind(QtWidgets.QWidget)
 class BaseWidget(Object):
     """Base widget for components without layout."""
 
-    QtClass = QWidget
-
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
-                 visible=None, stylesheet=None, icon=None, tooltip=None,
-                 tooltip_duration=None, close_event=None, **kwargs):
+                 visible=None, status_tip=None, stylesheet=None, icon=None,
+                 tool_tip=None, tool_tip_duration=None, close_event=None,
+                 **kwargs):
         super().__init__(**kwargs)
         if title is not None:
             self.title = title
@@ -31,24 +27,19 @@ class BaseWidget(Object):
             self.visible = visible
         if enabled is not None:
             self.enabled = enabled
+        if status_tip is not None:
+            self.status_tip = status_tip
         if stylesheet is not None:
             self.stylesheet = stylesheet
         if icon is not None:
             self.icon = icon
-        if tooltip is not None:
-            self.tooltip = tooltip
-        if tooltip_duration is not None:
-            self.tooltip_duration = tooltip_duration
-
-        # Overwrite slot closeEvent
+        if tool_tip is not None:
+            self.tool_tip = tool_tip
+        if tool_tip_duration is not None:
+            self.tool_tip_duration = tool_tip_duration
         self.close_event = close_event
-        def closeEvent(event):
-            if callable(self.close_event):
-                if self.close_event() == False:
-                    event.ignore()
-                    return
-            super(type(self.qt), self.qt).closeEvent(event)
-        self.qt.closeEvent = closeEvent
+        # Connect signals
+        self.qt.closeEvent = self.__handle_close_event
 
     @property
     def title(self):
@@ -145,7 +136,6 @@ class BaseWidget(Object):
     def position(self):
         return self.qt.x(), self.qt.y()
 
-
     @property
     def minimized(self):
         return self.qt.isMinimized()
@@ -178,11 +168,19 @@ class BaseWidget(Object):
 
     @property
     def visible(self):
-        return self.qt.visible()
+        return self.qt.isVisible()
 
     @visible.setter
     def visible(self, value):
         self.qt.setVisible(value)
+
+    @property
+    def status_tip(self):
+        return self.qt.statusTip()
+
+    @status_tip.setter
+    def status_tip(self, value):
+        self.qt.setStatusTip(value)
 
     @property
     def stylesheet(self):
@@ -209,20 +207,20 @@ class BaseWidget(Object):
             self.qt.setWindowIcon(value.qt)
 
     @property
-    def tooltip(self):
+    def tool_tip(self):
         return self.qt.toolTip()
 
-    @tooltip.setter
-    def tooltip(self, value):
+    @tool_tip.setter
+    def tool_tip(self, value):
         self.qt.setToolTip(value)
 
     @property
-    def tooltip_duration(self):
+    def tool_tip_duration(self):
         """Tooltip duration in seconds. Minimum duration is 1 millisecond."""
         return self.qt.toolTipDuration() / 1000.
 
-    @tooltip_duration.setter
-    def tooltip_duration(self, value):
+    @tool_tip_duration.setter
+    def tool_tip_duration(self, value):
         self.qt.setToolTipDuration(value * 1000.)
 
     def close(self):
@@ -243,6 +241,14 @@ class BaseWidget(Object):
     def move(self, x, y):
         self.qt.move(x, y)
 
+    def __handle_close_event(self, event):
+        # Overwrite slot closeEvent
+        if callable(self.close_event):
+            if self.close_event() == False:
+                event.ignore()
+                return
+        super(type(self.qt), self.qt).closeEvent(event)
+
 class Widget(BaseWidget):
     """Widget for components with layout."""
 
@@ -259,7 +265,7 @@ class Widget(BaseWidget):
         layout = self.qt.layout()
         if layout is not None:
             if layout.count():
-                return layout.itemAt(0).widget().property(self.QtProperty)
+                return layout.itemAt(0).widget().reflection()
         return None
 
     @layout.setter

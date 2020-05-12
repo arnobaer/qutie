@@ -197,11 +197,11 @@ tabs.append(ui.Tab(
     layout=ui.Row(
         ui.Column(
             ui.Label("Select, current='red'"),
-            ui.Select(["green", "red", "blue"], current="red"),
+            ui.ComboBox(["green", "red", "blue"], current="red"),
             ui.Label("Select, readonly=False"),
-            ui.Select(["spam", 42, 4.2, True], current=42, changed=lambda item: ui.show_info(f"Selected: {item} ({type(item).__name__})")),
+            ui.ComboBox(["spam", 42, 4.2, True], current=42, changed=lambda item: ui.show_info(f"Selected: {item} ({type(item).__name__})")),
             ui.Label("Select, editable=True"),
-            ui.Select(["green", "red", "blue"], editable=True),
+            ui.ComboBox(["green", "red", "blue"], editable=True),
             ui.Spacer()
         ),
         ui.Spacer(),
@@ -271,8 +271,7 @@ def on_preferences():
         settings["items"] = [item.value for item in item_list.items]
 
 window = ui.MainWindow(
-    layout=tabs,
-    close_event=lambda: ui.show_question("Quit application?")
+    layout=tabs
 )
 
 edit_menu = window.menubar.append("&Edit")
@@ -291,7 +290,7 @@ abc_menu = edit_menu.append(ui.Menu(
 file_menu = window.menubar.insert(edit_menu, "&File")
 file_menu.append(ui.Action(
     text="&Quit",
-    statustip="Quit application",
+    status_tip="Quit application",
     shortcut="Ctrl+Q",
     triggered=on_quit
 ))
@@ -299,7 +298,53 @@ file_menu.append(ui.Action(
 window.progress = ui.ProgressBar(0, minimum=0, maximum=len(tabs))
 window.statusbar.append(window.progress)
 
+window.progress2 = ui.ProgressBar(0, minimum=0, maximum=100)
+window.statusbar.append(window.progress2)
+
+window.message = ui.Label()
+window.statusbar.append(window.message)
+
+
 window.show()
+
+def on_run(worker):
+    import random
+    import time
+    import logging
+    value = 0.0
+    logging.info("worker:started")
+    while not worker.stopping:
+        worker.emit('progress', value)
+        worker.emit('message', f"about {value:.1f} %")
+        value += random.random()
+        time.sleep(random.random())
+        if value >= 100.0:
+            value = 0.0
+    logging.info("worker:finished")
+
+def on_finished():
+    print("DONE")
+    ui.show_info("Worker finished.")
+
+def on_failed(e):
+    ui.show_exception(e)
+
+worker = ui.Worker(target=on_run, finished=on_finished, failed=on_failed)
+def on_progress(value):
+    window.progress2.value = value
+worker.progress = on_progress
+def on_message(text):
+    window.message.text = text
+worker.message = on_message
+worker.start()
+
+def on_window_close():
+    result = ui.show_question("Quit application?")
+    if result:
+        worker.stop()
+        worker.join()
+    return result
+window.close_event = on_window_close
 
 with ui.Settings() as settings:
     settings.setdefault('window/size', (640, 480))
@@ -308,7 +353,7 @@ with ui.Settings() as settings:
     if position:
         window.move(*position)
     window.maximized = settings.setdefault('window/maximized', False)
-    tabs.current_index = settings.get('tab', 0)
+    tabs.current = tabs[settings.get('window/tab', 0)]
 
 w = ui.Widget(title="Window")
 def show_alert(message):
@@ -318,10 +363,11 @@ w.layout = ui.Button("Trigger Alert", clicked=lambda: w.emit('alert', random.cho
 w.show()
 
 app.run()
-
+worker.stop()
 with ui.Settings() as settings:
     if not window.maximized:
         settings['window/size'] = window.size
         settings['window/position'] = window.position
     settings['window/maximized'] = window.maximized
-    settings['window/tab'] = tabs.current_index
+    settings['window/tab'] = tabs.index(tabs.current)
+worker.join()

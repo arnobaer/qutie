@@ -1,18 +1,15 @@
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
-from .object import EventMixin
 from .base import Base
 from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['Table']
 
-class QTableWidget(QtWidgets.QTableWidget, EventMixin):
-
-    pass
-
+@bind(QtWidgets.QTableWidget)
 class Table(BaseWidget):
     """Table
 
@@ -25,9 +22,7 @@ class Table(BaseWidget):
     >>> table.clear()
     """
 
-    QtClass = QTableWidget
-
-    def __init__(self, header=None, rows=None, stretch=True, sortable=False,
+    def __init__(self, rows=None, *, header=None, stretch=True, sortable=False,
                  activated=None, changed=None, clicked=None,
                  double_clicked=None, selected=None, **kwargs):
         super().__init__(**kwargs)
@@ -37,47 +32,16 @@ class Table(BaseWidget):
         self.stretch = stretch
         self.sortable = sortable
         self.activated = activated
-        def activated_event():
-            if callable(self.activated):
-                if callable(self.activated):
-                    data = item.data(item.UserType)
-                    if data is not None:
-                        self.activated(data)
-        self.qt.itemActivated.connect(activated_event)
-
         self.changed = changed
-        def changed_event(item):
-            if callable(self.changed):
-                data = item.data(item.UserType)
-                if data is not None:
-                    self.changed(data)
-        self.qt.itemChanged.connect(changed_event)
-
         self.clicked = clicked
-        def clicked_event(item):
-            if callable(self.clicked):
-                data = item.data(item.UserType)
-                if data is not None:
-                    self.clicked(data)
-        self.qt.itemClicked.connect(clicked_event)
-
         self.double_clicked = double_clicked
-        def double_clicked_event(item):
-            if callable(self.double_clicked):
-                data = item.data(item.UserType)
-                if data is not None:
-                    self.double_clicked(data)
-        self.qt.itemDoubleClicked.connect(double_clicked_event)
-
         self.selected = selected
-        def selected_event():
-            if callable(self.selected):
-                data = self.qt.selectedItems()
-                if data:
-                    first = data[0].data(data[0].UserType)
-                    self.selected(first)
-        self.qt.itemSelectionChanged.connect(selected_event)
-
+        # Connect signals
+        self.qt.itemActivated.connect(self.__handle_activated)
+        self.qt.itemChanged.connect(self.__handle_changed)
+        self.qt.itemClicked.connect(self.__handle_clicked)
+        self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
+        self.qt.itemSelectionChanged.connect(self.__handle_selected)
         self.qt.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.qt.horizontalHeader().setHighlightSections(False)
         self.qt.verticalHeader().setHighlightSections(False)
@@ -112,7 +76,78 @@ class Table(BaseWidget):
 
     @sortable.setter
     def sortable(self, value):
-        return self.qt.setSortingEnabled(value)
+        self.qt.setSortingEnabled(value)
+
+    @property
+    def activated(self):
+        return self.__activated
+
+    @activated.setter
+    def activated(self, value):
+        self.__activated = value
+
+    def __handle_activated(self):
+        if callable(self.activated):
+            data = item.data(item.UserType)
+            if data is not None:
+                self.activated(data)
+
+    @property
+    def changed(self):
+        return self.__changed
+
+    @changed.setter
+    def changed(self, value):
+        self.__changed = value
+
+    def __handle_changed(self, item):
+        if callable(self.changed):
+            data = item.data(item.UserType)
+            if data is not None:
+                self.changed(data)
+
+    @property
+    def clicked(self):
+        return self.__clicked
+
+    @clicked.setter
+    def clicked(self, value):
+        self.__clicked = value
+
+    def __handle_clicked(self, item):
+        if callable(self.clicked):
+            data = item.data(item.UserType)
+            if data is not None:
+                self.clicked(data)
+
+    @property
+    def double_clicked(self):
+        return self.__double_clicked
+
+    @double_clicked.setter
+    def double_clicked(self, value):
+        self.__double_clicked = value
+
+    def __handle_double_clicked(self, item):
+        if callable(self.double_clicked):
+            data = item.data(item.UserType)
+            if data is not None:
+                self.double_clicked(data)
+
+    @property
+    def selected(self):
+        return self.__selected
+
+    @selected.setter
+    def selected(self, value):
+        self.__selected = value
+
+    def __handle_selected(self):
+        if callable(self.selected):
+            data = self.qt.selectedItems()
+            if data:
+                first = data[0].data(data[0].UserType)
+                self.selected(first)
 
     def append(self, items):
         """Append items, returns appended items.
@@ -186,16 +221,12 @@ class Table(BaseWidget):
         return self.qt.rowCount()
 
     def __iter__(self):
-        rows = []
-        for row in range(self.qt.rowCount()):
-            rows.append(self[row])
-        return iter(rows)
+        return (self[row] for row in range(len(self)))
 
+@bind(QtWidgets.QTableWidgetItem)
 class TableItem(Base):
 
-    QtClass = QtWidgets.QTableWidgetItem
-
-    def __init__(self, value=None, color=None, background=None, icon=None,
+    def __init__(self, value=None, *, color=None, background=None, icon=None,
                  enabled=True, readonly=True, checked=None, checkable=None,
                  **kwargs):
         super().__init__(**kwargs)

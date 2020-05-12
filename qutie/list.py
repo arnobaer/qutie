@@ -1,47 +1,31 @@
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
 from .base import Base
 from .icon import Icon
 from .widget import BaseWidget
 
-__all__ = ['List']
+__all__ = ['List', 'ListItem']
 
+@bind(QtWidgets.QListWidget)
 class List(BaseWidget):
 
-    QtClass = QtWidgets.QListWidget
-
-    def __init__(self, items=None, *, changed=None, clicked=None,
+    def __init__(self, items=None, *, changed=None, selected=None, clicked=None,
                  double_clicked=None, **kwargs):
         super().__init__(**kwargs)
         if items is not None:
             self.items = items
-
         self.changed = changed
-        def changed_event(index):
-            if callable(self.changed):
-                value = self.values[index]
-                self.changed(value, index)
-        self.qt.currentRowChanged[int].connect(changed_event)
-
+        self.selected = selected
         self.clicked = clicked
-        def clicked_event(item):
-            if callable(self.clicked):
-                data = item.data(ListItem.QtPropertyRole)
-                if data is not None:
-                    index = self.qt.row(item)
-                    self.clicked(index, data)
-        self.qt.itemClicked.connect(clicked_event)
-
         self.double_clicked = double_clicked
-        def double_clicked_event(item):
-            if callable(self.double_clicked):
-                data = item.data(ListItem.QtPropertyRole)
-                if data is not None:
-                    index = self.qt.row(item)
-                    self.double_clicked(index, data)
-        self.qt.itemDoubleClicked.connect(double_clicked_event)
+        # Connect signals
+        self.qt.currentItemChanged.connect(self.__handle_changed)
+        self.qt.currentRowChanged[int].connect(self.__handle_selected)
+        self.qt.itemClicked.connect(self.__handle_clicked)
+        self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
 
     @property
     def items(self):
@@ -67,16 +51,11 @@ class List(BaseWidget):
             raise IndexError(item)
         self.qt.setCurrentItem(item.qt)
 
-    @property
-    def current_index(self):
-        index = self.qt.currentIndex()
-        if index >= 0:
-            return index
-        return None
-
-    @current_index.setter
-    def current_index(self, value):
-        self.qt.setCurrentIndex(value)
+    def index(self, item):
+        index = self.qt.row(item.qt)
+        if index < 0:
+            raise ValueError("item not in list")
+        return index
 
     def clear(self):
         self.qt.clear()
@@ -102,13 +81,65 @@ class List(BaseWidget):
                 raise IndexError(item)
             self.qt.takeItem(index)
 
+    def ensure_visible(self, item):
+        self.qt.scrollToItem(item.qt)
+
     @property
     def changed(self):
         return self.__changed
 
     @changed.setter
-    def changed(self, changed):
-        self.__changed = changed
+    def changed(self, value):
+        self.__changed = value
+
+    def __handle_changed(self, current, previous):
+        if callable(self.changed):
+            index = self.qt.row(current)
+            item = self[index]
+            self.changed(item.value, index)
+
+    @property
+    def selected(self):
+        return self.__selected
+
+    @selected.setter
+    def selected(self, value):
+        self.__selected = value
+
+    def __handle_selected(self, index):
+        if callable(self.selected):
+            value = self[index]
+            self.selected(value, index)
+
+    @property
+    def clicked(self):
+        return self.__clicked
+
+    @clicked.setter
+    def clicked(self, value):
+        self.__clicked = value
+
+    def __handle_clicked(self, item):
+        if callable(self.clicked):
+            data = item.data(ListItem.QtPropertyRole)
+            if data is not None:
+                index = self.qt.row(item)
+                self.clicked(index, data)
+
+    @property
+    def double_clicked(self):
+        return self.__double_clicked
+
+    @double_clicked.setter
+    def double_clicked(self, value):
+        self.__double_clicked = value
+
+    def __handle_double_clicked(self, item):
+        if callable(self.double_clicked):
+            data = item.data(ListItem.QtPropertyRole)
+            if data is not None:
+                index = self.qt.row(item)
+                self.double_clicked(index, data)
 
     def __len__(self):
         return self.qt.count()
@@ -131,7 +162,7 @@ class ListItem(Base):
 
     QtClass = QtWidgets.QListWidgetItem
 
-    QtPropertyRole = QtCore.Qt.UserRole + 1
+    QtPropertyRole = 0x8000
 
     def __init__(self, value, *, color=None, background=None, icon=None,
                  enabled=True, checked=None, checkable=False, **kwargs):

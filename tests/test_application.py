@@ -1,17 +1,19 @@
 import unittest
 
 from qutie import Application
+from . import QutieTestCase
 
-class ApplicationTest(unittest.TestCase):
+class ApplicationTest(QutieTestCase):
 
-    def setUp(self):
-        self.app = Application.instance() or Application(name='unittest')
-
-    def testEmpty(self):
-        self.assertEqual(self.app.name, 'unittest')
-        self.assertEqual(self.app.version, '')
-        self.assertEqual(self.app.organization, '')
-        self.assertEqual(self.app.domain, '')
+    def testAttr(self):
+        context = Application.instance()
+        self.assertEqual(context.name, 'unittest')
+        self.app.version = '1.2.3'
+        self.assertEqual(context.version, '1.2.3')
+        self.app.organization = 'HEPHY'
+        self.assertEqual(context.organization, 'HEPHY')
+        self.app.domain = 'hephy.at'
+        self.assertEqual(context.domain, 'hephy.at')
 
 if __name__ == '__main__':
     unittest.main()

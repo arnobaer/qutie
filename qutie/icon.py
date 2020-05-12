@@ -1,10 +1,12 @@
-from PyQt5 import QtGui
+from .qt import QtGui
+from .qt import bind
 
 from .base import Base
 from .pixmap import Pixmap
 
 __all__ = ['Icon']
 
+@bind(QtGui.QIcon)
 class Icon(Base):
     """Icon containing multiple resolution pixmaps.
 
@@ -21,11 +23,11 @@ class Icon(Base):
     >>> icon = Icon.from_color('green', 32, 32)
     """
 
-    QtClass = QtGui.QIcon
-
     def __init__(self, *values, qt=None):
-        args = [] if qt is None else [qt]
-        super().__init__(*args)
+        if qt is None:
+            super().__init__()
+        else:
+            super().__init__(qt)
         for value in values:
             self.append(value)
 
@@ -42,13 +44,13 @@ class Icon(Base):
 
     @property
     def theme_name(self):
-        return QtGui.QIcon.themeName()
+        return self.QtClass.themeName()
 
     def append(self, value):
         if isinstance(value, str):
             try:
                 color = QtGui.QColor(value)
-                pixmap = QtGui.QPixmap(64, 64)
+                pixmap = Pixmap.QtClass(64, 64)
                 pixmap.fill(color)
                 self.qt.addPixmap(pixmap)
             except:
@@ -59,12 +61,12 @@ class Icon(Base):
             raise ValueError(value)
 
     def pixmap(self, width, height):
-        return Pixmap(self.qt.pixmap(width, height))
+        return Pixmap(qt=self.qt.pixmap(width, height))
 
     @classmethod
     def from_color(cls, color, width=16, height=16):
         color = QtGui.QColor(color)
-        pixmap = QtGui.QPixmap(width, height)
+        pixmap = Pixmap.QtClass(width, height)
         pixmap.fill(color)
         return Icon(qt=pixmap)
 
@@ -73,5 +75,5 @@ class Icon(Base):
         args = [name]
         if fallback is not None:
             args.append(fallback)
-        icon = QtGui.QIcon.fromTheme(*args)
+        icon = cls.QtClass.fromTheme(*args)
         return Icon(qt=icon)

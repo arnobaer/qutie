@@ -1,18 +1,19 @@
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from .qt import QtWidgets
+from .qt import bind
 
-from .widget import BaseWidget
+from .frame import Frame
 
 __all__ = ['Label']
 
-class Label(BaseWidget):
+@bind(QtWidgets.QLabel)
+class Label(Frame):
 
-    QtClass = QtWidgets.QLabel
-
-    def __init__(self, text=None, **kwargs):
+    def __init__(self, text=None, *, word_wrap=None, **kwargs):
         super().__init__(**kwargs)
         if text is not None:
             self.text = text
+        if word_wrap is not None:
+            self.word_wrap = word_wrap
 
     @property
     def text(self):
@@ -21,3 +22,15 @@ class Label(BaseWidget):
     @text.setter
     def text(self, value):
         self.qt.setText(value)
+
+    @property
+    def word_wrap(self):
+        return self.qt.wordWrap()
+
+    @word_wrap.setter
+    def word_wrap(self, value):
+        self.qt.setWordWrap(value)
+
+    @property
+    def selected_text(self):
+        return self.qt.selectedText()

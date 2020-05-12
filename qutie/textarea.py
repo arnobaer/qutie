@@ -1,14 +1,14 @@
 import os
 
-from PyQt5 import QtWidgets
+from .qt import QtWidgets
+from .qt import bind
 
 from .widget import BaseWidget
 
 __all__ = ['TextArea']
 
+@bind(QtWidgets.QTextEdit)
 class TextArea(BaseWidget):
-
-    QtClass = QtWidgets.QTextEdit
 
     def __init__(self, value=None, *, readonly=False, richtext=False, **kwargs):
         super().__init__(**kwargs)

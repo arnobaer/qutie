@@ -1,13 +1,13 @@
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtWidgets
+from .qt import bind
 
 from .widget import BaseWidget
 
 __all__ = ['Number']
 
+@bind(QtWidgets.QDoubleSpinBox)
 class Number(BaseWidget):
-
-    QtClass = QtWidgets.QDoubleSpinBox
 
     prefix_format = "{} "
     suffix_format = " {}"
@@ -15,7 +15,7 @@ class Number(BaseWidget):
     def __init__(self, value=0, *, minimum=None, maximum=None, step=1.0,
                  decimals=0, prefix=None, suffix=None, readonly=False,
                  adaptive=False, special_value=None, changed=None,
-                 editing_finished=False, **kwargs):
+                 editing_finished=None, **kwargs):
         super().__init__(**kwargs)
         self.minimum = -float('inf') if minimum is None else minimum
         self.maximum = float('inf') if maximum is None else maximum
@@ -28,18 +28,11 @@ class Number(BaseWidget):
         if special_value is not None:
             self.special_value = special_value
         self.value = value
-
         self.changed = changed
-        def changed_event(value):
-            if callable(self.changed):
-                self.changed(value)
-        self.qt.valueChanged.connect(changed_event)
-
         self.editing_finished = editing_finished
-        def editing_finished_event():
-            if callable(self.editing_finished):
-                self.editing_finished()
-        self.qt.editingFinished.connect(editing_finished_event)
+        # Connect signals
+        self.qt.valueChanged.connect(self.__handle_changed)
+        self.qt.editingFinished.connect(self.__handle_editing_finished)
 
     @property
     def value(self):
@@ -146,6 +139,10 @@ class Number(BaseWidget):
     def changed(self, value):
         self.__changed = value
 
+    def __handle_changed(self, value):
+        if callable(self.changed):
+            self.changed(value)
+
     @property
     def editing_finished(self):
         return self.__editing_finished
@@ -153,3 +150,7 @@ class Number(BaseWidget):
     @editing_finished.setter
     def editing_finished(self, value):
         self.__editing_finished = value
+
+    def __handle_editing_finished(self):
+        if callable(self.editing_finished):
+            self.editing_finished()

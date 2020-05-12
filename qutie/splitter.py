@@ -1,11 +1,14 @@
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtWidgets
+from .qt import bind
 
 from .widget import BaseWidget
+from .mixins import OrientationMixin
 
 __all__ = ['Splitter']
 
-class Splitter(BaseWidget):
+@bind(QtWidgets.QSplitter)
+class Splitter(BaseWidget, OrientationMixin):
     """Splitter
 
     >>> splitter = Splitter(orientation='vertical')
@@ -15,9 +18,8 @@ class Splitter(BaseWidget):
     ...     pass
     """
 
-    QtClass = QtWidgets.QSplitter
-
-    def __init__(self, *children, sizes=None, orientation=None, collapsible=True, stretch=None, **kwargs):
+    def __init__(self, *children, sizes=None, orientation=None,
+                 collapsible=True, stretch=None, **kwargs):
         super().__init__(**kwargs)
         for child in children:
             self.append(child)
@@ -34,7 +36,7 @@ class Splitter(BaseWidget):
     def children(self):
         children = []
         for index in range(self.qt.count()):
-            children.append(self.qt.widget(index).property(self.QtProperty))
+            children.append(self.qt.widget(index).property(self.QtPropertyKey))
         return tuple(children)
 
     @property
@@ -44,20 +46,6 @@ class Splitter(BaseWidget):
     @sizes.setter
     def sizes(self, value):
         self.qt.setSizes(list(value))
-
-    @property
-    def orientation(self):
-        return {
-            QtCore.Qt.Horizontal: "horizontal",
-            QtCore.Qt.Vertical: "vertical"
-        }[self.qt.orientation()]
-
-    @orientation.setter
-    def orientation(self, value):
-        self.qt.setOrientation({
-            "horizontal": QtCore.Qt.Horizontal,
-            "vertical": QtCore.Qt.Vertical
-        }[value])
 
     @property
     def collapsible(self):
@@ -83,11 +71,11 @@ class Splitter(BaseWidget):
     def __getitem__(self, index):
         item = self.qt.widget(index)
         if item is not None:
-            return item.property(self.QtProperty)
+            return item.property(self.QtPropertyKey)
         return None
 
     def __len__(self):
         return self.qt.count()
 
     def __iter__(self):
-        return (self.qt.widget(index) for index in range(self.qt.count()))
+        return (self.qt.widget(index).property(self.QtPropertyKey) for index in range(len(self)))

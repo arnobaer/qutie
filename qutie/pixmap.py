@@ -1,16 +1,18 @@
-from PyQt5 import QtGui
+from .qt import QtGui
+from .qt import bind
 
 from .base import Base
 
 __all__ = ['Pixmap']
 
+@bind(QtGui.QPixmap)
 class Pixmap(Base):
 
-    QtClass = QtGui.QPixmap
-
     def __init__(self, filename=None, *, qt=None):
-        args = [] if qt is None else [qt]
-        super().__init__(*args)
+        if qt is None:
+            super().__init__()
+        else:
+            super().__init__(qt)
         if filename is not None:
             self.load(filename)
 
@@ -41,7 +43,7 @@ class Pixmap(Base):
     @classmethod
     def create(self, width, height, color=None):
         """Return new pixmap instance, with optional fill color."""
-        pixmap = Pixmap(qt=QtGui.QPixmap(width, height))
+        pixmap = Pixmap(qt=self.QtClass(width, height))
         if color is not None:
             pixmap.fill(color)
         return pixmap

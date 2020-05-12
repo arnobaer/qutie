@@ -1,22 +1,17 @@
 import sys
 
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtCore
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
-from .object import EventMixin
 from .icon import Icon
 from .object import Object
 
 __all__ = ['Application']
 
-class QCoreApplication(QtCore.QCoreApplication, EventMixin):
-
-    pass
-
+@bind(QtCore.QCoreApplication)
 class CoreApplication(Object):
-
-    QtClass = QCoreApplication
 
     def __init__(self, name=None, *, version=None, organization=None,
                  domain=None, name_changed=None, version_changed=None,
@@ -30,35 +25,20 @@ class CoreApplication(Object):
             self.organization = organization
         if domain is not None:
             self.domain = domain
-
         self.name_changed = name_changed
-        def name_changed_event():
-            if callable(self.name_changed):
-                self.name_changed(self.name)
-        self.qt.applicationNameChanged.connect(name_changed_event)
-
         self.version_changed = version_changed
-        def version_changed_event(*args, **kwargs):
-            if callable(self.version_changed):
-                self.version_changed(*args, **kwargs)
-        self.qt.applicationVersionChanged.connect(version_changed_event)
-
         self.organization_changed = organization_changed
-        def organization_changed_event(*args, **kwargs):
-            if callable(self.organization_changed):
-                self.organization_changed(*args, **kwargs)
-        self.qt.organizationNameChanged.connect(organization_changed_event)
-
         self.domain_changed = domain_changed
-        def domain_changed_event(*args, **kwargs):
-            if callable(self.domain_changed):
-                self.domain_changed(*args, **kwargs)
-        self.qt.organizationDomainChanged.connect(domain_changed_event)
+        # Connect signals
+        self.qt.applicationNameChanged.connect(self.__handle_name_changed)
+        self.qt.applicationVersionChanged.connect(self.__handle_version_changed)
+        self.qt.organizationNameChanged.connect(self.__handle_organization_changed)
+        self.qt.organizationDomainChanged.connect(self.__handle_domain_changed)
 
     @classmethod
     def instance(self):
         if self.QtClass.instance() is not None:
-            return self.QtClass.instance().property(self.QtProperty)
+            return self.QtClass.instance().property(self.QtPropertyKey)
         return None
 
     @property
@@ -99,13 +79,56 @@ class CoreApplication(Object):
     def quit(self):
         self.qt.quit()
 
-class QGuiApplication(QtGui.QGuiApplication, EventMixin):
+    @property
+    def name_changed(self):
+        return self.__name_changed
 
-    pass
+    @name_changed.setter
+    def name_changed(self, value):
+        self.__name_changed = value
 
+    def __handle_name_changed(self):
+        if callable(self.name_changed):
+            self.name_changed(self.name)
+
+    @property
+    def version_changed(self):
+        return self.__version_changed
+
+    @version_changed.setter
+    def version_changed(self, value):
+        self.__version_changed = value
+
+    def __handle_version_changed(self):
+        if callable(self.version_changed):
+            self.version_changed(self.version)
+
+    @property
+    def organization_changed(self):
+        return self.__organization_changed
+
+    @organization_changed.setter
+    def organization_changed(self, value):
+        self.__organization_changed = value
+
+    def __handle_organization_changed(self):
+        if callable(self.organization_changed):
+            self.organization_changed(self.organization)
+
+    @property
+    def domain_changed(self):
+        return self.__domain_changed
+
+    @domain_changed.setter
+    def domain_changed(self, value):
+        self.__domain_changed = value
+
+    def __handle_domain_changed(self):
+        if callable(self.domain_changed):
+            self.domain_changed(self.domain)
+
+@bind(QtGui.QGuiApplication)
 class GuiApplication(CoreApplication):
-
-    QtClass = QGuiApplication
 
     def __init__(self, name=None, *, display_name=None, icon=None,
                  display_name_changed=None, last_window_closed=None, **kwargs):
@@ -114,18 +137,11 @@ class GuiApplication(CoreApplication):
             self.display_name = display_name
         if icon is not None:
             self.icon = icon
-
         self.display_name_changed = display_name_changed
-        def display_name_changed_event():
-            if callable(self.display_name_changed):
-                self.display_name_changed(self.display_name)
-        self.qt.applicationDisplayNameChanged.connect(display_name_changed_event)
-
         self.last_window_closed = last_window_closed
-        def last_window_closed_event():
-            if callable(self.last_window_closed):
-                self.last_window_closed()
-        self.qt.lastWindowClosed.connect(last_window_closed_event)
+        # Connect signals
+        self.qt.applicationDisplayNameChanged.connect(self.__handle_display_name_changed)
+        self.qt.lastWindowClosed.connect(self.__handle_last_window_closed)
 
     @property
     def display_name(self):
@@ -148,19 +164,47 @@ class GuiApplication(CoreApplication):
                 value = Icon(value)
             self.qt.setWindowIcon(value.qt)
 
-class QApplication(QtWidgets.QApplication, EventMixin):
+    @property
+    def display_name_changed(self):
+        return self.__display_name_changed
 
-    pass
+    @display_name_changed.setter
+    def display_name_changed(self, value):
+        self.__display_name_changed = value
 
+    def __handle_display_name_changed(self):
+        if callable(self.display_name_changed):
+            self.display_name_changed(self.display_name)
+
+    @property
+    def last_window_closed(self):
+        return self.__last_window_closed
+
+    @last_window_closed.setter
+    def last_window_closed(self, value):
+        self.__last_window_closed = value
+
+    def __handle_last_window_closed(self):
+        if callable(self.last_window_closed):
+            self.last_window_closed()
+
+@bind(QtWidgets.QApplication)
 class Application(GuiApplication):
-
-    QtClass = QApplication
 
     def __init__(self, name=None, *, focus_changed=None, **kwargs):
         super().__init__(name=name, **kwargs)
-
         self.focus_changed = focus_changed
-        def focus_changed_event(old, now):
-            if callable(self.focus_changed):
-                self.focus_changed(old, now)
-        self.qt.focusChanged.connect(focus_changed_event)
+        # Connect signals
+        self.qt.focusChanged.connect(self.__handle_focus_changed)
+
+    @property
+    def focus_changed(self):
+        return self.__focus_changed
+
+    @focus_changed.setter
+    def focus_changed(self, value):
+        self.__focus_changed = value
+
+    def __handle_focus_changed(self, old, now):
+        if callable(self.focus_changed):
+            self.focus_changed(old, now)

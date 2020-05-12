@@ -1,65 +1,66 @@
-from PyQt5 import QtCore
+from .qt import QtCore
+from .qt import bind
 
 from .base import Base
 
-__all__ = [
-    'Object',
-]
+__all__ = ['Object']
 
-class EventMixin:
-
-    eventTriggered = QtCore.pyqtSignal(str, object, object)
-
-class QObject(QtCore.QObject, EventMixin):
-
-    pass
-
+@bind(QtCore.QObject)
 class Object(Base):
-    """Object as base for all components."""
 
-    QtClass = QObject
-    QtProperty = "qt"
+    QtPropertyKey = '__qutie_ref'
 
-    def __init__(self, *args, destroyed=None, object_name_changed=None):
+    def __init__(self, *args, object_name=None, destroyed=None,
+                 object_name_changed=None):
         super().__init__(*args)
-        self.qt.setProperty(self.QtProperty, self)
-        #self.qt.eventTriggered = QtCore.pyqtSignal(str, object, object)
-
+        self.qt.setProperty(self.QtPropertyKey, self)
+        if object_name is not None:
+            self.object_name = object_name
         self.destroyed = destroyed
-        def destroyed_event(obj):
-            if callable(self.destroyed):
-                self.destroyed(obj.property(self.QtProperty))
-        self.qt.destroyed.connect(destroyed_event)
-
         self.object_name_changed = object_name_changed
-        def object_name_changed_event():
-            if callable(self.destroyed):
-                self.destroyed(self.object_name)
-        self.qt.objectNameChanged.connect(object_name_changed_event)
-
-        if hasattr(self.qt, 'eventTriggered'):
-            def trigger_event(name, args, kwargs):
-                if hasattr(self, name):
-                    attr = getattr(self, name)
-                    if callable(attr):
-                        attr(*args, **kwargs)
-            self.qt.eventTriggered.connect(trigger_event)
+        # Connect signals
+        self.qt.destroyed.connect(self.__handle_destroyed)
+        self.qt.objectNameChanged.connect(self.__handle_object_name_changed)
+        self.qt.eventEmitted.connect(self.__handle_event)
 
     @property
-    def object_name(self):
+    def object_name(self) -> str:
         return self.qt.objectName()
 
     @object_name.setter
-    def object_name(self, value):
+    def object_name(self, value: str):
         self.qt.setObjectName(value)
 
     @property
-    def parent(self):
-        if self.qt.parent() is not None:
-            return self.qt.parent().property(self.QtProperty)
-        return None
+    def destroyed(self) -> object:
+        return self.__destroyed
+
+    @destroyed.setter
+    def destroyed(self, value: object):
+        self.__destroyed = value
+
+    def __handle_destroyed(self, obj: object):
+        if callable(self.destroyed):
+            self.destroyed(obj.property(self.QtPropertyKey))
+
+    @property
+    def object_name_changed(self) -> object:
+        return self.__object_name_changed
+
+    @object_name_changed.setter
+    def object_name_changed(self, value: object):
+        self.__object_name_changed = value
+
+    def __handle_object_name_changed(self):
+        if callable(self.object_name_changed):
+            self.object_name_changed(self.object_name)
+
+    def __handle_event(self, name, args, kwargs):
+        if hasattr(self, name):
+            attr = getattr(self, name)
+            if callable(attr):
+                attr(*args, **kwargs)
 
     def emit(self, _, *args, **kwargs):
-        """Emit custom user event."""
-        if hasattr(self.qt, 'eventTriggered'):
-            self.qt.eventTriggered.emit(_, args, kwargs)
+        """Emit event."""
+        self.qt.eventEmitted.emit(_, args, kwargs)

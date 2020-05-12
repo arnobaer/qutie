@@ -1,13 +1,13 @@
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from .qt import QtGui
+from .qt import QtWidgets
+from .qt import bind
 
 from .widget import Widget
 
 __all__ = ['ScrollArea']
 
+@bind(QtWidgets.QScrollArea)
 class ScrollArea(Widget):
-
-    QtClass = QtWidgets.QScrollArea
 
     def __init__(self, layout=None, **kwargs):
         super().__init__(**kwargs)
@@ -19,9 +19,9 @@ class ScrollArea(Widget):
 
     @property
     def layout(self):
-        return self.qt.widget().property(self.QtProperty).layout
+        return self.qt.widget().property(self.QtPropertyKey).layout
 
     @layout.setter
     def layout(self, value):
         if self.qt.widget():
-            self.qt.widget().property(self.QtProperty).layout = value
+            self.qt.widget().property(self.QtPropertyKey).layout = value

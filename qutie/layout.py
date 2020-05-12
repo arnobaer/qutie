@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from .qt import QtWidgets
 
 from .widget import BaseWidget
 
@@ -22,7 +22,7 @@ class BoxLayout(BaseWidget):
     def children(self):
         children = []
         for index in range(self.qt.layout().count()):
-            children.append(self.qt.layout().itemAt(index).widget().property(self.QtProperty))
+            children.append(self.qt.layout().itemAt(index).widget().property(self.QtPropertyKey))
         return tuple(children)
 
     def append(self, child):
