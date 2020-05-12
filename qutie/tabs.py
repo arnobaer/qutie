@@ -87,11 +87,18 @@ class Tabs(BaseWidget):
         if callable(self.changed):
             self.changed(index)
 
-    def __getitem__(self, index):
-        widget = self.qt.widget(index)
+    def __getitem__(self, key):
+        widget = self.qt.widget(key)
         if not widget:
-            raise KeyError()
+            raise KeyError(key)
         return widget.property(self.QtPropertyKey)
+
+    def __setitem__(self, key, value):
+        del self[index]
+        self.insert(key, value)
+
+    def __delitem__(self, key):
+        self.qt.removeTab(key)
 
     def __len__(self):
         return self.qt.count()

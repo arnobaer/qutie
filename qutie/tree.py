@@ -165,6 +165,10 @@ class Tree(BaseItemView):
         item.expanded = True
         return item
 
+    def remove(self, item):
+        index = self.qt.indexOfTopLevelItem(item)
+        self.qt.takeTopLevelItem(index)
+
     def clear(self):
         self.qt.clear()
 
@@ -197,26 +201,23 @@ class Tree(BaseItemView):
         """Scroll to item to ensure item is visible."""
         self.qt.scrollToItem(item.qt)
 
-    def __getitem__(self, index):
-        item = self.qt.topLevelItem(index)
+    def __getitem__(self, key):
+        item = self.qt.topLevelItem(key)
         return item.data(0, item.UserType)
 
-    def __setitem__(self, index, items):
-        self.qt.removeRow(row)
-        self.qt.insertRow(row)
-        for column, item in enumerate(items):
-            if not isinstance(item, TableItem):
-                item = TableItem(value=item)
-            self.qt.setItem(row, column, item.qt)
+    def __setitem__(self, key, value):
+        self.remove(value)
+        self.insert(key, value)
+
+    def __delitem__(self, key):
+        item = self.qt.topLevelItem(key)
+        self.remove(item)
 
     def __len__(self):
         return self.qt.topLevelItemCount()
 
     def __iter__(self):
-        items = []
-        for index in range(self.qt.topLevelItemCount()):
-            items.append(self[index])
-        return iter(items)
+        return (self[index] for index in range(len(self)))
 
 @bind(QtWidgets.QTreeWidgetItem)
 class TreeItem(Base):
@@ -274,6 +275,9 @@ class TreeItem(Base):
 
     def __len__(self):
         return self.qt.columnCount()
+
+    def __iter__(self):
+        return (TreeItemColumn(column, self.qt) for column in range(len(self)))
 
 class TreeItemColumn:
 
@@ -346,8 +350,4 @@ class TreeItemColumn:
 
     @checked.setter
     def checked(self, value):
-        if value is None:
-            flags = self.qt.flags() & ~QtCore.Qt.ItemIsUserCheckable
-            self.qt.setFlags(flags)
-        else:
-            self.qt.setCheckState(self.column, QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
+        self.qt.setCheckState(self.column, QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)

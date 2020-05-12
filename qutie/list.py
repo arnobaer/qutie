@@ -196,19 +196,22 @@ class List(BaseItemView):
                 index = self.qt.row(item)
                 self.double_clicked(index, data)
 
-    def __len__(self):
-        return self.qt.count()
-
-    def __getitem__(self, index):
-        item = self.qt.item(index)
+    def __getitem__(self, key):
+        item = self.qt.item(key)
         if not item:
-            raise KeyError(index)
+            raise IndexError(key)
         return item.data(ListItem.QtPropertyRole)
 
-    def __setitem__(self, index, value):
+    def __setitem__(self, key, value):
         item = ListItem(value)
-        self.qt.takeItem(index)
-        self.qt.insertItem(index, item.qt)
+        self.qt.takeItem(key)
+        self.qt.insertItem(key, item.qt)
+
+    def __delitem__(self, key):
+        self.qt.takeItem(key)
+
+    def __len__(self):
+        return self.qt.count()
 
     def __iter__(self):
         return (self[row] for row in range(len(self)))

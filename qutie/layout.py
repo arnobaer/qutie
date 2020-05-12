@@ -20,10 +20,7 @@ class BoxLayout(BaseWidget):
 
     @property
     def children(self):
-        children = []
-        for index in range(self.qt.layout().count()):
-            children.append(self.qt.layout().itemAt(index).widget().property(self.QtPropertyKey))
-        return tuple(children)
+        return list(self)
 
     def append(self, child):
         self.qt.layout().addWidget(child.qt)
@@ -34,6 +31,15 @@ class BoxLayout(BaseWidget):
     def remove(self, child):
         index = self.qt.layout().indexOf(child.qt)
         self.qt.layout().takeAt(index)
+
+    def __getitem__(self, key):
+        return self.qt.layout().itemAt(key).widget().property(self.QtPropertyKey)
+
+    def __len__(self):
+        return self.qt.layout().count()
+
+    def __iter__(self):
+        return (self[index] for index in range(len(self)))
 
 class Column(BoxLayout):
 

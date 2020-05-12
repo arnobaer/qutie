@@ -82,15 +82,18 @@ class ComboBox(BaseWidget):
             value = self.items[index]
             self.changed(value)
 
+    def __getitem__(self, key):
+        return self.qt.itemData(key)
+
+    def __setitem__(self, key, value):
+        self.qt.setItemText(key, format(value))
+        self.qt.setItemData(key, value)
+
+    def __delitem__(self, key):
+        self.qt.removeItem(key)
+
     def __len__(self):
         return self.qt.count()
-
-    def __getitem__(self, index):
-        return self.qt.itemData(index)
-
-    def __setitem__(self, index, value):
-        self.qt.setItemText(index, format(value))
-        self.qt.setItemData(index, value)
 
     def __iter__(self):
         return (self[row] for row in range(len(self)))

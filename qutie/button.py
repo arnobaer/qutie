@@ -1,9 +1,10 @@
 from .qt import QtWidgets
 from .qt import bind
 
+from .icon import Icon
 from .widget import Widget
 
-__all__ = ['Button']
+__all__ = ['Button', 'RadioButton']
 
 @bind(QtWidgets.QAbstractButton)
 class BaseButton(Widget):
@@ -157,3 +158,8 @@ class Button(BaseButton):
     @flat.setter
     def flat(self, value):
         self.qt.setFlat(value)
+
+@bind(QtWidgets.QRadioButton)
+class RadioButton(BaseButton):
+
+    pass

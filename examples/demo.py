@@ -208,6 +208,29 @@ tabs.append(ui.Tab(
         stretch=(3, 7)
     )
 ))
+tabs.append(ui.Tab(
+    title="Exclusive",
+    layout=ui.Row(
+        ui.GroupBox(
+            title="Exclusive 1",
+            layout=ui.Column(
+                ui.RadioButton("First"),
+                ui.RadioButton("Second", checked=True),
+                ui.RadioButton("Third"),
+                ui.Spacer()
+            )
+        ),
+        ui.GroupBox(
+            title="Exclusive 2",
+            layout=ui.Column(
+                ui.RadioButton("Red", icon='red'),
+                ui.RadioButton("Blue", icon='blue', checked=True),
+                ui.RadioButton("Green", icon='green', enabled=False),
+                ui.Spacer()
+            )
+        )
+    )
+))
 
 def on_tab_changed(index):
     window.progress.value = index + 1

@@ -186,6 +186,14 @@ class Table(BaseItemView):
                 first = data[0].data(data[0].UserType)
                 self.selected(first)
 
+    def row(self, item):
+        """Return item row."""
+        return self.qt.row(item.qt)
+
+    def column(self, item):
+        """Return item column."""
+        return self.qt.column(item.qt)
+
     def append(self, items):
         """Append items, returns appended items.
 
@@ -211,13 +219,11 @@ class Table(BaseItemView):
             self.qt.resizeRowToContents(row)
         return self[row]
 
-    def row(self, item):
-        """Return item row."""
-        return self.qt.row(item.qt)
+    def remove_row(self, row):
+        self.qt.removeRow(row)
 
-    def column(self, item):
-        """Return item column."""
-        return self.qt.column(item.qt)
+    def remove_column(self, column):
+        self.qt.removeColumn(column)
 
     def clear(self):
         """Clear table contents."""
@@ -252,23 +258,26 @@ class Table(BaseItemView):
             self.qt.resizeColumnToContents(column)
         self.qt.resizeRowsToContents()
 
-    def __getitem__(self, row):
+    def __getitem__(self, key):
         items = []
         for column in range(self.qt.columnCount()):
-            item = self.qt.item(row, column)
+            item = self.qt.item(key, column)
             if item:
                 items.append(item.data(item.UserType))
             else:
                 items.append(None)
         return items
 
-    def __setitem__(self, row, items):
-        self.qt.removeRow(row)
-        self.qt.insertRow(row)
-        for column, item in enumerate(items):
+    def __setitem__(self, key, value):
+        self.qt.removeRow(key)
+        self.qt.insertRow(key)
+        for column, item in enumerate(value):
             if not isinstance(item, TableItem):
                 item = TableItem(value=item)
-            self.qt.setItem(row, column, item.qt)
+            self.qt.setItem(key, column, item.qt)
+
+    def __delitem__(self, key):
+        self.remove_row(key)
 
     def __len__(self):
         return self.qt.rowCount()
