@@ -2,7 +2,7 @@ import random
 
 import qutie as ui
 
-app = ui.Application("demo", version="1.0a")
+app = ui.Application("demo", version="1.0a", organization="acme")
 app.display_name=f"Demo {app.version}"
 app.icon = 'orange'
 
@@ -369,6 +369,7 @@ def on_window_close():
     return result
 window.close_event = on_window_close
 
+print(ui.Settings().filename)
 with ui.Settings() as settings:
     settings.setdefault('window/size', (640, 480))
     window.resize(*settings.get('window/size'))

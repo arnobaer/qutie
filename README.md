@@ -14,7 +14,7 @@ window = ui.Widget(
     width=320,
     height=240,
     layout=ui.Column(
-        ui.Label(text="Hello world!", color='blue'),
+        ui.Label("Hello world!", color='blue'),
         ui.Row(
             ui.Button("Click!", clicked=lambda: ui.show_info(text="Hello world!")),
             ui.Button("Quit", clicked=app.quit)
@@ -27,9 +27,12 @@ app.run()
 
 ## Documentation
 
+Qutie (pronounced as _cutie_) provides a simple and easy to use pythonic
+interface to PyQt5.
+
 ### Application
 
-An `Application` object must be created before other widgets. To make use of the
+A single `Application` object must be created before other widgets. To make use of the
 event system the application event loop must be executed.
 
 ```python
@@ -47,7 +50,24 @@ window.show()
 app.run()
 ```
 
-### Layout
+### Widgets
+
+Any widget can be a top level window or part of another widget using the
+`layout` property. All properties can be assigned using the constructor.
+
+```python
+window = ui.Widget(title="Example", width=320, height=240)
+```
+
+To make a top level window visible use property `visible` or call method
+`show()`.
+
+```python
+window.show()
+window.visible = True # equivalent to show
+```
+
+### Layouts
 
 The simplified layout system provides a horizontal `Row` and a vertical `Column`
 box. Items can be added while constructing the layout or using list like methods
@@ -55,7 +75,7 @@ box. Items can be added while constructing the layout or using list like methods
 using the `stretch` attribute.
 
 ```python
-layout = ui.Row(
+window.layout = ui.Row(
     ui.Column(
         ...
     ),
@@ -67,6 +87,45 @@ layout = ui.Row(
     ),
     stretch=(2, 3)
 )
+```
+
+### Inputs
+
+```python
+# Single line text input
+text = ui.Text(value="spam")
+# Numeric input
+number = ui.Number(value=4, minimum=0, maximum=10, step=1.0, decimals=1)
+# A multi line text area
+textarea = ui.TextArea(value="Lorem ipsum et dolor.")
+```
+
+### Events
+
+Events provide a simplified interface to Qt's signal and slot system. Events can
+be emitted from any class inheriting from `Object` by calling method `emit()`.
+
+```python
+# Use any callable class attribute as event callback.
+window.issue_call = lambda: print("Call to action!")
+# Emit an event executing `on_call` (if callable).
+window.emit('issue_call')
+```
+
+Events can also propagate positional and keyword arguments.
+
+```python
+# Use any callable class attribute as event callback.
+window.update_progress = lambda a, b: print(f"Progress: {a} of {b}")
+# Emit an event executing `on_call` (if callable).
+window.emit('update_progress', 42, 100)
+```
+
+Many widgets provide predefined events.
+
+```python
+# Assigning callback functions
+ui.Number(value=4, changed=on_change, edited=on_edited)
 ```
 
 ### Settings
@@ -84,7 +143,7 @@ Use attribute `filename` to inspect the persistent JSON data.
 
 ```python
 >>> ui.Settings().filename
-'/home/user/.config/app/settings.json'
+'/home/user/.config/app.qutie'
 ```
 
 ### Workers
