@@ -30,6 +30,12 @@ app.run()
 Qutie (pronounced as _cutie_) provides a simple and easy to use pythonic
 interface to PyQt5.
 
+### Install
+
+```bash
+pip install qutie
+```
+
 ### Application
 
 A single `Application` object must be created before other widgets. To make use of the

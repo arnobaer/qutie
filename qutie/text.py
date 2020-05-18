@@ -8,6 +8,16 @@ __all__ = ['Text']
 
 @bind(QtWidgets.QLineEdit)
 class Text(BaseWidget):
+    """Text input widget.
+
+    >>> text = Text('lorem')
+    >>> text.append(' ispum')
+    >>> text.value
+    'lorem ipsum'
+    >>> tree.clear()
+    text.value
+    ''
+    """
 
     def __init__(self, value=None, *, readonly=False, clearable=False,
                  changed=None, editing_finished=None, **kwargs):
@@ -28,26 +38,39 @@ class Text(BaseWidget):
 
     @value.setter
     def value(self, value):
-        self.qt.setText(value)
+        self.qt.setText(format(value))
 
     @property
     def readonly(self):
+        """Read only enabled.
+
+        >>> text.readonly = True
+        >>> text.readonly
+        True
+        """
         return self.qt.isReadOnly()
 
-    @value.setter
+    @readonly.setter
     def readonly(self, value):
         self.qt.setReadOnly(value)
 
     @property
     def clearable(self):
-        return self.qt.clearButtonEnabled()
+        """Inline clear button enabled.
+
+        >>> text.clearable = True
+        >>> text.clearable
+        True
+        """
+        return self.qt.isClearButtonEnabled()
 
     @clearable.setter
     def clearable(self, value):
-        self.qt.setClearButtonEnabled(value)
+        self.qt.setClearButtonEnabled(bool(value))
 
     @property
     def changed(self):
+        """Event called when value changed."""
         return self.__changed
 
     @changed.setter
@@ -60,6 +83,7 @@ class Text(BaseWidget):
 
     @property
     def editing_finished(self):
+        """Event called when editing finished."""
         return self.__editing_finished
 
     @editing_finished.setter
@@ -70,5 +94,21 @@ class Text(BaseWidget):
         if callable(self.editing_finished):
             self.editing_finished()
 
+    def append(self, text):
+        """Append text to current value.
+
+        >>> text =Text('lorem')
+        >>> text.append(' ipsum')
+        >>> text.value
+        'lorem ipsum'
+        """
+        self.value = ''.join((self.value, format(text)))
+
     def clear(self):
+        """Clear current value.
+
+        >>> text.clear()
+        >>> text.value
+        ''
+        """
         self.qt.clear()

@@ -11,7 +11,7 @@ __all__ = ['Tree']
 
 @bind(QtWidgets.QTreeWidget)
 class Tree(BaseItemView):
-    """Tree
+    """Tree widget.
 
     >>> tree = Tree(header=["Key", "Value"])
     >>> tree.append(["Spam", "Eggs"])
@@ -333,7 +333,7 @@ class TreeItemColumn:
         icon = self.qt.icon(self.column)
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):

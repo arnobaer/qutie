@@ -1,3 +1,4 @@
+from .qt import QtCore
 from .qt import QtWidgets
 from .qt import bind
 
@@ -195,7 +196,7 @@ class BaseWidget(Object):
         icon = self.qt.windowIcon()
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):
@@ -254,11 +255,13 @@ class Widget(BaseWidget):
 
     QtLayoutClass = QtWidgets.QVBoxLayout
 
-    def __init__(self, *, layout=None, modal=False, **kwargs):
+    def __init__(self, *, layout=None, modal=None, **kwargs):
         super().__init__(**kwargs)
         self.qt.setLayout(self.QtLayoutClass())
         if layout is not None:
             self.layout = layout
+        if modal is not None:
+            self.modal = modal
 
     @property
     def layout(self):
@@ -283,4 +286,5 @@ class Widget(BaseWidget):
 
     @modal.setter
     def modal(self, value):
-        self.qt.setModal(value)
+        modality = QtCore.Qt.ApplicationModal if value else QtCore.Qt.NonModal
+        self.qt.setWindowModality(modality)

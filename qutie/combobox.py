@@ -16,7 +16,8 @@ class ComboBox(BaseWidget):
         super().__init__(**kwargs)
         if items is not None:
             self.items = items
-        self.current = current
+        if current is not None:
+            self.current = current
         self.editable = editable
         self.changed = changed
         # Connect signals

@@ -2,6 +2,38 @@ import random
 
 import qutie as ui
 
+class StackTab(ui.Tab):
+
+    def __init__(self):
+        super().__init__(title="Stack")
+        self.list = ui.List(selected=self.on_selected)
+        self.stack = ui.Stack()
+        self.add_item(ui.GroupBox("Foo", layout=ui.Column(
+            ui.Text("Lorem ipsum"),
+            ui.Spacer()
+        )))
+        self.add_item(ui.GroupBox("Bar", layout=ui.Column(
+            ui.ComboBox(["Foo", "Bar", "Baz"]),
+            ui.Spacer()
+        )))
+        self.add_item(ui.GroupBox("Baz", layout=ui.Column(
+            ui.TextArea("Lorem ipsum et dolor.", readonly=True),
+            ui.Spacer()
+        )))
+        self.stack.current = self.stack[0]
+        self.layout = ui.Row(
+            self.list,
+            self.stack,
+            stretch=(2, 5)
+        )
+
+    def add_item(self, item):
+        self.list.append(item.title).ref = item
+        self.stack.append(item)
+
+    def on_selected(self, item, index):
+        self.stack.current = item.ref
+
 app = ui.Application("demo", version="1.0a", organization="acme")
 app.display_name=f"Demo {app.version}"
 app.icon = 'orange'
@@ -231,6 +263,7 @@ tabs.append(ui.Tab(
         )
     )
 ))
+tabs.append(StackTab())
 
 def on_tab_changed(index):
     window.progress.value = index + 1

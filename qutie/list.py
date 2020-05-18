@@ -278,7 +278,7 @@ class ListItem(Base):
         icon = self.qt.icon()
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):

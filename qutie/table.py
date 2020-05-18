@@ -11,7 +11,7 @@ __all__ = ['Table', 'TableItem']
 
 @bind(QtWidgets.QTableWidget)
 class Table(BaseItemView):
-    """Table
+    """Table widget.
 
     >>> table = Table(header=["Key", "Value"])
     >>> table.append(["Spam", "Eggs"])
@@ -347,7 +347,7 @@ class TableItem(Base):
         icon = self.qt.icon()
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):
