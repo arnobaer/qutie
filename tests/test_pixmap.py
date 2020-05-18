@@ -7,6 +7,8 @@ class PixmapTest(QutieTestCase):
 
     def testEmpty(self):
         context = Pixmap()
+        self.assertEqual(context.width, 0)
+        self.assertEqual(context.height, 0)
 
     def testCreate(self):
         context = Pixmap.create(16, 32, 'red')

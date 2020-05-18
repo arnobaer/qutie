@@ -75,6 +75,11 @@ class Tabs(BaseWidget):
             raise ValueError("item not in tabs")
         return index
 
+    def clear(self):
+        """Remove all tabs."""
+        while len(self):
+            self.remove(self.current)
+
     @property
     def changed(self):
         return self.__changed

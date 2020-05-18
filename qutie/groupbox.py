@@ -73,7 +73,7 @@ class GroupBox(Widget):
     def toggled(self):
         return self.__toggled
 
-    @clicked.setter
+    @toggled.setter
     def toggled(self, value):
         self.__toggled = value
 
