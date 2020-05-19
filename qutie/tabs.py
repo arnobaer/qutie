@@ -44,20 +44,16 @@ class Tabs(BaseWidget):
         return list(self)
 
     def append(self, tab):
-        assert isinstance(tab, Tab), "must be of type Tab"
         self.qt.addTab(tab.qt, tab.title)
 
     def insert(self, index, tab):
-        assert isinstance(tab, Tab), "must be of type Tab"
         if index < 0:
             index = max(0, len(self) + index)
         self.qt.insertTab(index, tab.qt, tab.title)
 
     def remove(self, tab):
-        assert isinstance(tab, Tab), "must be of type Tab"
-        if tab is not None:
-            index = self.qt.indexOf(tab.qt)
-            self.qt.removeTab(index)
+        index = self.qt.indexOf(tab.qt)
+        self.qt.removeTab(index)
 
     @property
     def current(self):

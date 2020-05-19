@@ -131,7 +131,7 @@ Many widgets provide predefined events.
 
 ```python
 # Assigning callback functions
-ui.Number(value=4, changed=on_change, edited=on_edited)
+ui.Number(value=4, changed=on_change, editing_finished=on_edited)
 ```
 
 ### Settings

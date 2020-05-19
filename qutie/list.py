@@ -130,11 +130,10 @@ class List(BaseItemView):
         return item
 
     def remove(self, item):
-        if item is not None:
-            index = self.qt.row(item.qt)
-            if index < 0:
-                raise IndexError(item)
-            self.qt.takeItem(index)
+        index = self.qt.row(item.qt)
+        if index < 0:
+            raise IndexError(item)
+        self.qt.takeItem(index)
 
     def ensure_visible(self, item):
         self.qt.scrollToItem(item.qt)

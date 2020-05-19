@@ -15,6 +15,7 @@ listing.insert(0, "Spam")
 for item in listing:
     item.color = 'blue'
     item.icon = 'grey'
+    item.checkable = True
     item.checked = not listing.index(item) % 2
 
 for index in range(len(listing)):

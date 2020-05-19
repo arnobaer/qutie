@@ -166,7 +166,7 @@ class Tree(BaseItemView):
         return item
 
     def remove(self, item):
-        index = self.qt.indexOfTopLevelItem(item)
+        index = self.qt.indexOfTopLevelItem(item.qt)
         self.qt.takeTopLevelItem(index)
 
     def clear(self):
