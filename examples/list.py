@@ -7,6 +7,8 @@ listing = ui.List()
 listing.append("Ham")
 listing.append("Eggs")
 listing.insert(0, "Spam")
+item = listing.append("Other")
+listing.remove(item)
 
 # listing.view_mode = 'icon'
 # listing.resize_mode = 'adjust'
