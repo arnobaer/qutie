@@ -130,13 +130,12 @@ class List(BaseItemView):
         return item
 
     def remove(self, item):
-        if item is not None:
-            index = self.qt.row(item.qt)
-            if index < 0:
-                raise IndexError(item)
-            self.qt.takeItem(index)
+        index = self.qt.row(item.qt)
+        if index < 0:
+            raise IndexError(item)
+        self.qt.takeItem(index)
 
-    def ensure_visible(self, item):
+    def scroll_to(self, item):
         self.qt.scrollToItem(item.qt)
 
     @property
@@ -278,7 +277,7 @@ class ListItem(Base):
         icon = self.qt.icon()
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):

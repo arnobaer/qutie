@@ -15,12 +15,24 @@ class BoxLayout(BaseWidget):
         for child in children:
             self.append(child)
         if stretch is not None:
-            for index, value in enumerate(stretch):
-                self.qt.layout().setStretch(index, value)
+            self.stretch = stretch
 
     @property
     def children(self):
         return list(self)
+
+    @property
+    def stretch(self):
+        value = []
+        for index in range(len(self)):
+            value.append(self.qt.layout().stretch(index))
+        return value
+
+    @stretch.setter
+    def stretch(self, value):
+        value = list(value) + ([0] * (len(self) - len(value)))
+        for index in range(len(self)):
+            self.qt.layout().setStretch(index, value[index])
 
     def append(self, child):
         self.qt.layout().addWidget(child.qt)

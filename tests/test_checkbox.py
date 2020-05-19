@@ -1,34 +1,28 @@
 import unittest
 
-from qutie import Button
+from qutie import CheckBox
 from . import QutieTestCase
 
-class ButtonTest(QutieTestCase):
+class CheckBoxTest(QutieTestCase):
 
     def testEmpty(self):
-        context = Button()
+        context = CheckBox()
         self.assertEqual(context.text, '')
-        self.assertEqual(context.tool_tip, '')
-        self.assertEqual(context.checkable, False)
         self.assertEqual(context.checked, False)
 
     def testFull(self):
-        context = Button(
+        context = CheckBox(
             text='text',
-            tool_tip='tool tip',
-            checkable=True,
             checked=True
         )
         self.assertEqual(context.text, 'text')
-        self.assertEqual(context.tool_tip, 'tool tip')
-        self.assertEqual(context.checkable, True)
         self.assertEqual(context.checked, True)
 
     def testProperties(self):
-        context = Button()
+        context = CheckBox()
 
     def testMethods(self):
-        context = Button()
+        context = CheckBox()
 
 if __name__ == '__main__':
     unittest.main()

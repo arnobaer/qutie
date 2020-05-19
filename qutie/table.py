@@ -11,7 +11,7 @@ __all__ = ['Table', 'TableItem']
 
 @bind(QtWidgets.QTableWidget)
 class Table(BaseItemView):
-    """Table
+    """Table widget.
 
     >>> table = Table(header=["Key", "Value"])
     >>> table.append(["Spam", "Eggs"])
@@ -186,6 +186,16 @@ class Table(BaseItemView):
                 first = data[0].data(data[0].UserType)
                 self.selected(first)
 
+    @property
+    def row_count(self):
+        """Return row count."""
+        return self.qt.rowCount()
+
+    @property
+    def column_count(self):
+        """Return column count."""
+        return self.qt.columnCount()
+
     def row(self, item):
         """Return item row."""
         return self.qt.row(item.qt)
@@ -201,7 +211,7 @@ class Table(BaseItemView):
         or
         >>> table.append(["Spam", "Eggs"])
         """
-        row = self.qt.rowCount()
+        row = self.row_count
         return self.insert(row, items)
 
     def insert(self, row, items):
@@ -220,9 +230,13 @@ class Table(BaseItemView):
         return self[row]
 
     def remove_row(self, row):
+        if row < 0:
+            row = max(0, self.row_count + row)
         self.qt.removeRow(row)
 
     def remove_column(self, column):
+        if column < 0:
+            column = max(0, self.column_count + column)
         self.qt.removeColumn(column)
 
     def clear(self):
@@ -260,7 +274,7 @@ class Table(BaseItemView):
 
     def __getitem__(self, key):
         items = []
-        for column in range(self.qt.columnCount()):
+        for column in range(self.column_count):
             item = self.qt.item(key, column)
             if item:
                 items.append(item.data(item.UserType))
@@ -280,7 +294,7 @@ class Table(BaseItemView):
         self.remove_row(key)
 
     def __len__(self):
-        return self.qt.rowCount()
+        return self.row_count
 
     def __iter__(self):
         return (self[row] for row in range(len(self)))
@@ -347,7 +361,7 @@ class TableItem(Base):
         icon = self.qt.icon()
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):

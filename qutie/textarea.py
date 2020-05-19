@@ -9,6 +9,16 @@ __all__ = ['TextArea']
 
 @bind(QtWidgets.QTextEdit)
 class TextArea(BaseWidget):
+    """Text area widget.
+
+    >>> textarea = TextArea('lorem')
+    >>> textarea.append(' ispum')
+    >>> textarea.value
+    'lorem ipsum'
+    >>> tree.clear()
+    textarea.value
+    ''
+    """
 
     def __init__(self, value=None, *, readonly=False, richtext=False, **kwargs):
         super().__init__(**kwargs)
@@ -27,6 +37,12 @@ class TextArea(BaseWidget):
 
     @property
     def readoly(self):
+        """Read only enabled.
+
+        >>> textarea.readonly = True
+        >>> textarea.readonly
+        True
+        """
         return self.qt.readOnly()
 
     @readoly.setter
@@ -35,6 +51,12 @@ class TextArea(BaseWidget):
 
     @property
     def richtext(self):
+        """Rich Text enabled.
+
+        >>> textarea.richtext = True
+        >>> textarea.richtext
+        True
+        """
         return self.qt.acceptRichText()
 
     @richtext.setter
@@ -42,19 +64,39 @@ class TextArea(BaseWidget):
         self.qt.setAcceptRichText(value)
 
     def append(self, text):
-        self.text = os.linesep.join((self.text, text))
+        """Append text as paragraph to current value.
+
+        >>> textarea = TextArea('lorem')
+        >>> textarea.append(' ipsum')
+        >>> textarea.value
+        'lorem\n ipsum'
+        """
+        self.qt.append(text)
 
     def insert(self, text):
+        """Insert text at cursor position.
+
+        >>> textarea.insert('ipsum')
+        """
         self.qt.insertPlainText(text)
 
     def clear(self):
+        """Clear current value.
+
+        >>> textarea.clear()
+        >>> textarea.value
+        ''
+        """
         self.qt.clear()
 
     def select_all(self):
+        """Select entire text."""
         self.qt.selectAll()
 
     def redo(self):
+        """Redo last user changes."""
         self.qt.redo()
 
     def undo(self):
+        """Undo last user changes."""
         self.qt.undo()

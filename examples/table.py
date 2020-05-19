@@ -9,6 +9,9 @@ table.vertical_header = True
 table.append([1002, "Ham", 2.39])
 table.append([1003, "Eggs", 1.05])
 table.insert(0, [1000, "Spam", 0.75])
+table.append([0, "Other", 0])
+table.remove_row(-1)
+
 table.fit(0)
 table.fit(2)
 

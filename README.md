@@ -30,6 +30,12 @@ app.run()
 Qutie (pronounced as _cutie_) provides a simple and easy to use pythonic
 interface to PyQt5.
 
+### Install
+
+```bash
+pip install qutie
+```
+
 ### Application
 
 A single `Application` object must be created before other widgets. To make use of the
@@ -125,7 +131,7 @@ Many widgets provide predefined events.
 
 ```python
 # Assigning callback functions
-ui.Number(value=4, changed=on_change, edited=on_edited)
+ui.Number(value=4, changed=on_change, editing_finished=on_edited)
 ```
 
 ### Settings

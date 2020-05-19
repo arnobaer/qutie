@@ -20,6 +20,7 @@ from .progressbar import *
 from .scrollarea import *
 from .settings import *
 from .splitter import *
+from .stack import *
 from .table import *
 from .tabs import *
 from .text import *
@@ -28,4 +29,4 @@ from .tree import *
 from .widget import *
 from .worker import *
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'

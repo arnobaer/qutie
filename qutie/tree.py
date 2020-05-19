@@ -11,7 +11,7 @@ __all__ = ['Tree']
 
 @bind(QtWidgets.QTreeWidget)
 class Tree(BaseItemView):
-    """Tree
+    """Tree widget.
 
     >>> tree = Tree(header=["Key", "Value"])
     >>> tree.append(["Spam", "Eggs"])
@@ -166,7 +166,7 @@ class Tree(BaseItemView):
         return item
 
     def remove(self, item):
-        index = self.qt.indexOfTopLevelItem(item)
+        index = self.qt.indexOfTopLevelItem(item.qt)
         self.qt.takeTopLevelItem(index)
 
     def clear(self):
@@ -197,7 +197,7 @@ class Tree(BaseItemView):
         else:
             self.qt.resizeColumnToContents(column)
 
-    def ensure_visible(self, item):
+    def scroll_to(self, item):
         """Scroll to item to ensure item is visible."""
         self.qt.scrollToItem(item.qt)
 
@@ -333,7 +333,7 @@ class TreeItemColumn:
         icon = self.qt.icon(self.column)
         if icon.isNull():
             return None
-        return Icon(icon)
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):

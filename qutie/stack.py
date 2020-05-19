@@ -2,34 +2,12 @@ from .qt import QtCore
 from .qt import QtWidgets
 from .qt import bind
 
-from .widget import BaseWidget, Widget
+from .widget import BaseWidget
 
-__all__ = [
-    'Tab',
-    'Tabs'
-]
+__all__ = ['Stack']
 
-class Tab(Widget):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @property
-    def title(self):
-        return self.qt.windowTitle()
-
-    @title.setter
-    def title(self, value):
-        self.qt.setWindowTitle(value)
-        # Update tab title
-        parent = self.qt.parent()
-        if parent:
-            if parent.parent():
-                index = parent.parent().indexOf(self.qt)
-                parent.parent().setTabText(index, value)
-
-@bind(QtWidgets.QTabWidget)
-class Tabs(BaseWidget):
+@bind(QtWidgets.QStackedWidget)
+class Stack(BaseWidget):
 
     def __init__(self, *items, changed=None, **kwargs):
         super().__init__(**kwargs)
@@ -43,38 +21,34 @@ class Tabs(BaseWidget):
     def items(self):
         return list(self)
 
-    def append(self, tab):
-        self.qt.addTab(tab.qt, tab.title)
+    def append(self, item):
+        self.qt.addWidget(item.qt)
 
-    def insert(self, index, tab):
+    def insert(self, index, item):
         if index < 0:
             index = max(0, len(self) + index)
-        self.qt.insertTab(index, tab.qt, tab.title)
+        self.qt.insertWidget(index, item.qt)
 
-    def remove(self, tab):
-        index = self.qt.indexOf(tab.qt)
-        self.qt.removeTab(index)
+    def remove(self, item):
+        self.qt.removeWidget(item.qt)
 
     @property
     def current(self):
-        index = self.qt.currentIndex()
-        return self[index]
+        item = self.qt.currentIndex()
+        if item is not None:
+            return item.property(self.QtPropertyKey)
+        return item
 
     @current.setter
     def current(self, item):
-        index = self.index(item)
+        index = self.qt.indexOf(item.qt)
         self.qt.setCurrentIndex(index)
 
     def index(self, item):
         index = self.qt.indexOf(item.qt)
         if index < 0:
-            raise ValueError("item not in tabs")
+            raise ValueError("item not in stack")
         return index
-
-    def clear(self):
-        """Remove all tabs."""
-        while len(self):
-            self.remove(self.current)
 
     @property
     def changed(self):
@@ -89,17 +63,18 @@ class Tabs(BaseWidget):
             self.changed(index)
 
     def __getitem__(self, key):
-        widget = self.qt.widget(key)
-        if not widget:
+        item = self.qt.widget(key)
+        if not item:
             raise KeyError(key)
-        return widget.property(self.QtPropertyKey)
+        return item.property(self.QtPropertyKey)
 
     def __setitem__(self, key, value):
         del self[index]
         self.insert(key, value)
 
     def __delitem__(self, key):
-        self.qt.removeTab(key)
+        item = self[index]
+        self.qt.removeWidget(item)
 
     def __len__(self):
         return self.qt.count()

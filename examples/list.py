@@ -7,6 +7,8 @@ listing = ui.List()
 listing.append("Ham")
 listing.append("Eggs")
 listing.insert(0, "Spam")
+item = listing.append("Other")
+listing.remove(item)
 
 # listing.view_mode = 'icon'
 # listing.resize_mode = 'adjust'
@@ -15,6 +17,7 @@ listing.insert(0, "Spam")
 for item in listing:
     item.color = 'blue'
     item.icon = 'grey'
+    item.checkable = True
     item.checked = not listing.index(item) % 2
 
 for index in range(len(listing)):

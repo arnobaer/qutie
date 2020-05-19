@@ -13,6 +13,9 @@ item.append([1002, "Spam Hot & Spicy", 0.95])
 item.append([1003, "Jalapeño Spam", 0.89])
 item.insert(0, [1001, "Spam Classic", 0.75])
 
+item = tree.append([0, "Other", 0])
+tree.remove(item)
+
 tree.fit(0)
 tree.fit(2)
 

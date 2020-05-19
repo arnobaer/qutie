@@ -62,7 +62,7 @@ class Number(BaseWidget):
     def step(self):
         return self.qt.singleStep()
 
-    @minimum.setter
+    @step.setter
     def step(self, value):
         self.qt.setSingleStep(value)
 
@@ -104,7 +104,7 @@ class Number(BaseWidget):
     def readonly(self):
         return self.qt.isReadOnly()
 
-    @value.setter
+    @readonly.setter
     def readonly(self, value):
         self.qt.setReadOnly(value)
         if value:
