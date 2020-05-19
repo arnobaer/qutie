@@ -197,7 +197,7 @@ class Tree(BaseItemView):
         else:
             self.qt.resizeColumnToContents(column)
 
-    def ensure_visible(self, item):
+    def scroll_to(self, item):
         """Scroll to item to ensure item is visible."""
         self.qt.scrollToItem(item.qt)
 

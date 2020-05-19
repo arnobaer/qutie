@@ -135,7 +135,7 @@ class List(BaseItemView):
             raise IndexError(item)
         self.qt.takeItem(index)
 
-    def ensure_visible(self, item):
+    def scroll_to(self, item):
         self.qt.scrollToItem(item.qt)
 
     @property
