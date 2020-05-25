@@ -10,7 +10,6 @@ __all__ = ['Worker', 'StopRequest']
 
 class StopRequest(Exception):
     """Raise to stop worker execution."""
-    pass
 
 @bind(QtCore.QObject)
 class Worker(Object):
@@ -113,7 +112,7 @@ class Worker(Object):
         """Return True while worker thread is alive."""
         with self.__lock:
             if self.__thread:
-                return self.__thread.alive()
+                return self.__thread.is_alive()
         return False
 
     def __run(self):

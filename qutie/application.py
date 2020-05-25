@@ -36,9 +36,9 @@ class CoreApplication(Object):
         self.qt.organizationDomainChanged.connect(self.__handle_domain_changed)
 
     @classmethod
-    def instance(self):
-        if self.QtClass.instance() is not None:
-            return self.QtClass.instance().property(self.QtPropertyKey)
+    def instance(cls):
+        if cls.QtClass.instance() is not None:
+            return cls.QtClass.instance().property(cls.QtPropertyKey)
         return None
 
     @property
@@ -153,7 +153,10 @@ class GuiApplication(CoreApplication):
 
     @property
     def icon(self):
-        return Icon._from_qt(self.qt.windowIcon())
+        icon = self.qt.windowIcon()
+        if icon.isNull():
+            return None
+        return Icon(qt=icon)
 
     @icon.setter
     def icon(self, value):

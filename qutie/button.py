@@ -1,3 +1,4 @@
+from .qt import QtGui
 from .qt import QtWidgets
 from .qt import bind
 
@@ -79,7 +80,7 @@ class BaseButton(Widget):
     def clicked(self, value):
         self.__clicked = value
 
-    def __handle_clicked(self, checked):
+    def __handle_clicked(self, _):
         if callable(self.clicked):
             self.clicked()
 
@@ -111,7 +112,7 @@ class BaseButton(Widget):
     def toggled(self):
         return self.__toggled
 
-    @clicked.setter
+    @toggled.setter
     def toggled(self, value):
         self.__toggled = value
 

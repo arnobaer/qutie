@@ -1,5 +1,3 @@
-import os
-
 from .qt import QtWidgets
 from .qt import bind
 

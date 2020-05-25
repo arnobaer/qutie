@@ -1,4 +1,3 @@
-from .qt import QtGui
 from .qt import QtWidgets
 from .qt import bind
 
@@ -12,8 +11,8 @@ class Menu(BaseWidget):
 
     def __init__(self, *items, text=None, **kwargs):
         super().__init__(**kwargs)
-        for items in items:
-            self.append(items)
+        for item in items:
+            self.append(item)
         if text is not None:
             self.text = text
 
@@ -40,20 +39,20 @@ class Menu(BaseWidget):
     def insert(self, before, item):
         if isinstance(item, Action):
             if isinstance(before, Menu):
-                self.qt.insertAction(before.qt.menuAction(), action.qt)
+                self.qt.insertAction(before.qt.menuAction(), item.qt)
             else:
-                self.qt.insertAction(before.qt, action.qt)
+                self.qt.insertAction(before.qt, item.qt)
         elif isinstance(item, Menu):
             if isinstance(before, Menu):
-                self.qt.insertMenu(before.qt.menuAction(), menu.qt)
+                self.qt.insertMenu(before.qt.menuAction(), item.qt)
             else:
-                self.qt.insertMenu(before.qt, menu.qt)
+                self.qt.insertMenu(before.qt, item.qt)
         elif isinstance(item, str):
-            tem = Action(item)
+            item = Action(item)
             if isinstance(before, Menu):
-                self.qt.insertAction(before.qt.menuAction(), action.qt)
+                self.qt.insertAction(before.qt.menuAction(), item.qt)
             else:
-                self.qt.insertAction(before.qt, action.qt)
+                self.qt.insertAction(before.qt, item.qt)
         else:
             raise ValueError(item)
         return item

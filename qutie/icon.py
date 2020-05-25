@@ -53,7 +53,7 @@ class Icon(Base):
                 pixmap = Pixmap.QtClass(64, 64)
                 pixmap.fill(color)
                 self.qt.addPixmap(pixmap)
-            except:
+            except Exception:
                 self.qt.addFile(value)
         elif isinstance(value, Pixmap):
             self.qt.addPixmap(value.qt)

@@ -65,7 +65,7 @@ class GroupBox(Widget):
     def clicked(self, value):
         self.__clicked = value
 
-    def __handle_clicked(self, checked):
+    def __handle_clicked(self, _):
         if callable(self.clicked):
             self.clicked()
 

@@ -413,7 +413,7 @@ class TableItem(Base):
 
     @property
     def checkable(self):
-        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
+        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
     def checkable(self, value):

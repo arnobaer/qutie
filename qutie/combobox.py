@@ -1,9 +1,6 @@
-from .qt import QtCore
-from .qt import QtGui
 from .qt import QtWidgets
 from .qt import bind
 
-from .base import Base
 from .widget import BaseWidget
 
 __all__ = ['ComboBox']

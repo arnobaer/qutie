@@ -1,6 +1,7 @@
 """Widget module."""
 
 from .qt import QtCore
+from .qt import QtGui
 from .qt import QtWidgets
 from .qt import bind
 
@@ -255,10 +256,10 @@ class BaseWidget(Object):
     def __handle_close_event(self, event):
         # Overwrite slot closeEvent
         if callable(self.close_event):
-            if self.close_event() == False:
+            if not self.close_event():
                 event.ignore()
                 return
-        super(type(self.qt), self.qt).closeEvent(event)
+        super(self.qt.__class__, self.qt).closeEvent(event)
 
 class Widget(BaseWidget):
     """Widget for components with layout."""
