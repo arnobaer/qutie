@@ -1,3 +1,5 @@
+"""Widget module."""
+
 from .qt import QtCore
 from .qt import QtWidgets
 from .qt import bind
@@ -225,16 +227,24 @@ class BaseWidget(Object):
         self.qt.setToolTipDuration(value * 1000.)
 
     def close(self):
-        self.qt.close()
-
-    def update(self):
-        self.qt.update()
+        """Close widget, return True if widget was closed."""
+        return self.qt.close()
 
     def show(self):
+        """Show widget and all child widgets."""
         self.qt.show()
 
     def hide(self):
+        """Hide widget and all child widgets."""
         self.qt.hide()
+
+    def down(self):
+        """Lower widget to bottom of parent widget's stack."""
+        self.qt.lower()
+
+    def up(self):
+        """Raise widget to top of parent widget's stack."""
+        self.qt.raise_()
 
     def resize(self, width, height):
         self.qt.resize(width, height)
