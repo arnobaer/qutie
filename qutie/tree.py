@@ -179,6 +179,11 @@ class Tree(BaseItemView):
         if item is not None:
             return item.data(0, item.UserType)
 
+    @current.setter
+    def current(self, value):
+        assert isinstance(value, TreeItem)
+        self.qt.setCurrentItem(value.qt)
+
     def index(self, item):
         return self.qt.indexOfTopLevelItem(item.qt)
 
