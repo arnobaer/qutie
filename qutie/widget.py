@@ -268,7 +268,7 @@ class Widget(BaseWidget):
         layout = self.qt.layout()
         if layout is not None:
             if layout.count():
-                return layout.itemAt(0).widget().reflection()
+                return layout.itemAt(0).widget().property(self.QtPropertyKey)
         return None
 
     @layout.setter
