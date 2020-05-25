@@ -1,4 +1,6 @@
+import logging
 import random
+import time
 
 import qutie as ui
 
@@ -182,6 +184,7 @@ def main():
     item.checkable = True
     item[0].checked = True
 
+    tree.current = tree[3]
     tree.fit()
 
     table = ui.Table(
@@ -220,6 +223,7 @@ def main():
     item[0].checkable = True
     item[0].checked = True
 
+    table.current = table[3][0]
     table.fit()
 
     list_ = ui.List(
@@ -384,14 +388,13 @@ def main():
     window.show()
 
     def on_run(worker):
-        import random
-        import time
-        import logging
         value = 0.0
         logging.info("worker:started")
         while not worker.stopping:
             worker.emit('progress', value)
             worker.emit('message', f"about {value:.1f} %")
+            worker.set('reading', value)
+            worker.emit('reading_available')
             value += random.random()
             time.sleep(random.random())
             if value >= 100.0:
@@ -412,6 +415,10 @@ def main():
     def on_message(text):
         window.message.text = text
     worker.message = on_message
+    def on_reading_available():
+        value = worker.get('reading')
+        print("reading:", value)
+    worker.reading_available = on_reading_available
     worker.start()
 
     def on_window_close():
