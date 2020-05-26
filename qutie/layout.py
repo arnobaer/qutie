@@ -38,7 +38,7 @@ class BoxLayout(BaseWidget):
         self.qt.layout().addWidget(child.qt)
 
     def insert(self, index, child):
-        self.qt.layout().insertWidget(child.qt)
+        self.qt.layout().insertWidget(index, child.qt)
 
     def remove(self, child):
         index = self.qt.layout().indexOf(child.qt)

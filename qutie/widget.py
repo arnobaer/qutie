@@ -1,4 +1,7 @@
+"""Widget module."""
+
 from .qt import QtCore
+from .qt import QtGui
 from .qt import QtWidgets
 from .qt import bind
 
@@ -225,16 +228,24 @@ class BaseWidget(Object):
         self.qt.setToolTipDuration(value * 1000.)
 
     def close(self):
-        self.qt.close()
-
-    def update(self):
-        self.qt.update()
+        """Close widget, return True if widget was closed."""
+        return self.qt.close()
 
     def show(self):
+        """Show widget and all child widgets."""
         self.qt.show()
 
     def hide(self):
+        """Hide widget and all child widgets."""
         self.qt.hide()
+
+    def down(self):
+        """Lower widget to bottom of parent widget's stack."""
+        self.qt.lower()
+
+    def up(self):
+        """Raise widget to top of parent widget's stack."""
+        self.qt.raise_()
 
     def resize(self, width, height):
         self.qt.resize(width, height)
@@ -245,10 +256,10 @@ class BaseWidget(Object):
     def __handle_close_event(self, event):
         # Overwrite slot closeEvent
         if callable(self.close_event):
-            if self.close_event() == False:
+            if not self.close_event():
                 event.ignore()
                 return
-        super(type(self.qt), self.qt).closeEvent(event)
+        super(self.qt.__class__, self.qt).closeEvent(event)
 
 class Widget(BaseWidget):
     """Widget for components with layout."""

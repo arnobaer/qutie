@@ -1,7 +1,6 @@
 from .qt import QtWidgets
 from .qt import bind
 
-from .action import Action
 from .menu import Menu
 from .widget import BaseWidget
 
@@ -13,7 +12,7 @@ class MenuBar(BaseWidget):
     def __init__(self, *items, **kwargs):
         super().__init__(**kwargs)
         for item in items:
-            self.append()
+            self.append(item)
 
     def append(self, item):
         if isinstance(item, str):

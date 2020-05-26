@@ -25,6 +25,7 @@ for index in range(len(listing)):
 
 listing.title = f"items: {len(listing)}"
 
+listing.current = listing[1]
 listing.resize(320, 240)
 listing.show()
 

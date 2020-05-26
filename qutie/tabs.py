@@ -1,4 +1,3 @@
-from .qt import QtCore
 from .qt import QtWidgets
 from .qt import bind
 
@@ -33,8 +32,8 @@ class Tabs(BaseWidget):
 
     def __init__(self, *items, changed=None, **kwargs):
         super().__init__(**kwargs)
-        for items in items:
-            self.append(items)
+        for item in items:
+            self.append(item)
         self.changed = changed
         # Connect signals
         self.qt.currentChanged.connect(self.__handle_changed)
@@ -73,7 +72,7 @@ class Tabs(BaseWidget):
 
     def clear(self):
         """Remove all tabs."""
-        while len(self):
+        while 0 != len(self):
             self.remove(self.current)
 
     @property
@@ -95,7 +94,7 @@ class Tabs(BaseWidget):
         return widget.property(self.QtPropertyKey)
 
     def __setitem__(self, key, value):
-        del self[index]
+        del self[key]
         self.insert(key, value)
 
     def __delitem__(self, key):

@@ -123,7 +123,7 @@ class Table(BaseItemView):
     def activated(self, value):
         self.__activated = value
 
-    def __handle_activated(self):
+    def __handle_activated(self, item):
         if callable(self.activated):
             data = item.data(item.UserType)
             if data is not None:
@@ -250,6 +250,11 @@ class Table(BaseItemView):
         if item is not None:
             return item.data(item.UserType)
         return None
+
+    @current.setter
+    def current(self, value):
+        assert isinstance(value, TableItem)
+        self.qt.setCurrentItem(value.qt)
 
     @property
     def stretch(self):
@@ -408,7 +413,7 @@ class TableItem(Base):
 
     @property
     def checkable(self):
-        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
+        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
     def checkable(self, value):

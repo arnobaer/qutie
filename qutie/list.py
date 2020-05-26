@@ -146,7 +146,7 @@ class List(BaseItemView):
     def changed(self, value):
         self.__changed = value
 
-    def __handle_changed(self, current, previous):
+    def __handle_changed(self, current, _):
         if callable(self.changed):
             index = self.qt.row(current)
             item = self[index]
@@ -313,7 +313,7 @@ class ListItem(Base):
 
     @property
     def checkable(self):
-        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
+        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
     def checkable(self, value):

@@ -41,9 +41,9 @@ class Pixmap(Base):
         self.qt.fill(QtGui.QColor(color))
 
     @classmethod
-    def create(self, width, height, color=None):
+    def create(cls, width, height, color=None):
         """Return new pixmap instance, with optional fill color."""
-        pixmap = Pixmap(qt=self.QtClass(width, height))
+        pixmap = Pixmap(qt=cls.QtClass(width, height))
         if color is not None:
             pixmap.fill(color)
         return pixmap

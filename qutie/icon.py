@@ -48,12 +48,13 @@ class Icon(Base):
 
     def append(self, value):
         if isinstance(value, str):
-            try:
-                color = QtGui.QColor(value)
+            # Try to create color from string
+            color = QtGui.QColor(value)
+            if color.isValid():
                 pixmap = Pixmap.QtClass(64, 64)
                 pixmap.fill(color)
                 self.qt.addPixmap(pixmap)
-            except:
+            else:
                 self.qt.addFile(value)
         elif isinstance(value, Pixmap):
             self.qt.addPixmap(value.qt)

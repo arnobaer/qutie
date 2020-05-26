@@ -25,6 +25,7 @@ for row in range(len(table)):
 
 table.title = f"rows: {len(table)}"
 
+table.current = table[1][0]
 table.minimum_size = 320, 240
 table.resize(320, 240)
 table.show()

@@ -178,6 +178,12 @@ class Tree(BaseItemView):
         item = self.qt.currentItem()
         if item is not None:
             return item.data(0, item.UserType)
+        return item
+
+    @current.setter
+    def current(self, value):
+        assert isinstance(value, TreeItem)
+        self.qt.setCurrentItem(value.qt)
 
     def index(self, item):
         return self.qt.indexOfTopLevelItem(item.qt)
@@ -252,7 +258,7 @@ class TreeItem(Base):
 
     @property
     def checkable(self):
-        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable == True
+        return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
     def checkable(self, value):

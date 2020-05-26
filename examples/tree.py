@@ -29,6 +29,7 @@ for index in range(len(tree)):
 
 tree.title = f"items: {len(tree)}"
 
+tree.current = tree[1]
 tree.minimum_size = 320, 240
 tree.resize(320, 240)
 tree.show()

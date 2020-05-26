@@ -1,4 +1,3 @@
-from .qt import QtCore
 from .qt import QtWidgets
 from .qt import bind
 

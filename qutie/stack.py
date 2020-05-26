@@ -11,8 +11,8 @@ class Stack(BaseWidget):
 
     def __init__(self, *items, changed=None, **kwargs):
         super().__init__(**kwargs)
-        for items in items:
-            self.append(items)
+        for item in items:
+            self.append(item)
         self.changed = changed
         # Connect signals
         self.qt.currentChanged.connect(self.__handle_changed)
@@ -69,11 +69,11 @@ class Stack(BaseWidget):
         return item.property(self.QtPropertyKey)
 
     def __setitem__(self, key, value):
-        del self[index]
+        del self[key]
         self.insert(key, value)
 
     def __delitem__(self, key):
-        item = self[index]
+        item = self[key]
         self.qt.removeWidget(item)
 
     def __len__(self):
