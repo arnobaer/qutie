@@ -212,7 +212,7 @@ class Table(BaseItemView):
     def append(self, items):
         """Append items, returns appended items.
 
-        >>> table.append(TableItem(value="Spam"), TableItem(value="Eggs"))
+        >>> table.append([TableItem(value="Spam"), TableItem(value="Eggs")])
         or
         >>> table.append(["Spam", "Eggs"])
         """
@@ -222,7 +222,7 @@ class Table(BaseItemView):
     def insert(self, row, items):
         """Insert items at row, returns inserted items.
 
-        >>> table.insert(0, TableItem(value="Spam"), TableItem(value="Eggs"))
+        >>> table.insert(0, [TableItem(value="Spam"), TableItem(value="Eggs")])
         or
         >>> table.insert(0, ["Spam", "Eggs"])
         """
