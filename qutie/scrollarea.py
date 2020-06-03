@@ -1,3 +1,8 @@
+"""A scrollable area.
+
+For more information on the underlying Qt5 object see [QScrollArea](https://doc.qt.io/qt-5/qscrollarea.html).
+"""
+
 from .qt import QtGui
 from .qt import QtWidgets
 from .qt import bind
@@ -8,6 +13,7 @@ __all__ = ['ScrollArea']
 
 @bind(QtWidgets.QScrollArea)
 class ScrollArea(Widget):
+    """A scrollable area."""
 
     def __init__(self, layout=None, **kwargs):
         super().__init__(**kwargs)

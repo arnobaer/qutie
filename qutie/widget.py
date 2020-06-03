@@ -1,4 +1,7 @@
-"""Widget module."""
+"""Base classes of all user interface objects.
+
+For more information on the underlying Qt5 object see [QWidget](https://doc.qt.io/qt-5/qwidget.html).
+"""
 
 from .qt import QtCore
 from .qt import QtGui
@@ -9,7 +12,7 @@ from .icon import Icon
 from .object import Object
 
 __all__ = [
-    'Widget',
+    'Widget', 'BaseWidget',
 ]
 
 @bind(QtWidgets.QWidget)

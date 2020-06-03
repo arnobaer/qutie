@@ -1,3 +1,8 @@
+"""Simple item based tree view.
+
+For more information on the underlying Qt5 objects see [QTreeWidget](https://doc.qt.io/qt-5/qtreewidget.html) and [QTreeWidgetItem](https://doc.qt.io/qt-5/qtreewidgetitem.html).
+"""
+
 from .qt import QtCore
 from .qt import QtGui
 from .qt import QtWidgets
@@ -7,7 +12,7 @@ from .base import Base
 from .icon import Icon
 from .list import BaseItemView
 
-__all__ = ['Tree']
+__all__ = ['Tree', 'TreeItem', 'TreeItemColumn']
 
 @bind(QtWidgets.QTreeWidget)
 class Tree(BaseItemView):
@@ -227,6 +232,7 @@ class Tree(BaseItemView):
 
 @bind(QtWidgets.QTreeWidgetItem)
 class TreeItem(Base):
+    """Tree item class."""
 
     def __init__(self, values, **kwargs):
         super().__init__(**kwargs)
@@ -238,6 +244,7 @@ class TreeItem(Base):
 
     @property
     def children(self):
+        """List of tree item's children."""
         items = []
         for index in range(self.qt.childCount()):
             item = self.qt.child(index)
@@ -245,12 +252,14 @@ class TreeItem(Base):
         return items
 
     def append(self, item):
+        """Append child item to this item."""
         if not isinstance(item, TreeItem):
             item = TreeItem(item)
         self.qt.addChild(item.qt)
         return item
 
     def insert(self, index, item):
+        """Insert child item to this item."""
         if not isinstance(item, TreeItem):
             item = TreeItem(item)
         self.qt.insertChild(index, item.qt)
@@ -258,6 +267,7 @@ class TreeItem(Base):
 
     @property
     def checkable(self):
+        """Checkable state, `True` if item is checkable by user."""
         return self.qt.flags() & QtCore.Qt.ItemIsUserCheckable
 
     @checkable.setter
@@ -270,6 +280,7 @@ class TreeItem(Base):
 
     @property
     def expanded(self):
+        """Expanded state, `True` if item is expanded."""
         return self.qt.isExpanded()
 
     @expanded.setter
@@ -286,6 +297,7 @@ class TreeItem(Base):
         return (TreeItemColumn(column, self.qt) for column in range(len(self)))
 
 class TreeItemColumn:
+    """This class provides access to tree item column specific properties."""
 
     def __init__(self, column, qt):
         self.__column = column
@@ -301,6 +313,7 @@ class TreeItemColumn:
 
     @property
     def value(self):
+        """Column value."""
         return self.qt.data(self.column, self.qt.Type)
 
     @value.setter
@@ -309,6 +322,7 @@ class TreeItemColumn:
 
     @property
     def color(self):
+        """Column foreground color."""
         return self.qt.foreground(self.column).color().name()
 
     @color.setter
@@ -322,6 +336,7 @@ class TreeItemColumn:
 
     @property
     def background(self):
+        """Column background color."""
         return self.qt.background(self.column).color().name()
 
     @background.setter
@@ -336,6 +351,7 @@ class TreeItemColumn:
 
     @property
     def icon(self):
+        """Column icon, can be a `Pixmap`, filename or color."""
         icon = self.qt.icon(self.column)
         if icon.isNull():
             return None

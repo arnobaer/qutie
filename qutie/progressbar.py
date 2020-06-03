@@ -1,3 +1,8 @@
+"""Progress bar.
+
+For more information on the underlying Qt5 object see [QProgressBar](https://doc.qt.io/qt-5/qprogressbar.html).
+"""
+
 from .qt import QtWidgets
 from .qt import bind
 

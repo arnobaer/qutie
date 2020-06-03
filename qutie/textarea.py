@@ -1,3 +1,8 @@
+"""Text area input.
+
+For more information on the underlying Qt5 object see [QTextEdit](https://doc.qt.io/qt-5/qtextedit.html).
+"""
+
 from .qt import QtWidgets
 from .qt import bind
 
@@ -34,17 +39,17 @@ class TextArea(BaseWidget):
         self.qt.setPlainText(value)
 
     @property
-    def readoly(self):
+    def readonly(self):
         """Read only enabled.
 
         >>> textarea.readonly = True
         >>> textarea.readonly
         True
         """
-        return self.qt.readOnly()
+        return self.qt.isReadOnly()
 
-    @readoly.setter
-    def readoly(self, value):
+    @readonly.setter
+    def readonly(self, value):
         self.qt.setReadOnly(value)
 
     @property

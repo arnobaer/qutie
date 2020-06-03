@@ -1,3 +1,8 @@
+"""Simple item based table view.
+
+For more information on the underlying Qt5 objects see [QTableWidget](https://doc.qt.io/qt-5/qtablewidget.html) and [QTableWidgetItem](https://doc.qt.io/qt-5/qtablewidgetitem.html).
+"""
+
 from .qt import QtCore
 from .qt import QtGui
 from .qt import QtWidgets

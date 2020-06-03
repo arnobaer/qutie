@@ -1,3 +1,8 @@
+"""Stack widget.
+
+For more information on the underlying Qt5 object see [QStackedWidget](https://doc.qt.io/qt-5/qstackedwidget.html).
+"""
+
 from .qt import QtCore
 from .qt import QtWidgets
 from .qt import bind

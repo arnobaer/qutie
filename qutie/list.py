@@ -1,3 +1,8 @@
+"""Simple item based list view.
+
+For more information on the underlying Qt5 objects see [QListWidget](https://doc.qt.io/qt-5/qlistwidget.html) and [QListWidgetItem](https://doc.qt.io/qt-5/qlistwidgetitem.html).
+"""
+
 from .qt import QtCore
 from .qt import QtGui
 from .qt import QtWidgets

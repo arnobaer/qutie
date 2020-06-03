@@ -1,3 +1,8 @@
+"""Splitter widget.
+
+For more information on the underlying Qt5 object see [QSplitter](https://doc.qt.io/qt-5/qsplitter.html).
+"""
+
 from .qt import QtWidgets
 from .qt import bind
 
