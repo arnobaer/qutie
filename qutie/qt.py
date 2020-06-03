@@ -10,6 +10,7 @@ __all__ = [
 ]
 
 def bind(qt):
+    """Decorator used to bind custom events on a Qt base class."""
     def bind(cls):
         class QtClass(qt):
             eventEmitted = QtCore.pyqtSignal(str, object, object)

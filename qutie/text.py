@@ -1,3 +1,8 @@
+"""Single line text input.
+
+For more information on the underlying Qt5 object see [QLineEdit](https://doc.qt.io/qt-5/qlineedit.html).
+"""
+
 from .qt import QtWidgets
 from .qt import bind
 

@@ -1,5 +1,28 @@
+"""A convenient worker thread class.
+
+## Example Usage
+
+```python
+def calculate(worker):
+    for i in range(100):
+        # Emit custom events.
+        worker.emit('progress', i, 100)
+        worker.emit('message', "All ok...")
+
+worker = ui.Worker(target=calculate)
+# Assign custom event callbacks.
+worker.progress = lambda step, max: print(f"progress: {step}/{max}")
+worker.message = lambda msg: print(f"message: {msg}")
+worker.start()
+```
+
+For more information on the underlying Qt5 object see [QObject](https://doc.qt.io/qt-5/qobject.html).
+"""
+
 import copy
+import logging
 import threading
+import traceback
 
 from .qt import QtCore
 from .qt import bind
@@ -13,10 +36,13 @@ class StopRequest(Exception):
 
 @bind(QtCore.QObject)
 class Worker(Object):
+    """Worker thread class using python `threading`."""
 
-    def __init__(self, *, target=None, finished=None, failed=None, **kwargs):
+    def __init__(self, *, target=None, started=None, finished=None, failed=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self.target = target
+        self.started = started
         self.finished = finished
         self.failed = failed
         self.__lock = threading.RLock()
@@ -33,6 +59,14 @@ class Worker(Object):
         self.__target = value
 
     @property
+    def started(self):
+        return self.__started
+
+    @started.setter
+    def started(self, value):
+        self.__started = value
+
+    @property
     def finished(self):
         return self.__finished
 
@@ -42,6 +76,11 @@ class Worker(Object):
 
     @property
     def failed(self):
+        """Event triggered if exception is thrown from worker thread. Provides
+        arguments exception _e_ and traceback _tb_.
+
+        >>> worker.failed = lambda e, tb: ...
+        """
         return self.__failed
 
     @failed.setter
@@ -73,6 +112,7 @@ class Worker(Object):
             return tuple(self.__values.keys())
 
     def start(self):
+        """Start worker thread."""
         self.__start()
 
     def __start(self):
@@ -83,12 +123,16 @@ class Worker(Object):
             self.__thread.start()
 
     def stop(self):
+        """Stop worker. This will only work when using properties `stopping`
+        or `running` in `target`.
+        """
         self.__stop()
 
     def __stop(self):
         self.__stop_requested = True
 
     def join(self):
+        """Join thread, blocking until finished."""
         self.__join()
 
     def __join(self):
@@ -99,23 +143,24 @@ class Worker(Object):
 
     @property
     def stopping(self):
-        """Return True when stopping."""
+        """Return `True` when stopping."""
         return self.__stop_requested
 
     @property
     def running(self):
-        """Return True while not stopping."""
+        """Return `True` while not stopping."""
         return not self.__stop_requested
 
     @property
     def alive(self):
-        """Return True while worker thread is alive."""
+        """Return `True` while worker thread is alive."""
         with self.__lock:
             if self.__thread:
                 return self.__thread.is_alive()
         return False
 
     def __run(self):
+        self.emit('started')
         try:
             if self.target is None:
                 self.run()
@@ -124,7 +169,9 @@ class Worker(Object):
         except StopRequest:
             pass
         except Exception as e:
-            self.emit('failed', e)
+            tb = traceback.format_exc()
+            logging.error("%s %s: %s", self, type(e).__name__, e)
+            self.emit('failed', e, tb)
         finally:
             with self.__lock:
                 self.__stop_requested = False

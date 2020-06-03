@@ -1,3 +1,7 @@
+"""Storing persistent application settings on any platform using a context
+manager instance.
+"""
+
 import os
 import json
 

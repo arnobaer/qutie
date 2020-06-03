@@ -8,7 +8,7 @@ from .qt import bind
 from .icon import Icon
 from .object import Object
 
-__all__ = ['Application']
+__all__ = ['CoreApplication', 'GuiApplication', 'Application']
 
 @bind(QtCore.QCoreApplication)
 class CoreApplication(Object):
