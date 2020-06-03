@@ -234,13 +234,14 @@ class Tree(BaseItemView):
 class TreeItem(Base):
     """Tree item class."""
 
-    def __init__(self, values, **kwargs):
+    def __init__(self, values=None, **kwargs):
         super().__init__(**kwargs)
         self.qt._default_foreground = self.qt.foreground(0)
         self.qt._default_background = self.qt.background(0)
         self.qt.setData(0, self.qt.UserType, self)
-        for column, value in enumerate(values):
-            self[column].value = value
+        if values is not None:
+            for column, value in enumerate(values):
+                self[column].value = value
 
     @property
     def children(self):

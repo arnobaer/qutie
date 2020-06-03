@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
 
 setup(
     name='qutie',
-    version='1.3.0',
+    version='1.3.1',
     author="Bernhard Arnold",
     author_email="bernhard.arnold@oeaw.ac.at",
     description="Yet another pythonic UI library using PyQt5",
@@ -15,7 +15,7 @@ setup(
     url='https://github.com/arnobaer/qutie',
     packages=find_packages(exclude=['tests']),
     install_requires=[
-        'PyQt5>=5.14',
+        'PyQt5<5.15',
         'appdirs>=1.4.4'
     ],
     test_suite='tests',
