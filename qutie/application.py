@@ -1,3 +1,4 @@
+import signal
 import sys
 
 from .qt import QtCore
@@ -74,6 +75,17 @@ class CoreApplication(Object):
         self.qt.setOrganizationDomain(value)
 
     def run(self):
+        # Register interupt signal handler
+        def signal_handler(signum, frame):
+            if signum == signal.SIGINT:
+                self.quit()
+        signal.signal(signal.SIGINT, signal_handler)
+
+        # Run timer to process interrupt signals
+        timer = QtCore.QTimer()
+        timer.timeout.connect(lambda: None)
+        timer.start(250)
+
         return self.qt.exec_()
 
     def quit(self):
@@ -211,3 +223,7 @@ class Application(GuiApplication):
     def __handle_focus_changed(self, old, now):
         if callable(self.focus_changed):
             self.focus_changed(old, now)
+
+    def quit(self):
+        """Request quit application by closing all windows."""
+        self.qt.closeAllWindows()
