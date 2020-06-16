@@ -19,7 +19,7 @@ class Settings:
     ...    name = settings.get('app').get('name')
     """
 
-    suffix = '.qutie'
+    suffix = 'qutie'
 
     def __init__(self, persistent=True):
 
