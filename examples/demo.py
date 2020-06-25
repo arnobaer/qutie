@@ -146,6 +146,7 @@ def main():
 
     item = tree.append(["Color", "#33cc33"])
     item[0].color = "#33cc33"
+    item[0].background = "yellow"
     item[0].icon = "#33cc33"
     item.append(["red", 51])[0].icon = 'red'
     item.append(["green", 204])[0].icon = 'green'
@@ -193,6 +194,7 @@ def main():
 
     item = table.append(["green", "spam"])
     item[0].color = "green"
+    item[0].background = "yellow"
     item[0].icon = 'blue'
 
     item = table.append(["checked=0"])
@@ -233,6 +235,7 @@ def main():
 
     item = list_.append("green")
     item.color = "green"
+    item.background = "yellow"
     item.icon = ui.Icon.from_color('blue')
 
     item = list_.append("checked=0")
@@ -443,6 +446,7 @@ def main():
         ui.show_warning(text=message, title="Alert")
     w.alert = show_alert
     w.layout = ui.Button("Trigger Alert", clicked=lambda: w.emit('alert', random.choice(["Alert!", "This is not an exercise!"])))
+    w.modal = True # workaround to keep window in front
     w.show()
 
     app.run()

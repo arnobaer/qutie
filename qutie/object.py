@@ -55,12 +55,18 @@ class Object(Base):
         if callable(self.object_name_changed):
             self.object_name_changed(self.object_name)
 
-    def __handle_event(self, name, args, kwargs):
+    def __handle_event(self, name: str, args: list, kwargs: dict):
         if hasattr(self, name):
             attr = getattr(self, name)
             if callable(attr):
                 attr(*args, **kwargs)
 
-    def emit(self, _, *args, **kwargs):
-        """Emit event."""
-        self.qt.eventEmitted.emit(_, args, kwargs)
+    def emit(self, *args, **kwargs):
+        """Emit an event.
+
+        >>> o.event = lambda value: print(value) # assign event callback
+        >>> o.emit('event', 42)
+        """
+        if not args:
+            raise ValueError("Missing event argument.")
+        self.qt.eventEmitted.emit(args[0], args[1:], kwargs)

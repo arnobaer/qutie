@@ -316,9 +316,9 @@ class TableItem(Base):
                  enabled=True, readonly=True, checked=None, checkable=None,
                  **kwargs):
         super().__init__(**kwargs)
-        self.qt.setData(self.qt.UserType, self)
         self.__default_foreground = self.qt.foreground()
         self.__default_background = self.qt.background()
+        self.qt.setData(self.qt.UserType, self)
         self.value = value
         self.color = color
         self.background = background
@@ -346,10 +346,9 @@ class TableItem(Base):
     @color.setter
     def color(self, value):
         if value is None:
-            brush = self.__default_foreground
+            brush = QtGui.QBrush(self.__default_foreground)
         else:
-            brush = self.qt.foreground()
-            brush.setColor(QtGui.QColor(value))
+            brush = QtGui.QBrush(QtGui.QColor(value))
         self.qt.setForeground(brush)
 
     @property
@@ -359,11 +358,9 @@ class TableItem(Base):
     @background.setter
     def background(self, value):
         if value is None:
-            brush = self.__default_background
+            brush = QtGui.QBrush(self.__default_background)
         else:
-            brush = self.qt.background()
-            brush.setStyle(QtCore.Qt.SolidPattern)
-            brush.setColor(QtGui.QColor(value))
+            brush = QtGui.QBrush(QtGui.QColor(value))
         self.qt.setBackground(brush)
 
     @property

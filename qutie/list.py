@@ -229,9 +229,9 @@ class ListItem(Base):
     def __init__(self, value, *, color=None, background=None, icon=None,
                  enabled=True, checked=None, checkable=False, **kwargs):
         super().__init__(**kwargs)
-        self.qt.setData(self.QtPropertyRole, self)
         self.__default_foreground = self.qt.foreground()
         self.__default_background = self.qt.background()
+        self.qt.setData(self.QtPropertyRole, self)
         self.value = value
         self.color = color
         self.background = background
@@ -257,10 +257,9 @@ class ListItem(Base):
     @color.setter
     def color(self, value):
         if value is None:
-            brush = self.__default_foreground
+            brush = QtGui.QBrush(self.__default_foreground)
         else:
-            brush = self.qt.foreground()
-            brush.setColor(QtGui.QColor(value))
+            brush = QtGui.QBrush(QtGui.QColor(value))
         self.qt.setForeground(brush)
 
     @property
@@ -270,11 +269,9 @@ class ListItem(Base):
     @background.setter
     def background(self, value):
         if value is None:
-            brush = self.__default_background
+            brush = QtGui.QBrush(self.__default_background)
         else:
-            brush = self.qt.background()
-            brush.setStyle(QtCore.Qt.SolidPattern)
-            brush.setColor(QtGui.QColor(value))
+            brush = QtGui.QBrush(QtGui.QColor(value))
         self.qt.setBackground(brush)
 
     @property

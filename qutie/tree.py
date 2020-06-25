@@ -236,8 +236,8 @@ class TreeItem(Base):
 
     def __init__(self, values=None, **kwargs):
         super().__init__(**kwargs)
-        self.qt._default_foreground = self.qt.foreground(0)
-        self.qt._default_background = self.qt.background(0)
+        self.__default_foreground = self.qt.foreground(0)
+        self.__default_background = self.qt.background(0)
         self.qt.setData(0, self.qt.UserType, self)
         if values is not None:
             for column, value in enumerate(values):
@@ -323,31 +323,26 @@ class TreeItemColumn:
 
     @property
     def color(self):
-        """Column foreground color."""
         return self.qt.foreground(self.column).color().name()
 
     @color.setter
     def color(self, value):
         if value is None:
-            brush = self.qt._default_foreground
+            brush = QtGui.QBrush(self.__default_foreground)
         else:
-            brush = self.qt.foreground(self.column)
-            brush.setColor(QtGui.QColor(value))
+            brush = QtGui.QBrush(QtGui.QColor(value))
         self.qt.setForeground(self.column, brush)
 
     @property
     def background(self):
-        """Column background color."""
         return self.qt.background(self.column).color().name()
 
     @background.setter
     def background(self, value):
         if value is None:
-            brush = self.qt._default_background
+            brush = QtGui.QBrush(self.__default_background)
         else:
-            brush = self.qt.background(self.column)
-            brush.setStyle(QtCore.Qt.SolidPattern)
-            brush.setColor(QtGui.QColor(value))
+            brush = QtGui.QBrush(QtGui.QColor(value))
         self.qt.setBackground(self.column, brush)
 
     @property
