@@ -114,7 +114,7 @@ be emitted from any class inheriting from `Object` by calling method `emit()`.
 ```python
 # Use any callable class attribute as event callback.
 window.issue_call = lambda: print("Call to action!")
-# Emit an event executing `on_call` (if callable).
+# Emit an event executing attribute `issue_call` (if callable).
 window.emit('issue_call')
 ```
 
@@ -123,7 +123,7 @@ Events can also propagate positional and keyword arguments.
 ```python
 # Use any callable class attribute as event callback.
 window.update_progress = lambda a, b: print(f"Progress: {a} of {b}")
-# Emit an event executing `on_call` (if callable).
+# Emit an event executing attribute `update_progress` (if callable).
 window.emit('update_progress', 42, 100)
 ```
 

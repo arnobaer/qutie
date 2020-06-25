@@ -443,6 +443,7 @@ def main():
         ui.show_warning(text=message, title="Alert")
     w.alert = show_alert
     w.layout = ui.Button("Trigger Alert", clicked=lambda: w.emit('alert', random.choice(["Alert!", "This is not an exercise!"])))
+    w.modal = True # workaround to keep window in front
     w.show()
 
     app.run()
