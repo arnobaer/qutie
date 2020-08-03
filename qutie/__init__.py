@@ -89,8 +89,9 @@ from .table import *
 from .tabs import *
 from .text import *
 from .textarea import *
+from .timer import *
 from .tree import *
 from .widget import *
 from .worker import *
 
-__version__ = '1.3.3'
+__version__ = '1.4.0'

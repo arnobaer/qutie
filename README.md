@@ -16,7 +16,7 @@ window = ui.Widget(
     layout=ui.Column(
         ui.Label("Hello world!", color='blue'),
         ui.Row(
-            ui.Button("Click!", clicked=lambda: ui.show_info(text="Hello world!")),
+            ui.Button("Go!", clicked=lambda: ui.show_info(text="Hello world!")),
             ui.Button("Quit", clicked=app.quit)
         )
     )
@@ -38,8 +38,8 @@ pip install qutie
 
 ### Application
 
-A single `Application` object must be created before other widgets. To make use of the
-event system the application event loop must be executed.
+A single `Application` object must be created before other widgets. To make use
+of the event system the application event loop must be executed.
 
 ```python
 import qutie as ui
@@ -133,6 +133,24 @@ Many widgets provide predefined events.
 # Assigning callback functions
 ui.Number(value=4, changed=on_change, editing_finished=on_edited)
 ```
+
+### Timers
+
+Call repeating or delayed events using timers.
+
+```python
+timer = ui.Timer(interval=1.0, timeout=lambda: print("Done!"))
+timer.start()
+```
+
+Function `single_shot` exposes a convenient single shot timer.
+
+```python
+ui.single_shot(interval=1.0, timeout=lambda: print("Done!"))
+```
+
+Note that timer events are only processed when running the application event
+loop.
 
 ### Settings
 

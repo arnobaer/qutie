@@ -1,3 +1,4 @@
+import itertools
 import logging
 import random
 import time
@@ -151,6 +152,13 @@ def main():
     item.append(["red", 51])[0].icon = 'red'
     item.append(["green", 204])[0].icon = 'green'
     item.append(["blue", 51])[0].icon = 'blue'
+
+    # Install blinking item background usign a timer
+    colors = itertools.cycle(["yellow", "orange"])
+    def toggle_color():
+        tree[0][0].background = next(colors)
+    timer = ui.Timer(interval=0.5, timeout=toggle_color)
+    timer.start()
 
     item = tree.append(["checked=0"])
     item[0].checked = False
