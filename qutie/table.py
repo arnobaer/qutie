@@ -61,7 +61,7 @@ class Table(BaseItemView):
         >>> table.header
         ('Key', 'Value')
         """
-        return self.qt.horizontalHeaderLabels()
+        return tuple([self.qt.horizontalHeaderItem(index).text() for index in range(self.qt.columnCount())])
 
     @header.setter
     def header(self, value):

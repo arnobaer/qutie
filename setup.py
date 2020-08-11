@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
 
 setup(
     name='qutie',
-    version='1.4.0',
+    version='1.4.1',
     author="Bernhard Arnold",
     author_email="bernhard.arnold@oeaw.ac.at",
     description="Yet another pythonic UI library using PyQt5",

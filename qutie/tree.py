@@ -52,7 +52,8 @@ class Tree(BaseItemView):
 
     @property
     def header(self):
-        return self.qt.headerLabels()
+        item = self.qt.headerItem()
+        return tuple([item.text(index) for index in range(self.qt.columnCount())])
 
     @header.setter
     def header(self, value):
