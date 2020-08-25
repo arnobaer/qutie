@@ -378,7 +378,7 @@ def main():
         text="&More..."
     ))
 
-    file_menu = window.menubar.insert(edit_menu, "&File")
+    file_menu = window.menubar.insert(window.menubar.index(edit_menu), "&File")
     file_menu.append(ui.Action(
         text="&Quit",
         status_tip="Quit application",
@@ -395,6 +395,8 @@ def main():
     window.message = ui.Label()
     window.statusbar.append(window.message)
 
+    main_toolbar = ui.ToolBar(file_menu[0], edit_menu[0])
+    window.append(main_toolbar)
 
     window.show()
 
