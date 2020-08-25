@@ -170,6 +170,41 @@ Use attribute `filename` to inspect the persistent JSON data.
 '/home/user/.config/app.qutie'
 ```
 
+### Menus
+
+Menu bars and menus behave like python lists.
+
+```python
+window = ui.MainWindow()
+file_menu = window.menubar.append("&File")
+quit_action = file_menu.append("&Quit")
+quit_action.triggered = window.close
+```
+
+```python
+foo_menu = window.menubar.insert(window.menubar.index(file_menu), "&Foo")
+```
+
+```python
+file_menu = window.menubar.remove(file_menu)
+```
+
+# Toolbars
+
+Toolbars also behave like python lists, the main window toolbars property
+behaves like a set.
+
+```python
+window = ui.MainWindow()
+toolbar = window.toolbars.add("toolbar")
+toolbar.append(quit_action)
+toolbar.insert(quit_action)
+```
+
+```python
+window.toolbars.remove(toolbar)
+```
+
 ### Workers
 
 The `Worker` class provides a convenient way to work with background threads.

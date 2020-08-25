@@ -3,6 +3,7 @@ from .qt import QtWidgets
 from .qt import bind
 
 from .object import Object
+from .icon import Icon
 
 __all__ = ['Action']
 
@@ -10,8 +11,8 @@ __all__ = ['Action']
 class Action(Object):
 
     def __init__(self, text=None, *, checkable=None, checked=False, tool_tip=None,
-                 status_tip=None, shortcut=None, separator=None, triggered=None,
-                 toggled=None, **kwargs):
+                 status_tip=None, shortcut=None, icon=None, separator=None,
+                 triggered=None, toggled=None, **kwargs):
         super().__init__(**kwargs)
         if text is not None:
             self.text = text
@@ -24,6 +25,8 @@ class Action(Object):
             self.status_tip = status_tip
         if shortcut is not None:
             self.shortcut = shortcut
+        if icon is not None:
+            self.icon = icon
         if separator is not None:
             self.separator = separator
         self.triggered = triggered
@@ -82,6 +85,22 @@ class Action(Object):
             self.qt.setShortcut(QtGui.QKeySequence())
         else:
             self.qt.setShortcut(QtGui.QKeySequence(value))
+
+    @property
+    def icon(self):
+        icon = self.qt.icon()
+        if icon.isNull():
+            return None
+        return Icon(qt=icon)
+
+    @icon.setter
+    def icon(self, value):
+        if value is None:
+            self.qt.setIcon(QtGui.QIcon())
+        else:
+            if not isinstance(value, Icon):
+                value = Icon(value)
+            self.qt.setIcon(value.qt)
 
     @property
     def separator(self):

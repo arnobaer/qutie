@@ -372,19 +372,26 @@ def main():
     ))
     abc_menu = edit_menu.append(ui.Menu(
         ui.Action("ABC", separator=True),
-        ui.Action("B"),
+        ui.Action("B", icon='red'),
         ui.Action(separator=True),
-        ui.Action("C"),
+        ui.Action("C", icon='blue'),
         text="&More..."
     ))
 
-    file_menu = window.menubar.insert(edit_menu, "&File")
-    file_menu.append(ui.Action(
+    file_menu = window.menubar.insert(window.menubar.index(edit_menu), "&File")
+    window.menubar.remove(file_menu)
+    window.menubar.insert(window.menubar.index(edit_menu), file_menu)
+    quit_action = file_menu.append(ui.Action(
         text="&Quit",
         status_tip="Quit application",
         shortcut="Ctrl+Q",
         triggered=on_quit
     ))
+
+    window.menubar.clear()
+    window.menubar.insert(3, edit_menu)
+    window.menubar.insert(0, file_menu)
+    window.menubar.append(abc_menu[1])
 
     window.progress = ui.ProgressBar(0, minimum=0, maximum=len(tabs))
     window.statusbar.append(window.progress)
@@ -395,6 +402,21 @@ def main():
     window.message = ui.Label()
     window.statusbar.append(window.message)
 
+    main_toolbar = ui.ToolBar("foo", "bar", "baz", quit_action, edit_menu[0], orientation='vertical')
+    window.toolbars.add(main_toolbar)
+    window.toolbars.add("foo")
+    assert len(window.toolbars) == 2
+    assert main_toolbar.index(main_toolbar[1]) == 1
+    window.toolbars.clear()
+    assert len(window.toolbars) == 0
+    window.toolbars.add(main_toolbar).show()
+    assert len(window.toolbars) == 1
+    main_toolbar.title = "Main Toolbar"
+    main_toolbar.clear()
+    main_toolbar.append(edit_menu[0])
+    main_toolbar.insert(main_toolbar.index(edit_menu[0]), quit_action)
+    main_toolbar.append(abc_menu)
+    main_toolbar.tool_button_style = 'text_beside_icon'
 
     window.show()
 
