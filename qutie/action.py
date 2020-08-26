@@ -14,6 +14,10 @@ class Action(Object):
                  status_tip=None, shortcut=None, icon=None, separator=None,
                  triggered=None, toggled=None, **kwargs):
         super().__init__(**kwargs)
+        # Create separator from text
+        if isinstance(text, str) and text.startswith("---"):
+            text = None
+            separator = True
         if text is not None:
             self.text = text
         if checkable is not None:
