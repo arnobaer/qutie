@@ -303,3 +303,18 @@ app = ui.Application()
 dialog = Dialog(title="Worker")
 dialog.run()
 ```
+
+### Something missing?
+
+Any underlying PyQt5 instance can be accessed directly using property ```qt```.
+This also enables to mix in custom PyQt5 classes and instances.
+
+```python
+widget.qt.setWindowTitle("Spam!")
+widget.qt.customContextMenuRequested.connect(lambda pos: None)
+widget.qt.layout().addWidget(QtWidgets.QPusbButton())
+```
+
+## License
+
+Qutie is licensed under the [GNU General Public License Version 3](https://github.com/hephy-dd/comet-pqc/tree/master/LICENSE).
