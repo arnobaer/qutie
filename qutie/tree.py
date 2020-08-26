@@ -28,16 +28,26 @@ class Tree(BaseItemView):
     >>> tree.clear()
     """
 
-    def __init__(self, items=None, *, header=None, sortable=False, indentation=None,
-                 activated=None, changed=None, clicked=None,
-                 double_clicked=None, selected=None, **kwargs):
+    def __init__(self, items=None, *, expands_on_double_click=None, header=None,
+                 sortable=False, indentation=None, root_is_decorated=None,
+                 uniform_row_heights=None, word_wrap=None, activated=None,
+                 changed=None, clicked=None, double_clicked=None, selected=None,
+                 **kwargs):
         super().__init__(**kwargs)
         if items is not None:
             self.items = items
+        if expands_on_double_click is not None:
+            self.expands_on_double_click = expands_on_double_click
         self.header = header or []
         self.sortable = sortable
         if indentation is not None:
             self.indentation = indentation
+        if root_is_decorated is not None:
+            self.root_is_decorated = root_is_decorated
+        if uniform_row_heights is not None:
+            self.uniform_row_heights = uniform_row_heights
+        if word_wrap is not None:
+            self.word_wrap = word_wrap
         self.activated = activated
         self.changed = changed
         self.clicked = clicked
@@ -49,6 +59,14 @@ class Tree(BaseItemView):
         self.qt.itemClicked.connect(self.__handle_clicked)
         self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
         self.qt.itemSelectionChanged.connect(self.__handle_selected)
+
+    @property
+    def expands_on_double_click(self):
+        return self.qt.expandsOnDoubleClick()
+
+    @expands_on_double_click.setter
+    def expands_on_double_click(self, value):
+        self.qt.setExpandsOnDoubleClick(bool(value))
 
     @property
     def header(self):
@@ -74,7 +92,34 @@ class Tree(BaseItemView):
 
     @indentation.setter
     def indentation(self, value):
-        self.qt.setIndentation(value)
+        if value is None:
+            self.qt.resetIndentation()
+        else:
+            self.qt.setIndentation(int(value))
+
+    @property
+    def root_is_decorated(self):
+        return self.qt.rootIsDecorated()
+
+    @root_is_decorated.setter
+    def root_is_decorated(self, value):
+        self.qt.setRootIsDecorated(bool(value))
+
+    @property
+    def uniform_row_heights(self):
+        return self.qt.uniformRowHeights()
+
+    @uniform_row_heights.setter
+    def uniform_row_heights(self, value):
+        self.qt.setUniformRowHeights(bool(value))
+
+    @property
+    def word_wrap(self):
+        return self.qt.wordWrap()
+
+    @word_wrap.setter
+    def word_wrap(self, value):
+        self.qt.setWordWrap(bool(value))
 
     @property
     def activated(self):
