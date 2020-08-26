@@ -167,8 +167,9 @@ class List(BaseItemView):
 
     def __handle_selected(self, index):
         if callable(self.selected):
-            value = self[index]
-            self.selected(value, index)
+            if index >= 0:
+                value = self[index]
+                self.selected(value, index)
 
     @property
     def clicked(self):
