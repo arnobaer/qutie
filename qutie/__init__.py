@@ -58,7 +58,7 @@ positional and keysword arguments.
 Any underlying PyQt5 instance can be accessed directly using property ```qt```.
 
 >>> widget.qt.setWindowTitle("Spam!")
->>> widget.qt.customContextMenuRequested.conenct(lambda pos: None)
+>>> widget.qt.customContextMenuRequested.connect(lambda pos: None)
 
 """
 
@@ -95,4 +95,4 @@ from .tree import *
 from .widget import *
 from .worker import *
 
-__version__ = '1.5.1'
+__version__ = '1.5.2'

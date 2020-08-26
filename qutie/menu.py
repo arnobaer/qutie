@@ -25,47 +25,44 @@ class Menu(BaseWidget):
         self.qt.setTitle(value)
 
     def append(self, item):
+        if isinstance(item, str):
+            item = Action(item)
         if isinstance(item, Action):
             self.qt.addAction(item.qt)
         elif isinstance(item, Menu):
             self.qt.addMenu(item.qt)
-        elif isinstance(item, str):
-            item = Action(item)
-            self.qt.addAction(item.qt)
         else:
             raise ValueError(item)
         return item
 
-    def insert(self, before, item):
-        if isinstance(item, Action):
-            if isinstance(before, Menu):
-                self.qt.insertAction(before.qt.menuAction(), item.qt)
-            else:
-                self.qt.insertAction(before.qt, item.qt)
-        elif isinstance(item, Menu):
-            if isinstance(before, Menu):
-                self.qt.insertMenu(before.qt.menuAction(), item.qt)
-            else:
-                self.qt.insertMenu(before.qt, item.qt)
-        elif isinstance(item, str):
+    def insert(self, index, item):
+        if index < 0:
+            index = max(0, len(self) + index)
+        if isinstance(item, str):
             item = Action(item)
-            if isinstance(before, Menu):
-                self.qt.insertAction(before.qt.menuAction(), item.qt)
-            else:
-                self.qt.insertAction(before.qt, item.qt)
+        before = self[index].qt if len(self) else None
+        if isinstance(item, Action):
+            self.qt.insertAction(before, item.qt)
+        elif isinstance(item, Menu):
+            self.qt.insertMenu(before, item.qt)
         else:
             raise ValueError(item)
         return item
 
     def index(self, item):
-        return self.qt.actions().index(item)
+        return self.qt.actions().index(item.qt)
+
+    def _get_action_or_menu(self, action):
+        if action.property(self.QtPropertyKey):
+            return action.property(self.QtPropertyKey)
+        return action.menu().property(self.QtPropertyKey)
 
     def __getitem__(self, index):
-        item = self.qt.actions()[index]
-        return item.property(self.QtPropertyKey)
+        action = self.qt.actions()[index]
+        return self._get_action_or_menu(action)
 
     def __iter__(self):
-        return iter(item.property(self.QtPropertyKey) for item in self.qt.actions())
+        return iter(self._get_action_or_menu(action) for action in self.qt.actions())
 
     def __len__(self):
         return len(self.qt.actions())
