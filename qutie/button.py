@@ -1,14 +1,14 @@
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtGui
+from .qutie import QtWidgets
 
 from .icon import Icon
 from .widget import Widget
 
 __all__ = ['Button', 'RadioButton']
 
-@bind(QtWidgets.QAbstractButton)
 class BaseButton(Widget):
+
+    QtClass = QtWidgets.QAbstractButton
 
     def __init__(self, text=None, *, checkable=None, checked=None, icon=None,
                  clicked=None, toggled=None, pressed=None, released=None,
@@ -123,8 +123,9 @@ class BaseButton(Widget):
     def click(self):
         self.qt.click()
 
-@bind(QtWidgets.QPushButton)
 class Button(BaseButton):
+
+    QtClass = QtWidgets.QPushButton
 
     def __init__(self, text=None, *, default=False, auto_default=False,
                  flat=None, **kwargs):
@@ -160,7 +161,6 @@ class Button(BaseButton):
     def flat(self, value):
         self.qt.setFlat(value)
 
-@bind(QtWidgets.QRadioButton)
 class RadioButton(BaseButton):
 
-    pass
+    QtClass = QtWidgets.QRadioButton

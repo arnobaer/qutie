@@ -3,14 +3,12 @@
 For more information on the underlying Qt5 object see [QLineEdit](https://doc.qt.io/qt-5/qlineedit.html).
 """
 
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
 __all__ = ['Text']
 
-@bind(QtWidgets.QLineEdit)
 class Text(BaseWidget):
     """Text input widget.
 
@@ -22,6 +20,8 @@ class Text(BaseWidget):
     text.value
     ''
     """
+
+    QtClass = QtWidgets.QLineEdit
 
     def __init__(self, value=None, *, readonly=False, clearable=False,
                  changed=None, editing_finished=None, **kwargs):

@@ -16,7 +16,7 @@ class NumbersTab(ui.Tab):
                     ui.Label("Unbound"),
                     ui.Number(editing_finished=lambda: ui.show_info("Editing finished.")),
                     ui.Label("Unbound, decimals=1"),
-                    ui.Number(42, decimals=1),
+                    ui.Number(42, decimals=1, focus_in=lambda: print("focus: in"), focus_out=lambda: print("focus: out")),
                     ui.Label("Unbound, decimals=3, step=.01"),
                     ui.Number(.042, decimals=3, step=.01),
                     ui.Label("Unbound, decimals=3, adaptive=True"),
@@ -305,9 +305,7 @@ def main():
     tabs.changed = on_tab_changed
 
     def on_quit():
-        if ui.show_question("Quit application?"):
-            app.quit()
-
+        app.quit()
 
     def on_preferences():
         defaults = ["Apples", "Pears", "Nuts"]
@@ -323,7 +321,8 @@ def main():
                 item_list.append(item)
         def on_remove():
             item = item_list.current
-            item_list.remove(item)
+            if item:
+                item_list.remove(item)
         def on_edit(index, item):
             value = ui.get_text(item.value, title="Item", label="Edit item")
             if value is not None:

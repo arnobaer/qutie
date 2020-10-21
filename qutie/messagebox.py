@@ -1,7 +1,6 @@
 import traceback
 
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
@@ -14,9 +13,10 @@ __all__ = [
     'show_question'
 ]
 
-@bind(QtWidgets.QMessageBox)
 class MessageBox(BaseWidget):
     """Message box dialog."""
+
+    QtClass = QtWidgets.QMessageBox
 
     QtIcons = {
         'information': QtWidgets.QMessageBox.Information,

@@ -16,9 +16,7 @@
 For more information on the underlying Qt5 object see [QTabWidget](https://doc.qt.io/qt-5/qtabwidget.html).
 """
 
-from .qt import QtWidgets
-from .qt import bind
-
+from .qutie import QtWidgets
 from .widget import BaseWidget, Widget
 
 __all__ = [
@@ -47,9 +45,10 @@ class Tab(Widget):
                 index = parent.parent().indexOf(self.qt)
                 parent.parent().setTabText(index, value)
 
-@bind(QtWidgets.QTabWidget)
 class Tabs(BaseWidget):
     """Tab widget providign a tab bar and item stack."""
+
+    QtClass = QtWidgets.QTabWidget
 
     def __init__(self, *items, changed=None, **kwargs):
         super().__init__(**kwargs)
@@ -140,7 +139,7 @@ class Tabs(BaseWidget):
         widget = self.qt.widget(key)
         if not widget:
             raise KeyError(key)
-        return widget.property(self.QtPropertyKey)
+        return widget.reflection()
 
     def __setitem__(self, key, value):
         del self[key]

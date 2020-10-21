@@ -1,18 +1,14 @@
-from .qt import QtGui
-from .qt import bind
-
-from .base import Base
+from .qutie import QtGui
+from .qutie import QutieStub
 
 __all__ = ['Pixmap']
 
-@bind(QtGui.QPixmap)
-class Pixmap(Base):
+class Pixmap(QutieStub):
 
-    def __init__(self, filename=None, *, qt=None):
-        if qt is None:
-            super().__init__()
-        else:
-            super().__init__(qt)
+    QtClass = QtGui.QPixmap
+
+    def __init__(self, filename=None, **kwargs):
+        super().__init__(**kwargs)
         if filename is not None:
             self.load(filename)
 

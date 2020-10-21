@@ -24,8 +24,7 @@ import logging
 import threading
 import traceback
 
-from .qt import QtCore
-from .qt import bind
+from .qutie import QtCore
 
 from .object import Object
 
@@ -34,7 +33,6 @@ __all__ = ['Worker', 'StopRequest']
 class StopRequest(Exception):
     """Raise to stop worker execution."""
 
-@bind(QtCore.QObject)
 class Worker(Object):
     """Worker thread class using python `threading`."""
 

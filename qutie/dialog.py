@@ -1,5 +1,4 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 from .widget import Widget
@@ -17,8 +16,9 @@ __all__ = [
     'get_item'
 ]
 
-@bind(QtWidgets.QDialog)
 class Dialog(Widget):
+
+    QtClass = QtWidgets.QDialog
 
     def __init__(self, *, accepted=None, rejected=None, **kwargs):
         super().__init__(**kwargs)
@@ -47,8 +47,9 @@ class Dialog(Widget):
             self.qt.Rejected: False
         }[self.qt.exec_()]
 
-@bind(QtWidgets.QDialogButtonBox)
 class DialogButtonBox(BaseWidget, OrientationMixin):
+
+    QtClass = QtWidgets.QDialogButtonBox
 
     QtStandardButtons = {
         'ok': QtWidgets.QDialogButtonBox.Ok,

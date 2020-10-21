@@ -3,10 +3,9 @@
 For more information on the underlying Qt5 object see [QWidget](https://doc.qt.io/qt-5/qwidget.html).
 """
 
-from .qt import QtCore
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtGui
+from .qutie import QtWidgets
 
 from .icon import Icon
 from .object import Object
@@ -15,14 +14,15 @@ __all__ = [
     'Widget', 'BaseWidget',
 ]
 
-@bind(QtWidgets.QWidget)
 class BaseWidget(Object):
     """Base widget for components without layout."""
+
+    QtClass = QtWidgets.QWidget
 
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
                  visible=None, status_tip=None, stylesheet=None, icon=None,
                  tool_tip=None, tool_tip_duration=None, close_event=None,
-                 **kwargs):
+                 focus_in=None, focus_out=None, **kwargs):
         super().__init__(**kwargs)
         if title is not None:
             self.title = title
@@ -47,6 +47,19 @@ class BaseWidget(Object):
         self.close_event = close_event
         # Connect signals
         self.qt.closeEvent = self.__handle_close_event
+        # Custom events
+        self.focus_in = focus_in
+        self.qt._focusInEvent = self.qt.focusInEvent
+        def handle_focus_is(event):
+            self.qt._focusInEvent(event)
+            self.emit(self.focus_in)
+        self.qt.focusInEvent = handle_focus_is
+        self.focus_out = focus_out
+        self.qt._focusOutEvent = self.qt.focusOutEvent
+        def handle_focus_out(event):
+            self.qt._focusOutEvent(event)
+            self.emit(self.focus_out)
+        self.qt.focusOutEvent = handle_focus_out
 
     @property
     def title(self):
@@ -282,7 +295,7 @@ class Widget(BaseWidget):
         layout = self.qt.layout()
         if layout is not None:
             if layout.count():
-                return layout.itemAt(0).widget().property(self.QtPropertyKey)
+                return layout.itemAt(0).widget().reflection()
         return None
 
     @layout.setter

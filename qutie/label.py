@@ -1,12 +1,10 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .frame import Frame
 from .pixmap import Pixmap
 
 __all__ = ['Label']
 
-@bind(QtWidgets.QLabel)
 class Label(Frame):
     """A label widget.
 
@@ -18,6 +16,8 @@ class Label(Frame):
 
     >>> label = Label(pixmap='sample.png')
     """
+
+    QtClass = QtWidgets.QLabel
 
     def __init__(self, text=None, *, indent=None, margin=None, pixmap=None,
                  word_wrap=None, **kwargs):

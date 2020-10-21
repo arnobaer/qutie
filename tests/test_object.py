@@ -12,7 +12,7 @@ class ObjectTest(QutieTestCase):
         self.assertEqual(context.object_name_changed, None)
 
     def testFull(self):
-        def on_destroyed(widget): pass
+        def on_destroyed(): pass
         def on_name_changed(): pass
         context = Object(
             object_name='object name',
@@ -24,7 +24,7 @@ class ObjectTest(QutieTestCase):
         self.assertEqual(context.object_name_changed, on_name_changed)
 
     def testProperties(self):
-        def on_destroyed(widget): pass
+        def on_destroyed(): pass
         def on_name_changed(): pass
         context = Object()
         context.object_name = 'object name'

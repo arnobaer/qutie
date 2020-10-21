@@ -1,13 +1,11 @@
-from .qt import QtGui
-from .qt import bind
+from .qutie import QtGui
+from .qutie import QutieStub
 
-from .base import Base
 from .pixmap import Pixmap
 
 __all__ = ['Icon']
 
-@bind(QtGui.QIcon)
-class Icon(Base):
+class Icon(QutieStub):
     """Icon containing multiple resolution pixmaps.
 
     Load multiple resoultion icons.
@@ -23,13 +21,12 @@ class Icon(Base):
     >>> icon = Icon.from_color('green', 32, 32)
     """
 
-    def __init__(self, *values, qt=None):
-        if qt is None:
-            super().__init__()
-        else:
-            super().__init__(qt)
-        for value in values:
-            self.append(value)
+    QtClass = QtGui.QIcon
+
+    def __init__(self, *items, **kwargs):
+        super().__init__(**kwargs)
+        for item in items:
+            self.append(item)
 
     @property
     def available_sizes(self):

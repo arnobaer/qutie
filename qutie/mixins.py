@@ -1,4 +1,4 @@
-from .qt import QtCore
+from .qutie import QtCore
 
 __all__ = ['OrientationMixin']
 

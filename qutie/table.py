@@ -3,18 +3,16 @@
 For more information on the underlying Qt5 objects see [QTableWidget](https://doc.qt.io/qt-5/qtablewidget.html) and [QTableWidgetItem](https://doc.qt.io/qt-5/qtablewidgetitem.html).
 """
 
-from .qt import QtCore
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtGui
+from .qutie import QtWidgets
+from .qutie import Qutie, QutieStub
 
-from .base import Base
 from .icon import Icon
 from .list import BaseItemView
 
 __all__ = ['Table', 'TableItem']
 
-@bind(QtWidgets.QTableWidget)
 class Table(BaseItemView):
     """Table widget.
 
@@ -26,6 +24,8 @@ class Table(BaseItemView):
     ...         item.color = "blue"
     >>> table.clear()
     """
+
+    QtClass = QtWidgets.QTableWidget
 
     def __init__(self, rows=None, *, header=None, stretch=True, sortable=False,
                  vertical_header=False, activated=None, changed=None,
@@ -309,8 +309,9 @@ class Table(BaseItemView):
     def __iter__(self):
         return (self[row] for row in range(len(self)))
 
-@bind(QtWidgets.QTableWidgetItem)
-class TableItem(Base):
+class TableItem(QutieStub):
+
+    QtClass = QtWidgets.QTableWidgetItem
 
     def __init__(self, value=None, *, color=None, background=None, icon=None,
                  enabled=True, readonly=True, checked=None, checkable=None,

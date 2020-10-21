@@ -1,12 +1,13 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
+from .qutie import QutieStub
 
 from .widget import BaseWidget
 
 __all__ = ['ComboBox']
 
-@bind(QtWidgets.QComboBox)
 class ComboBox(BaseWidget):
+
+    QtClass = QtWidgets.QComboBox
 
     def __init__(self, items=None, *, current=None, editable=False,
                  changed=None, **kwargs):
