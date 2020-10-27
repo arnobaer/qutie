@@ -1,4 +1,4 @@
-from .qt import QtWidgets
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
@@ -45,7 +45,7 @@ class BoxLayout(BaseWidget):
         self.qt.layout().takeAt(index)
 
     def __getitem__(self, key):
-        return self.qt.layout().itemAt(key).widget().property(self.QtPropertyKey)
+        return self.qt.layout().itemAt(key).widget().reflection()
 
     def __len__(self):
         return self.qt.layout().count()

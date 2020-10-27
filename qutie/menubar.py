@@ -1,5 +1,4 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .action import Action
 from .menu import Menu
@@ -7,8 +6,9 @@ from .widget import BaseWidget
 
 __all__ = ['MenuBar']
 
-@bind(QtWidgets.QMenuBar)
 class MenuBar(BaseWidget):
+
+    QtClass = QtWidgets.QMenuBar
 
     def __init__(self, *items, **kwargs):
         super().__init__(**kwargs)
@@ -53,9 +53,9 @@ class MenuBar(BaseWidget):
         self.qt.removeAction(self.qt.actions()[index])
 
     def _get_action_or_menu(self, action):
-        if action.property(self.QtPropertyKey):
-            return action.property(self.QtPropertyKey)
-        return action.menu().property(self.QtPropertyKey)
+        if hasattr(action, 'reflection'):
+            return action.reflection()
+        return action.menu().reflection()
 
     def __getitem__(self, index):
         action = self.qt.actions()[index]

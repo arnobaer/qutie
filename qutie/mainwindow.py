@@ -1,8 +1,7 @@
 import weakref
 
-from .qt import QtCore
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtWidgets
 
 from .action import Action
 from .menu import Menu
@@ -12,8 +11,9 @@ from .widget import BaseWidget
 
 __all__ = ['MainWindow']
 
-@bind(QtWidgets.QStatusBar)
 class StatusBar(BaseWidget):
+
+    QtClass = QtWidgets.QStatusBar
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -22,8 +22,9 @@ class StatusBar(BaseWidget):
         self.qt.addPermanentWidget(widget.qt)
         return widget
 
-@bind(QtWidgets.QMainWindow)
 class MainWindow(BaseWidget):
+
+    QtClass = QtWidgets.QMainWindow
 
     class ToolBars:
 
@@ -65,7 +66,7 @@ class MainWindow(BaseWidget):
     def layout(self):
         widget = self.qt.centralWidget()
         if widget is not None:
-            return widget.property(self.QtPropertyKey)
+            return widget.reflection()
         return None
 
     @layout.setter
@@ -79,11 +80,11 @@ class MainWindow(BaseWidget):
 
     @property
     def menubar(self):
-        return self.qt.menuBar().property(self.QtPropertyKey)
+        return self.qt.menuBar().reflection()
 
     @property
     def statusbar(self):
-        return self.qt.statusBar().property(self.QtPropertyKey)
+        return self.qt.statusBar().reflection()
 
     @property
     def toolbars(self):

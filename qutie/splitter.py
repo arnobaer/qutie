@@ -3,15 +3,13 @@
 For more information on the underlying Qt5 object see [QSplitter](https://doc.qt.io/qt-5/qsplitter.html).
 """
 
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 from .mixins import OrientationMixin
 
 __all__ = ['Splitter']
 
-@bind(QtWidgets.QSplitter)
 class Splitter(BaseWidget, OrientationMixin):
     """Splitter
 
@@ -21,6 +19,8 @@ class Splitter(BaseWidget, OrientationMixin):
     >>> for child in splitter.children:
     ...     pass
     """
+
+    QtClass = QtWidgets.QSplitter
 
     def __init__(self, *children, sizes=None, orientation=None,
                  collapsible=True, stretch=None, **kwargs):
@@ -40,7 +40,7 @@ class Splitter(BaseWidget, OrientationMixin):
     def children(self):
         children = []
         for index in range(self.qt.count()):
-            children.append(self.qt.widget(index).property(self.QtPropertyKey))
+            children.append(self.qt.widget(index).reflection())
         return tuple(children)
 
     @property
@@ -75,11 +75,11 @@ class Splitter(BaseWidget, OrientationMixin):
     def __getitem__(self, index):
         item = self.qt.widget(index)
         if item is not None:
-            return item.property(self.QtPropertyKey)
+            return item.reflection()
         return None
 
     def __len__(self):
         return self.qt.count()
 
     def __iter__(self):
-        return (self.qt.widget(index).property(self.QtPropertyKey) for index in range(len(self)))
+        return (self.qt.widget(index).reflection() for index in range(len(self)))

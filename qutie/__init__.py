@@ -76,6 +76,7 @@ from .layout import *
 from .list import *
 from .mainwindow import *
 from .menu import *
+from .menubar import *
 from .messagebox import *
 from .number import *
 from .object import *
@@ -95,4 +96,4 @@ from .tree import *
 from .widget import *
 from .worker import *
 
-__version__ = '1.5.2'
+__version__ = '1.6.0'

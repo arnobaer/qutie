@@ -1,27 +1,27 @@
-from .qt import QtCore
-from .qt import bind
-
-from .base import Base
+from .qutie import QtCore
+from .qutie import Qutie
 
 __all__ = ['Object']
 
-@bind(QtCore.QObject)
-class Object(Base):
+class Object(Qutie):
 
-    QtPropertyKey = '__qutie_ref'
+    QtClass = QtCore.QObject
 
-    def __init__(self, *args, object_name=None, destroyed=None,
-                 object_name_changed=None):
-        super().__init__(*args)
-        self.qt.setProperty(self.QtPropertyKey, self)
+    def __init__(self, *, object_name=None, parent=None, destroyed=None,
+                 object_name_changed=None, **kwargs):
+        super().__init__(**kwargs)
+        self.qt.setReflection(self)
+        # Properties
         if object_name is not None:
             self.object_name = object_name
+        if parent is not None:
+            self.parent = parent
         self.destroyed = destroyed
         self.object_name_changed = object_name_changed
         # Connect signals
         self.qt.destroyed.connect(self.__handle_destroyed)
         self.qt.objectNameChanged.connect(self.__handle_object_name_changed)
-        self.qt.eventEmitted.connect(self.__handle_event)
+        self.qt.handleEvent.connect(lambda event: event())
 
     @property
     def object_name(self) -> str:
@@ -30,6 +30,17 @@ class Object(Base):
     @object_name.setter
     def object_name(self, value: str):
         self.qt.setObjectName(value)
+
+    @property
+    def parent(self):
+        parent = self.qt.parent()
+        if hasattr(parent, 'reflection'):
+            return parent.reflection()
+
+    @parent.setter
+    def parent(self, value):
+        assert isinstance(value, Object), "Parent must inherit from Object"
+        self.qt.setParent(value.qt)
 
     @property
     def destroyed(self) -> object:
@@ -41,7 +52,7 @@ class Object(Base):
 
     def __handle_destroyed(self, obj: object):
         if callable(self.destroyed):
-            self.destroyed(obj.property(self.QtPropertyKey))
+            self.destroyed()
 
     @property
     def object_name_changed(self) -> object:
@@ -55,12 +66,6 @@ class Object(Base):
         if callable(self.object_name_changed):
             self.object_name_changed(self.object_name)
 
-    def __handle_event(self, name: str, args: list, kwargs: dict):
-        if hasattr(self, name):
-            attr = getattr(self, name)
-            if callable(attr):
-                attr(*args, **kwargs)
-
     def emit(self, *args, **kwargs):
         """Emit an event.
 
@@ -69,4 +74,9 @@ class Object(Base):
         """
         if not args:
             raise ValueError("Missing event argument.")
-        self.qt.eventEmitted.emit(args[0], args[1:], kwargs)
+        event = args[0]
+        if isinstance(event, str):
+            if hasattr(self, event):
+                event = getattr(self, event)
+        if callable(event):
+            self.qt.handleEvent.emit(lambda: event(*args[1:], **kwargs))

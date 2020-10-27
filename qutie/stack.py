@@ -3,16 +3,16 @@
 For more information on the underlying Qt5 object see [QStackedWidget](https://doc.qt.io/qt-5/qstackedwidget.html).
 """
 
-from .qt import QtCore
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
 __all__ = ['Stack']
 
-@bind(QtWidgets.QStackedWidget)
 class Stack(BaseWidget):
+
+    QtClass = QtWidgets.QStackedWidget
 
     def __init__(self, *items, changed=None, **kwargs):
         super().__init__(**kwargs)
@@ -41,7 +41,7 @@ class Stack(BaseWidget):
     def current(self):
         item = self.qt.currentIndex()
         if item is not None:
-            return item.property(self.QtPropertyKey)
+            return item.reflection()
         return item
 
     @current.setter
@@ -71,7 +71,7 @@ class Stack(BaseWidget):
         item = self.qt.widget(key)
         if not item:
             raise KeyError(key)
-        return item.property(self.QtPropertyKey)
+        return item.reflection()
 
     def __setitem__(self, key, value):
         del self[key]

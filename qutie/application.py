@@ -1,23 +1,23 @@
 import signal
 import sys
 
-from .qt import QtCore
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtGui
+from .qutie import QtWidgets
 
 from .icon import Icon
 from .object import Object
 
 __all__ = ['CoreApplication', 'GuiApplication', 'Application']
 
-@bind(QtCore.QCoreApplication)
 class CoreApplication(Object):
+
+    QtClass = QtCore.QCoreApplication
 
     def __init__(self, name=None, *, version=None, organization=None,
                  domain=None, name_changed=None, version_changed=None,
-                 organization_changed=None, domain_changed=None):
-        super().__init__(sys.argv)
+                 organization_changed=None, domain_changed=None, **kwargs):
+        super().__init__(qt=(sys.argv,), **kwargs)
         if name is not None:
             self.name = name
         if version is not None:
@@ -39,7 +39,7 @@ class CoreApplication(Object):
     @classmethod
     def instance(cls):
         if cls.QtClass.instance() is not None:
-            return cls.QtClass.instance().property(cls.QtPropertyKey)
+            return cls.QtClass.instance().reflection()
         return None
 
     @property
@@ -139,8 +139,9 @@ class CoreApplication(Object):
         if callable(self.domain_changed):
             self.domain_changed(self.domain)
 
-@bind(QtGui.QGuiApplication)
 class GuiApplication(CoreApplication):
+
+    QtClass = QtGui.QGuiApplication
 
     def __init__(self, name=None, *, display_name=None, icon=None,
                  display_name_changed=None, last_window_closed=None, **kwargs):
@@ -203,8 +204,9 @@ class GuiApplication(CoreApplication):
         if callable(self.last_window_closed):
             self.last_window_closed()
 
-@bind(QtWidgets.QApplication)
 class Application(GuiApplication):
+
+    QtClass = QtWidgets.QApplication
 
     def __init__(self, name=None, *, focus_changed=None, **kwargs):
         super().__init__(name=name, **kwargs)

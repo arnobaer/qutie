@@ -3,18 +3,16 @@
 For more information on the underlying Qt5 objects see [QTreeWidget](https://doc.qt.io/qt-5/qtreewidget.html) and [QTreeWidgetItem](https://doc.qt.io/qt-5/qtreewidgetitem.html).
 """
 
-from .qt import QtCore
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtGui
+from .qutie import QtWidgets
+from .qutie import Qutie, QutieStub
 
-from .base import Base
 from .icon import Icon
 from .list import BaseItemView
 
 __all__ = ['Tree', 'TreeItem', 'TreeItemColumn']
 
-@bind(QtWidgets.QTreeWidget)
 class Tree(BaseItemView):
     """Tree widget.
 
@@ -27,6 +25,8 @@ class Tree(BaseItemView):
     ...     child.checked = False
     >>> tree.clear()
     """
+
+    QtClass = QtWidgets.QTreeWidget
 
     def __init__(self, items=None, *, expands_on_double_click=None, header=None,
                  sortable=False, indentation=None, root_is_decorated=None,
@@ -276,9 +276,10 @@ class Tree(BaseItemView):
     def __iter__(self):
         return (self[index] for index in range(len(self)))
 
-@bind(QtWidgets.QTreeWidgetItem)
-class TreeItem(Base):
+class TreeItem(QutieStub):
     """Tree item class."""
+
+    QtClass = QtWidgets.QTreeWidgetItem
 
     def __init__(self, values=None, **kwargs):
         super().__init__(**kwargs)

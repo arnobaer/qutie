@@ -1,13 +1,13 @@
-from .qt import QtCore
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
 __all__ = ['CheckBox']
 
-@bind(QtWidgets.QCheckBox)
 class CheckBox(BaseWidget):
+
+    QtClass = QtWidgets.QCheckBox
 
     def __init__(self, text=None, *, checked=False, changed=None, **kwargs):
         super().__init__(**kwargs)

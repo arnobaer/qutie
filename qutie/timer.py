@@ -3,23 +3,22 @@
 For more information on the underlying Qt5 object see [QTimer](https://doc.qt.io/qt-5/qtimer.html).
 """
 
-from .qt import QtCore
-from .qt import bind
-
-from .base import Base
+from .qutie import QtCore
+from .qutie import Qutie
 
 __all__ = ['Timer', 'single_shot']
 
 def single_shot(interval, timeout):
     QtCore.QTimer.singleShot(interval * 1e3, timeout)
 
-@bind(QtCore.QTimer)
-class Timer(Base):
+class Timer(Qutie):
     """Timer.
 
     >>> timer = Timer(interval=1.0, timeout=lambda: print("Done!"))
     >>> timer.start()
     """
+
+    QtClass = QtCore.QTimer
 
     QtTimerTypes = {
         'precise': QtCore.Qt.PreciseTimer,

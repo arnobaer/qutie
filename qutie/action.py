@@ -1,14 +1,14 @@
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtGui
+from .qutie import QtWidgets
 
 from .object import Object
 from .icon import Icon
 
 __all__ = ['Action']
 
-@bind(QtWidgets.QAction)
 class Action(Object):
+
+    QtClass = QtWidgets.QAction
 
     def __init__(self, text=None, *, checkable=None, checked=False, tool_tip=None,
                  status_tip=None, shortcut=None, icon=None, separator=None,

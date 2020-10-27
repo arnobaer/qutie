@@ -3,19 +3,19 @@
 For more information on the underlying Qt5 objects see [QListWidget](https://doc.qt.io/qt-5/qlistwidget.html) and [QListWidgetItem](https://doc.qt.io/qt-5/qlistwidgetitem.html).
 """
 
-from .qt import QtCore
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtCore
+from .qutie import QtGui
+from .qutie import QtWidgets
+from .qutie import Qutie, QutieStub
 
-from .base import Base
 from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['List', 'ListItem']
 
-@bind(QtWidgets.QAbstractItemView)
 class BaseItemView(BaseWidget):
+
+    QtClass = QtWidgets.QAbstractItemView
 
     def __init__(self, *, icon_size=None, **kwargs):
         super().__init__(**kwargs)
@@ -33,8 +33,9 @@ class BaseItemView(BaseWidget):
             value = value, value
         self.qt.setIconSize(QtCore.QSize(*value))
 
-@bind(QtWidgets.QListWidget)
 class List(BaseItemView):
+
+    QtClass = QtWidgets.QListWidget
 
     def __init__(self, items=None, *, view_mode=None, resize_mode=None,
                  changed=None, selected=None, clicked=None, double_clicked=None,
@@ -135,6 +136,8 @@ class List(BaseItemView):
         return item
 
     def remove(self, item):
+        if item is None:
+            raise IndexError(item)
         index = self.qt.row(item.qt)
         if index < 0:
             raise IndexError(item)
@@ -221,7 +224,7 @@ class List(BaseItemView):
     def __iter__(self):
         return (self[row] for row in range(len(self)))
 
-class ListItem(Base):
+class ListItem(QutieStub):
 
     QtClass = QtWidgets.QListWidgetItem
 

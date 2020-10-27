@@ -1,12 +1,12 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
 __all__ = ['Number']
 
-@bind(QtWidgets.QDoubleSpinBox)
 class Number(BaseWidget):
+
+    QtClass = QtWidgets.QDoubleSpinBox
 
     prefix_format = "{} "
     suffix_format = " {}"

@@ -3,14 +3,12 @@
 For more information on the underlying Qt5 object see [QTextEdit](https://doc.qt.io/qt-5/qtextedit.html).
 """
 
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
 __all__ = ['TextArea']
 
-@bind(QtWidgets.QTextEdit)
 class TextArea(BaseWidget):
     """Text area widget.
 
@@ -22,6 +20,8 @@ class TextArea(BaseWidget):
     textarea.value
     ''
     """
+
+    QtClass = QtWidgets.QTextEdit
 
     def __init__(self, value=None, *, readonly=False, richtext=False, **kwargs):
         super().__init__(**kwargs)

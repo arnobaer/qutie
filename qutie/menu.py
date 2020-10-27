@@ -1,13 +1,13 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .action import Action
 from .widget import BaseWidget
 
 __all__ = ['Menu']
 
-@bind(QtWidgets.QMenu)
 class Menu(BaseWidget):
+
+    QtClass = QtWidgets.QMenu
 
     def __init__(self, *items, text=None, **kwargs):
         super().__init__(**kwargs)
@@ -53,9 +53,9 @@ class Menu(BaseWidget):
         return self.qt.actions().index(item.qt)
 
     def _get_action_or_menu(self, action):
-        if action.property(self.QtPropertyKey):
-            return action.property(self.QtPropertyKey)
-        return action.menu().property(self.QtPropertyKey)
+        if hasattr(action, 'reflection'):
+            return action.reflection()
+        return action.menu().reflection()
 
     def __getitem__(self, index):
         action = self.qt.actions()[index]

@@ -3,17 +3,17 @@
 For more information on the underlying Qt5 object see [QScrollArea](https://doc.qt.io/qt-5/qscrollarea.html).
 """
 
-from .qt import QtGui
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtGui
+from .qutie import QtWidgets
 
 from .widget import Widget
 
 __all__ = ['ScrollArea']
 
-@bind(QtWidgets.QScrollArea)
 class ScrollArea(Widget):
     """A scrollable area."""
+
+    QtClass = QtWidgets.QScrollArea
 
     def __init__(self, layout=None, **kwargs):
         super().__init__(**kwargs)
@@ -25,9 +25,9 @@ class ScrollArea(Widget):
 
     @property
     def layout(self):
-        return self.qt.widget().property(self.QtPropertyKey).layout
+        return self.qt.widget().reflection().layout
 
     @layout.setter
     def layout(self, value):
         if self.qt.widget():
-            self.qt.widget().property(self.QtPropertyKey).layout = value
+            self.qt.widget().reflection().layout = value

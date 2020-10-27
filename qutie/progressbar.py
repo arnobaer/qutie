@@ -3,16 +3,16 @@
 For more information on the underlying Qt5 object see [QProgressBar](https://doc.qt.io/qt-5/qprogressbar.html).
 """
 
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import BaseWidget
 from .mixins import OrientationMixin
 
 __all__ = ['ProgressBar']
 
-@bind(QtWidgets.QProgressBar)
 class ProgressBar(BaseWidget, OrientationMixin):
+
+    QtClass = QtWidgets.QProgressBar
 
     def __init__(self, value=0, *, minimum=0, maximum=100, format=None,
                  inverted_appearance=False, orientation=None,

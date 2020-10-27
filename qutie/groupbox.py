@@ -1,12 +1,12 @@
-from .qt import QtWidgets
-from .qt import bind
+from .qutie import QtWidgets
 
 from .widget import Widget
 
 __all__ = ['GroupBox']
 
-@bind(QtWidgets.QGroupBox)
 class GroupBox(Widget):
+
+    QtClass = QtWidgets.QGroupBox
 
     def __init__(self, title=None, *, checkable=None, checked=None, flat=None,
                  clicked=None, toggled=None, **kwargs):
