@@ -28,8 +28,6 @@ def from_brush(method):
         return None
     return from_brush
 
-
-
 class QutieStub:
 
     QtClass = NotImplemented

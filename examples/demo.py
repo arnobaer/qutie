@@ -307,6 +307,9 @@ def main():
     def on_quit():
         app.quit()
 
+    def on_open():
+        ui.filename_open(parent=window)
+
     def on_preferences():
         defaults = ["Apples", "Pears", "Nuts"]
         def on_click(button):
@@ -385,6 +388,12 @@ def main():
         status_tip="Quit application",
         shortcut="Ctrl+Q",
         triggered=on_quit
+    ))
+    quit_action = file_menu.insert(0, ui.Action(
+        text="&Open...",
+        status_tip="Open file",
+        shortcut="Ctrl+O",
+        triggered=on_open
     ))
 
     window.menubar.clear()

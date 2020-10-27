@@ -76,6 +76,7 @@ from .layout import *
 from .list import *
 from .mainwindow import *
 from .menu import *
+from .menubar import *
 from .messagebox import *
 from .number import *
 from .object import *

@@ -21,8 +21,8 @@ class BaseWidget(Object):
 
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
                  visible=None, status_tip=None, stylesheet=None, icon=None,
-                 tool_tip=None, tool_tip_duration=None, close_event=None,
-                 focus_in=None, focus_out=None, **kwargs):
+                 tool_tip=None, tool_tip_duration=None, parent=None,
+                 close_event=None, focus_in=None, focus_out=None, **kwargs):
         super().__init__(**kwargs)
         if title is not None:
             self.title = title
@@ -44,6 +44,8 @@ class BaseWidget(Object):
             self.tool_tip = tool_tip
         if tool_tip_duration is not None:
             self.tool_tip_duration = tool_tip_duration
+        if parent is not None:
+            self.parent = parent
         self.close_event = close_event
         # Connect signals
         self.qt.closeEvent = self.__handle_close_event
@@ -242,6 +244,17 @@ class BaseWidget(Object):
     @tool_tip_duration.setter
     def tool_tip_duration(self, value):
         self.qt.setToolTipDuration(value * 1000.)
+
+    @property
+    def parent(self):
+        parent = self.qt.parent()
+        if hasattr(parent, 'reflection'):
+            return parent.reflection()
+
+    @parent.setter
+    def parent(self, value):
+        assert isinstance(value, BaseWidget), "Parent must inherit from BaseWidget"
+        self.qt.setParent(value.qt)
 
     def close(self):
         """Close widget, return True if widget was closed."""

@@ -7,13 +7,15 @@ class Object(Qutie):
 
     QtClass = QtCore.QObject
 
-    def __init__(self, *, object_name=None, destroyed=None,
+    def __init__(self, *, object_name=None, parent=None, destroyed=None,
                  object_name_changed=None, **kwargs):
         super().__init__(**kwargs)
         self.qt.setReflection(self)
         # Properties
         if object_name is not None:
             self.object_name = object_name
+        if parent is not None:
+            self.parent = parent
         self.destroyed = destroyed
         self.object_name_changed = object_name_changed
         # Connect signals
@@ -28,6 +30,17 @@ class Object(Qutie):
     @object_name.setter
     def object_name(self, value: str):
         self.qt.setObjectName(value)
+
+    @property
+    def parent(self):
+        parent = self.qt.parent()
+        if hasattr(parent, 'reflection'):
+            return parent.reflection()
+
+    @parent.setter
+    def parent(self, value):
+        assert isinstance(value, Object), "Parent must inherit from Object"
+        self.qt.setParent(value.qt)
 
     @property
     def destroyed(self) -> object:

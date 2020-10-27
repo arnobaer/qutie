@@ -157,7 +157,7 @@ class DialogButtonBox(BaseWidget, OrientationMixin):
         if callable(self.help_requested):
             self.help_requested()
 
-def filename_open(path=None, *, filter=None, title=None):
+def filename_open(path=None, *, filter=None, title=None, parent=None):
     """Shows a filename selection dialog, returns selected filename path.
 
     >>> filename_open("/home/user", filter="Text (*.txt)")
@@ -165,9 +165,12 @@ def filename_open(path=None, *, filter=None, title=None):
     """
     if title is None:
         title = "Open file"
-    return QtWidgets.QFileDialog.getOpenFileName(None, title, path, filter)[0] or None
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
+    return QtWidgets.QFileDialog.getOpenFileName(parent, title, path, filter)[0] or None
 
-def filenames_open(path=None, *, filter=None, title=None):
+def filenames_open(path=None, *, filter=None, title=None, parent=None):
     """Shows a multiple filenames selection dialog, returns list of selected
     filename paths.
 
@@ -176,18 +179,26 @@ def filenames_open(path=None, *, filter=None, title=None):
     """
     if title is None:
         title = "Open files"
-    return QtWidgets.QFileDialog.getOpenFileNames(None, title, path, filter)[0] or None
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
+    return QtWidgets.QFileDialog.getOpenFileNames(parent, title, path, filter)[0] or None
 
-def directory_open(path=None, *, title=None):
+def directory_open(path=None, *, title=None, parent=None):
     """Shows a multiple filenames selection dialog, returns selected directory
     path.
 
     >>> filename_open(""/home/user")
     '/tmp'
     """
-    return QtWidgets.QFileDialog.getExistingDirectory(None, title or "Open directory", path) or None
+    if title is None:
+        title = "Open directory"
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
+    return QtWidgets.QFileDialog.getExistingDirectory(parent, title, path) or None
 
-def filename_save(path=None, *, filter=None, title=None):
+def filename_save(path=None, *, filter=None, title=None, parent=None):
     """Shows a save filename selection dialog, returns selected filename path.
 
     >>> filename_save("/home/user/example.txt", filter="Text (*.txt)")
@@ -195,9 +206,12 @@ def filename_save(path=None, *, filter=None, title=None):
     """
     if title is None:
         title = "Save file"
-    return QtWidgets.QFileDialog.getSaveFileName(None, title, path, filter)[0] or None
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
+    return QtWidgets.QFileDialog.getSaveFileName(parent, title, path, filter)[0] or None
 
-def get_number(value=0, *, minimum=None, maximum=None, decimals=0, title=None, label=None):
+def get_number(value=0, *, minimum=None, maximum=None, decimals=0, title=None, label=None, parent=None):
     """Number input dialog, optionally editable.
 
     >>> get_number(value=4.2, minimum=0, maximum=10, decimals=1)
@@ -212,14 +226,17 @@ def get_number(value=0, *, minimum=None, maximum=None, decimals=0, title=None, l
         title = ""
     if label is None:
         label = ""
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
     value, success = QtWidgets.QInputDialog.getDouble(
-        None, title, label, value, minimum, maximum, decimals
+        parent, title, label, value, minimum, maximum, decimals
     )
     if success:
         return value
     return None
 
-def get_text(text=None, *, title=None, label=None):
+def get_text(text=None, *, title=None, label=None, parent=None):
     """Text input dialog.
 
     >>> get_text()
@@ -230,14 +247,17 @@ def get_text(text=None, *, title=None, label=None):
         title = ""
     if label is None:
         label = ""
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
     value, success = QtWidgets.QInputDialog.getText(
-        None, title, label, QtWidgets.QLineEdit.Normal, text
+        parent, title, label, QtWidgets.QLineEdit.Normal, text
     )
     if success:
         return value
     return None
 
-def get_item(items, *, current=0, editable=False, title=None, label=None):
+def get_item(items, *, current=0, editable=False, title=None, label=None, parent=None):
     """Select item from input list dialog, optionally editable.
 
     >>> get_item(["Apple", "Pear", "Nut"])
@@ -248,8 +268,11 @@ def get_item(items, *, current=0, editable=False, title=None, label=None):
         title = ""
     if label is None:
         label = ""
+    if parent is not None:
+        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        parent = parent.qt
     item, success = QtWidgets.QInputDialog.getItem(
-        None, title, label, items, current, editable
+        parent, title, label, items, current, editable
     )
     if success:
         return item
