@@ -8,18 +8,13 @@ class BoxLayout(BaseWidget):
 
     QtLayoutClass = QtWidgets.QBoxLayout
 
-    def __init__(self, *children, stretch=None, **kwargs):
+    def __init__(self, *widgets, stretch=None, **kwargs):
         super().__init__(**kwargs)
         self.qt.setLayout(self.QtLayoutClass())
         self.qt.layout().setContentsMargins(0, 0, 0, 0)
-        for child in children:
-            self.append(child)
+        self.extend(widgets)
         if stretch is not None:
             self.stretch = stretch
-
-    @property
-    def children(self):
-        return list(self)
 
     @property
     def stretch(self):
@@ -34,15 +29,44 @@ class BoxLayout(BaseWidget):
         for index in range(len(self)):
             self.qt.layout().setStretch(index, value[index])
 
-    def append(self, child):
-        self.qt.layout().addWidget(child.qt)
+    def append(self, widget) -> None:
+        """Append widget to end."""
+        self.qt.layout().addWidget(widget.qt)
 
-    def insert(self, index, child):
-        self.qt.layout().insertWidget(index, child.qt)
+    def insert(self, index: int, widget) -> None:
+        """Insert widget before index. Permits negative indexing."""
+        if index < 0:
+            index = max(0, len(self) + index)
+        self.qt.layout().insertWidget(index, widget.qt)
 
-    def remove(self, child):
-        index = self.qt.layout().indexOf(child.qt)
-        self.qt.layout().takeAt(index)
+    def extend(self, iterable) -> None:
+        """Extend list by appending widgets from the iterable."""
+        for widget in iterable:
+            self.append(widget)
+
+    def remove(self, widget):
+        """Remove first occurrence of widget. Raises ValueError if the widget is
+        not present.
+        """
+        self.qt.layout().takeAt(self.index(widget))
+
+    def clear(self) -> None:
+        """Remove all widgets from layout."""
+        while len(self):
+            self.remove(self[0])
+
+    def count(self, widget) -> int:
+        """Return number of occurrences of widget."""
+        return list(self).count(value)
+
+    def index(self, widet):
+        """Return first index of widget. Raises ValueError if the widget is not
+        present.
+        """
+        index = self.qt.layout().indexOf(widget.qt)
+        if index < 0:
+            raise ValueError("value not in list")
+        return index
 
     def __getitem__(self, key):
         return self.qt.layout().itemAt(key).widget().reflection()

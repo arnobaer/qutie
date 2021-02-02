@@ -31,7 +31,7 @@ class TabsTest(QutieTestCase):
     def testProperties(self):
         items = [Tab(), Tab(), Tab()]
         context = Tabs(*items)
-        self.assertEqual(context.items, items)
+        self.assertEqual(list(context), items)
 
     def testMethods(self):
         items = [Tab(), Tab(), Tab()]
@@ -39,10 +39,10 @@ class TabsTest(QutieTestCase):
         context.append(items[1])
         context.append(items[2])
         context.insert(0, items[0])
-        self.assertEqual(context.items, items)
+        self.assertEqual(list(context), items)
         self.assertEqual(context.index(items[1]), 1)
         context.clear()
-        self.assertEqual(context.items, [])
+        self.assertEqual(list(context), [])
 
 if __name__ == '__main__':
     unittest.main()

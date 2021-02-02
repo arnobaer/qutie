@@ -1,12 +1,14 @@
 from .qutie import QtGui
 from .qutie import QtWidgets
+from .qutie import ArrowType
 
 from .icon import Icon
+from .object import Object
 from .widget import Widget
 
-__all__ = ['Button', 'RadioButton']
+__all__ = ['Button', 'PushButton', 'ToolButton', 'RadioButton', 'ButtonGroup']
 
-class BaseButton(Widget):
+class AbstractButton(Widget):
 
     QtClass = QtWidgets.QAbstractButton
 
@@ -123,13 +125,13 @@ class BaseButton(Widget):
     def click(self):
         self.qt.click()
 
-class Button(BaseButton):
+class PushButton(AbstractButton):
 
     QtClass = QtWidgets.QPushButton
 
     def __init__(self, text=None, *, default=False, auto_default=False,
                  flat=None, **kwargs):
-        super().__init__(text, **kwargs)
+        super().__init__(text=text, **kwargs)
         if default is not None:
             self.default = default
         if auto_default is not None:
@@ -161,6 +163,75 @@ class Button(BaseButton):
     def flat(self, value):
         self.qt.setFlat(value)
 
-class RadioButton(BaseButton):
+Button = PushButton
+
+class ToolButton(AbstractButton):
+
+    QtClass = QtWidgets.QToolButton
+
+    def __init__(self, text=None, *, arrow_type=None, auto_raise=None,
+                 **kwargs):
+        super().__init__(text=text, **kwargs)
+        if arrow_type is not None:
+            self.arrow_type = arrow_type
+        if auto_raise is not None:
+            self.auto_raise = auto_raise
+
+    @property
+    @ArrowType.getter
+    def arrow_type(self):
+        return self.qt.arrowType()
+
+    @arrow_type.setter
+    @ArrowType.setter
+    def arrow_type(self, value):
+        self.qt.setArrowType(value)
+
+    @property
+    def auto_raise(self):
+        return self.qt.autoRaise()
+
+    @auto_raise.setter
+    def auto_raise(self, value):
+        self.qt.setAutoRaise(value)
+
+class RadioButton(AbstractButton):
 
     QtClass = QtWidgets.QRadioButton
+
+class ButtonGroup(Object):
+
+    QtClass = QtWidgets.QButtonGroup
+
+    def __init__(self, *buttons, exclusive=True, **kwargs):
+        super().__init__(**kwargs)
+        self.update(buttons)
+        self.exclusive = exclusive
+
+    @property
+    def exclusive(self):
+        return self.qt.exclusive()
+
+    @exclusive.setter
+    def exclusive(self, value):
+        self.qt.setExclusive(value)
+
+    def add(self, button):
+        self.qt.addButton(button.qt)
+
+    def remove(self, button):
+        self.qt.removeButton(button.qt)
+
+    def update(self, buttons):
+        for button in buttons:
+            self.add(button)
+
+    def clear(self):
+        for button in list(self):
+            self.remove(button)
+
+    def __len__(self):
+        return len(self.qt.buttons())
+
+    def __iter__(self):
+        return (button.reflection for button in self.qt.buttons())

@@ -60,6 +60,8 @@ class SelectTab(ui.Tab):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.editable_combobox = ui.ComboBox(["green", "red", "blue"], editable=True)
+        self.editable_combobox.changed = lambda _: print(f"values: {list(self.editable_combobox)}")
         self.layout = ui.Row(
             ui.Column(
                 ui.Label("Select, current='red'"),
@@ -67,7 +69,7 @@ class SelectTab(ui.Tab):
                 ui.Label("Select, readonly=False"),
                 ui.ComboBox(["spam", 42, 4.2, True], current=42, changed=self.on_changed),
                 ui.Label("Select, editable=True"),
-                ui.ComboBox(["green", "red", "blue"], editable=True),
+                self.editable_combobox,
                 ui.Spacer()
             ),
             ui.Spacer(),
@@ -314,7 +316,8 @@ def main():
         defaults = ["Apples", "Pears", "Nuts"]
         def on_click(button):
             if button == 'restore_defaults':
-                item_list.items = defaults
+                item_list.clear()
+                item_list.extend(defaults)
                 ui.show_info("Reset to defaults.")
         def on_help():
             ui.show_info("Helpful information.")
@@ -357,11 +360,12 @@ def main():
         )
         # Load settings
         with ui.Settings() as settings:
-            item_list.items = settings.setdefault("items", defaults)
+            item_list.clear()
+            item_list.extend(settings.setdefault("items", defaults))
         dialog.run()
         # Store settings
         with ui.Settings() as settings:
-            settings["items"] = [item.value for item in item_list.items]
+            settings["items"] = [item.value for item in item_list]
 
     window = ui.MainWindow(
         layout=tabs
@@ -418,6 +422,11 @@ def main():
     window.toolbars.clear()
     assert len(window.toolbars) == 0
     window.toolbars.add(main_toolbar).show()
+    assert main_toolbar.orientation == "horizontal"
+    main_toolbar.orientation = "vertical"
+    assert main_toolbar.orientation == "vertical"
+    main_toolbar.orientation = "horizontal"
+    assert main_toolbar.orientation == "horizontal"
     assert len(window.toolbars) == 1
     main_toolbar.title = "Main Toolbar"
     main_toolbar.clear()

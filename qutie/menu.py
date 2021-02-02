@@ -50,7 +50,13 @@ class Menu(BaseWidget):
         return item
 
     def index(self, item):
-        return self.qt.actions().index(item.qt)
+        """Return first index of item. Raises ValueError if the item is not
+        present.
+        """
+        index = self.qt.actions().index(item.qt)
+        if index < 0:
+            raise ValueError("value not in list")
+        return index
 
     def _get_action_or_menu(self, action):
         if hasattr(action, 'reflection'):

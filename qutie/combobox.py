@@ -1,5 +1,10 @@
+"""Combo box widget.
+
+For more information on the underlying Qt5 objects see
+[QComboBox](https://doc.qt.io/qt-5/qcombobox.html).
+"""
+
 from .qutie import QtWidgets
-from .qutie import QutieStub
 
 from .widget import BaseWidget
 
@@ -9,41 +14,61 @@ class ComboBox(BaseWidget):
 
     QtClass = QtWidgets.QComboBox
 
-    def __init__(self, items=None, *, current=None, editable=False,
-                 changed=None, **kwargs):
+    def __init__(self, values=None, *, current=None, duplicates_enabled=False,
+                 editable=False, max_visible_items=None,
+                 minimum_contents_length=None, changed=None, **kwargs):
         super().__init__(**kwargs)
-        if items is not None:
-            self.items = items
+        if values is not None:
+            self.extend(values)
         if current is not None:
             self.current = current
+        self.duplicates_enabled = duplicates_enabled
         self.editable = editable
+        if max_visible_items is not None:
+            self.max_visible_items = max_visible_items
+        if minimum_contents_length is not None:
+            self.minimum_contents_length = minimum_contents_length
         self.changed = changed
         # Connect signals
         self.qt.currentIndexChanged.connect(self.__handle_changed)
 
-    @property
-    def items(self):
-        return list(self)
-
-    @items.setter
-    def items(self, items):
-        self.clear()
-        for item in items:
-            self.append(item)
-
-    def clear(self):
-        self.qt.clear()
-
-    def append(self, value):
+    def append(self, value) -> None:
+        """Append value to end."""
         self.qt.addItem(format(value), value)
 
-    def insert(self, index, value):
+    def insert(self, index: int, value) -> None:
+        """Insert value before index. Permits negative indexing."""
         if index < 0:
             index = max(0, len(self) + index)
         self.qt.insertItem(index, format(value), value)
 
-    def remove(self, value):
-        self.qt.removeItem(self.qt.findData(value))
+    def extend(self, iterable) -> None:
+        """Extend list by appending values from the iterable."""
+        for value in iterable:
+            self.append(value)
+
+    def remove(self, value) -> None:
+        """Remove first occurrence of value. Raises ValueError if the value is
+        not present.
+        """
+        self.qt.removeItem(self.index(value))
+
+    def clear(self) -> None:
+        """Remove all values from widget."""
+        self.qt.clear()
+
+    def count(self, value) -> int:
+        """Return number of occurrences of value."""
+        return list(self).count(value)
+
+    def index(self, value):
+        """Return first index of value. Raises ValueError if the value is not
+        present.
+        """
+        index = self.qt.findData(value)
+        if index < 0:
+            raise ValueError("value not in list")
+        return index
 
     @property
     def current(self):
@@ -54,19 +79,37 @@ class ComboBox(BaseWidget):
         index = self.qt.findData(item)
         self.qt.setCurrentIndex(index)
 
-    def index(self, item):
-        index = self.qt.findData(item)
-        if index < 0:
-            raise ValueError("item not in list")
-        return index
+    @property
+    def duplicates_enabled(self) -> bool:
+        return self.qt.duplicatesEnabled()
+
+    @duplicates_enabled.setter
+    def duplicates_enabled(self, value: bool) -> None:
+        self.qt.setDuplicatesEnabled(value)
 
     @property
-    def editable(self):
+    def editable(self) -> bool:
         return self.qt.isEditable()
 
     @editable.setter
-    def editable(self, value):
+    def editable(self, value: bool) -> None:
         self.qt.setEditable(value)
+
+    @property
+    def max_visible_items(self) -> int:
+        return self.qt.maxVisibleItems()
+
+    @max_visible_items.setter
+    def max_visible_items(self, value: int) -> None:
+        self.qt.setMaxVisibleItems(value)
+
+    @property
+    def minimum_contents_length(self) -> int:
+        return self.qt.minimumContentsLength()
+
+    @minimum_contents_length.setter
+    def minimum_contents_length(self, value: int) -> None:
+        self.qt.setMinimumContentsLength(value)
 
     @property
     def changed(self):
@@ -78,18 +121,27 @@ class ComboBox(BaseWidget):
 
     def __handle_changed(self, index):
         if callable(self.changed):
-            value = self.items[index]
-            self.changed(value)
+            self.changed(self[index])
 
-    def __getitem__(self, key):
-        return self.qt.itemData(key)
+    def __getitem__(self, index):
+        if index < 0:
+            index = max(0, len(self) + index)
+        value = self.qt.itemData(index)
+        key = self.qt.itemText(index)
+        if value is None and key:
+            return key
+        return value
 
-    def __setitem__(self, key, value):
-        self.qt.setItemText(key, format(value))
-        self.qt.setItemData(key, value)
+    def __setitem__(self, index, value):
+        if index < 0:
+            index = max(0, len(self) + index)
+        self.qt.setItemText(index, format(value))
+        self.qt.setItemData(index, value)
 
-    def __delitem__(self, key):
-        self.qt.removeItem(key)
+    def __delitem__(self, index):
+        if index < 0:
+            index = max(0, len(self) + index)
+        self.qt.removeItem(index)
 
     def __len__(self):
         return self.qt.count()

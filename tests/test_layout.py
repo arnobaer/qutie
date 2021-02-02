@@ -10,16 +10,16 @@ class ColumnTest(QutieTestCase):
 
     def testEmpty(self):
         context = self.LayoutClass()
-        self.assertEqual(context.children, [])
-        self.assertEqual(context.stretch, [])
         self.assertEqual(len(context), 0)
+        self.assertEqual(list(context), [])
+        self.assertEqual(context.stretch, [])
 
     def tesFull(self):
         items = [Widget(), Widget(), Widget()]
         context = self.LayoutClass(*items, stretch=[2, 3, 1])
-        self.assertEqual(context.children, items)
-        self.assertEqual(context.stretch, [2, 3, 1])
         self.assertEqual(len(context), 3)
+        self.assertEqual(list(context), items)
+        self.assertEqual(context.stretch, [2, 3, 1])
 
     def testProperties(self):
         items = [Widget(), Widget(), Widget(), Widget()]

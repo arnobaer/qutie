@@ -1,13 +1,16 @@
 from .qutie import QtCore
 from .qutie import QtWidgets
+from .qutie import Orientation
+from .qutie import ToolButtonStyle
 
 from .action import Action
 from .menu import Menu
+from .mixins import OrientationMixin
 from .widget import BaseWidget
 
 __all__ = ['ToolBar']
 
-class ToolBar(BaseWidget):
+class ToolBar(BaseWidget, OrientationMixin):
 
     QtClass = QtWidgets.QToolBar
 
@@ -47,38 +50,14 @@ class ToolBar(BaseWidget):
         self.qt.setMovable(bool(value))
 
     @property
-    def orientation(self):
-        return {
-            QtCore.Qt.Horizontal: 'horizontal',
-            QtCore.Qt.Vertical: 'vertical'
-        }[self.qt.orientation()]
-
-    @orientation.setter
-    def orientation(self, value):
-        self.qt.setOrientation({
-            'horizontal': QtCore.Qt.Horizontal,
-            'vertical': QtCore.Qt.Vertical
-        }[value])
-
-    @property
+    @ToolButtonStyle.getter
     def tool_button_style(self):
-        return {
-            QtCore.Qt.ToolButtonIconOnly: 'icon_only',
-            QtCore.Qt.ToolButtonTextOnly: 'text_only',
-            QtCore.Qt.ToolButtonTextBesideIcon: 'text_beside_icon',
-            QtCore.Qt.ToolButtonTextUnderIcon: 'text_under_icon',
-            QtCore.Qt.ToolButtonFollowStyle: 'follow_style'
-        }[self.qt.toolButtonStyle()]
+        return self.qt.toolButtonStyle()
 
     @tool_button_style.setter
+    @ToolButtonStyle.setter
     def tool_button_style(self, value):
-        self.qt.setToolButtonStyle({
-            'icon_only': QtCore.Qt.ToolButtonIconOnly,
-            'text_only': QtCore.Qt.ToolButtonTextOnly,
-            'text_beside_icon': QtCore.Qt.ToolButtonTextBesideIcon,
-            'text_under_icon': QtCore.Qt.ToolButtonTextUnderIcon,
-            'follow_style': QtCore.Qt.ToolButtonFollowStyle
-        }[value])
+        self.qt.setToolButtonStyle(value)
 
     def index(self, item):
         for index, action in enumerate(self):

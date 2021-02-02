@@ -58,11 +58,6 @@ class Tabs(BaseWidget):
         # Connect signals
         self.qt.currentChanged.connect(self.__handle_changed)
 
-    @property
-    def items(self):
-        """Return list of tab items."""
-        return list(self)
-
     def append(self, tab):
         """Append tab item to tab widget.
 

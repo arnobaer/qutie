@@ -6,6 +6,7 @@ For more information on the underlying Qt5 object see [QWidget](https://doc.qt.i
 from .qutie import QtCore
 from .qutie import QtGui
 from .qutie import QtWidgets
+from .qutie import CursorShape
 
 from .icon import Icon
 from .object import Object
@@ -21,7 +22,7 @@ class BaseWidget(Object):
 
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
                  visible=None, status_tip=None, stylesheet=None, icon=None,
-                 tool_tip=None, tool_tip_duration=None, parent=None,
+                 tool_tip=None, tool_tip_duration=None, cursor=None, parent=None,
                  close_event=None, focus_in=None, focus_out=None, **kwargs):
         super().__init__(**kwargs)
         if title is not None:
@@ -44,6 +45,8 @@ class BaseWidget(Object):
             self.tool_tip = tool_tip
         if tool_tip_duration is not None:
             self.tool_tip_duration = tool_tip_duration
+        if cursor is not None:
+            self.cursor = cursor
         if parent is not None:
             self.parent = parent
         self.close_event = close_event
@@ -244,6 +247,19 @@ class BaseWidget(Object):
     @tool_tip_duration.setter
     def tool_tip_duration(self, value):
         self.qt.setToolTipDuration(value * 1000.)
+
+    @property
+    @CursorShape.getter
+    def cursor(self):
+        return self.qt.cursor().shape()
+
+    @cursor.setter
+    @CursorShape.setter
+    def cursor(self, value):
+        if value is None:
+            self.qt.unsetCursor()
+        else:
+            self.qt.setCursor(value)
 
     @property
     def parent(self):

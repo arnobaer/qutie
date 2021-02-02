@@ -45,7 +45,7 @@ class Worker(Object):
         self.failed = failed
         self.__lock = threading.RLock()
         self.__thread = None
-        self.__stop_requested = False
+        self.__stop_requested = threading.Event()
         self.__values = {}
 
     @property
@@ -117,7 +117,7 @@ class Worker(Object):
         with self.__lock:
             if not self.__thread:
                 self.__thread = threading.Thread(target=self.__run)
-            self.__stop_requested = False
+            self.__stop_requested.clear()
             self.__thread.start()
 
     def stop(self):
@@ -127,7 +127,7 @@ class Worker(Object):
         self.__stop()
 
     def __stop(self):
-        self.__stop_requested = True
+        self.__stop_requested.set()
 
     def join(self):
         """Join thread, blocking until finished."""
@@ -142,12 +142,12 @@ class Worker(Object):
     @property
     def stopping(self):
         """Return `True` when stopping."""
-        return self.__stop_requested
+        return self.__stop_requested.is_set()
 
     @property
     def running(self):
         """Return `True` while not stopping."""
-        return not self.__stop_requested
+        return not self.stopping
 
     @property
     def alive(self):
@@ -172,7 +172,7 @@ class Worker(Object):
             self.emit('failed', e, tb)
         finally:
             with self.__lock:
-                self.__stop_requested = False
+                self.__stop_requested.clear()
                 self.__thread = None
                 self.emit('finished')
 
