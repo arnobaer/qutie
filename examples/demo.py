@@ -13,7 +13,7 @@ class NumbersTab(ui.Tab):
         self.scroll_area = ui.ScrollArea(
             layout=ui.Row(
                 ui.Column(
-                    ui.Label("Unbound"),
+                    ui.Label("Unbound", text_format='auto'),
                     ui.Number(editing_finished=lambda: ui.show_info("Editing finished.")),
                     ui.Label("Unbound, decimals=1"),
                     ui.Number(42, decimals=1, focus_in=lambda: print("focus: in"), focus_out=lambda: print("focus: out")),
@@ -53,7 +53,10 @@ class TextTab(ui.Tab):
             ui.Label("Text, readonly, styled"),
             ui.Text("Lorem ipsum et dolor.", readonly=True, stylesheet="color: red"),
             ui.Label("Text Area"),
-            ui.TextArea("Lorem ipsum et dolor.")
+            ui.TextArea(
+                value="Lorem ipsum et dolor.",
+                changed=lambda: print("> text area changed.")
+            )
         )
 
 class SelectTab(ui.Tab):
@@ -198,6 +201,9 @@ def main():
     tree.current = tree[3]
     tree.fit()
 
+    tree.clicked = lambda column, data: print(f"tree clicked, column={column}, data={data}")
+    tree.double_clicked = lambda column, data: print(f"tree double clicked, column={column}, data={data}")
+
     table = ui.Table(
         header=("Key", "Value")
     )
@@ -275,6 +281,9 @@ def main():
     item = list_.append("checkable=1, checked=1")
     item.checkable = True
     item.checked = True
+
+    list_.clicked = lambda row, data: print(f"list clicked, row={row}, data={data}")
+    list_.double_clicked = lambda row, data: print(f"list double clicked, row={row}, data={data}")
 
     tabs = ui.Tabs(
         ui.Tab(
@@ -405,14 +414,21 @@ def main():
     window.menubar.insert(0, file_menu)
     window.menubar.append(abc_menu[1])
 
-    window.progress = ui.ProgressBar(0, minimum=0, maximum=len(tabs))
-    window.statusbar.append(window.progress)
-
     window.progress2 = ui.ProgressBar(0, minimum=0, maximum=100)
     window.statusbar.append(window.progress2)
 
+    window.progress = ui.ProgressBar(0, minimum=0, maximum=len(tabs))
+    window.statusbar.insert(0, window.progress)
+
     window.message = ui.Label()
     window.statusbar.append(window.message)
+    window.statusbar.remove(window.message)
+    window.statusbar.insert(0, window.message)
+    window.statusbar.remove(window.message)
+    window.statusbar.insert(-1, window.message)
+    window.message.show()
+
+    window.statusbar.show_message("Ready!", timeout=5.0)
 
     main_toolbar = ui.ToolBar("foo", "bar", "baz", quit_action, edit_menu[0], orientation='vertical')
     window.toolbars.add(main_toolbar)

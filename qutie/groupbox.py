@@ -1,3 +1,9 @@
+"""Group box module.
+
+For more information on the underlying Qt5 object see
+[QGroupBox](https://doc.qt.io/qt-5/qgroupbox.html).
+"""
+
 from .qutie import QtWidgets
 
 from .widget import Widget
@@ -8,9 +14,13 @@ class GroupBox(Widget):
 
     QtClass = QtWidgets.QGroupBox
 
+    clicked = None
+    toggled = None
+
     def __init__(self, title=None, *, checkable=None, checked=None, flat=None,
                  clicked=None, toggled=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if title is not None:
             self.title = title
         if checkable is not None:
@@ -19,11 +29,12 @@ class GroupBox(Widget):
             self.checked = checked
         if flat is not None:
             self.flat = flat
+        # Callbacks
         self.clicked = clicked
         self.toggled = toggled
         # Connect signals
-        self.qt.clicked.connect(self.__handle_clicked)
-        self.qt.toggled.connect(self.__handle_toggled)
+        self.qt.clicked.connect(lambda _: self.emit(self.clicked))
+        self.qt.toggled.connect(lambda checked: self.emit(self.toggled, checked))
 
     @property
     def title(self):
@@ -56,27 +67,3 @@ class GroupBox(Widget):
     @flat.setter
     def flat(self, value):
         self.qt.setFlat(value)
-
-    @property
-    def clicked(self):
-        return self.__clicked
-
-    @clicked.setter
-    def clicked(self, value):
-        self.__clicked = value
-
-    def __handle_clicked(self, _):
-        if callable(self.clicked):
-            self.clicked()
-
-    @property
-    def toggled(self):
-        return self.__toggled
-
-    @toggled.setter
-    def toggled(self, value):
-        self.__toggled = value
-
-    def __handle_toggled(self, checked):
-        if callable(self.toggled):
-            self.toggled(checked)

@@ -1,3 +1,9 @@
+"""Frame module.
+
+For more information on the underlying Qt5 object see
+[QFrame](https://doc.qt.io/qt-5/qframe.html).
+"""
+
 from .qutie import QtWidgets
 
 from .widget import BaseWidget
@@ -8,7 +14,7 @@ class Frame(BaseWidget):
 
     QtClass = QtWidgets.QFrame
 
-    def __init__(self, line_width=None, mid_line_width=None, **kwargs):
+    def __init__(self, *, line_width=None, mid_line_width=None, **kwargs):
         super().__init__(**kwargs)
         if line_width is not None:
             self.line_width = line_width

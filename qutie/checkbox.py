@@ -1,3 +1,9 @@
+"""Check box module.
+
+For more information on the underlying Qt5 object see
+[QCheckBox](https://doc.qt.io/qt-5/qcheckbox.html).
+"""
+
 from .qutie import QtCore
 from .qutie import QtWidgets
 
@@ -6,42 +12,46 @@ from .widget import BaseWidget
 __all__ = ['CheckBox']
 
 class CheckBox(BaseWidget):
+    """CheckBox
+
+    Properties
+     - text
+     - checked
+
+    Callbacks
+     - changed
+    """
 
     QtClass = QtWidgets.QCheckBox
 
+    checked = None
+    changed = None
+
     def __init__(self, text=None, *, checked=False, changed=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if text is not None:
             self.text = text
+        # Callbacks
         self.checked = checked
         self.changed = changed
         # Connect signals
-        self.qt.stateChanged.connect(self.__handle_changed)
+        def handle_state_changed(state):
+            self.emit(self.changed, state == QtCore.Qt.Checked)
+        self.qt.stateChanged.connect(handle_state_changed)
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self.qt.text()
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str):
         self.qt.setText(value)
 
     @property
-    def checked(self):
+    def checked(self) -> bool:
         return self.qt.checkState() == QtCore.Qt.Checked
 
     @checked.setter
-    def checked(self, value):
+    def checked(self, value: bool):
         self.qt.setChecked(QtCore.Qt.Checked if value else QtCore.Qt.Unchecked)
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, value):
-        self.__changed = value
-
-    def __handle_changed(self, state):
-        if callable(self.changed):
-            self.changed(state == QtCore.Qt.Checked)

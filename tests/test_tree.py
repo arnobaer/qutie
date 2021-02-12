@@ -1,6 +1,6 @@
 import unittest
 
-from qutie import Tree
+from qutie import Tree, TreeItem
 from . import QutieTestCase
 
 class TreeTest(QutieTestCase):
@@ -47,6 +47,20 @@ class TreeTest(QutieTestCase):
 
     def testMethods(self):
         context = Tree()
+        ref = TreeItem()
+        item = context.append(ref)
+        self.assertEqual(id(item), id(ref))
+        self.assertEqual(context.index(ref), 0)
+        context.append([])
+        self.assertEqual(context.index(ref), 0)
+        context.remove(ref)
+        self.assertEqual(len(context), 1)
+        self.assertEqual(len(ref.children), 0)
+        child = ref.append(TreeItem())
+        self.assertEqual(len(ref.children), 1)
+        self.assertEqual(ref.index(child), 0)
+        ref.remove(child)
+        self.assertEqual(len(ref.children), 0)
 
 if __name__ == '__main__':
     unittest.main()

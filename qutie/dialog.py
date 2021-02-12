@@ -1,3 +1,10 @@
+"""Dialog module.
+
+For more information on the underlying Qt5 objects see
+[QDialog](https://doc.qt.io/qt-5/qdialog.html),
+[QDialogButtonBox](https://doc.qt.io/qt-5/qdialogbuttonbox.html).
+"""
+
 from .qutie import QtWidgets
 
 from .widget import BaseWidget
@@ -72,7 +79,7 @@ class DialogButtonBox(BaseWidget, OrientationMixin):
         'ignore': QtWidgets.QDialogButtonBox.Ignore
     }
 
-    def __init__(self, buttons=None, orientation=None, accepted=None,
+    def __init__(self, buttons=None, *, orientation=None, accepted=None,
                  rejected=None, clicked=None, help_requested=None, **kwargs):
         super().__init__(**kwargs)
         if buttons is not None:
@@ -166,7 +173,7 @@ def filename_open(path=None, *, filter=None, title=None, parent=None):
     if title is None:
         title = "Open file"
     if parent is not None:
-        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(parent, BaseWidget), f"Parent must inherit from {BaseWidget}"
         parent = parent.qt
     return QtWidgets.QFileDialog.getOpenFileName(parent, title, path, filter)[0] or None
 
@@ -180,7 +187,7 @@ def filenames_open(path=None, *, filter=None, title=None, parent=None):
     if title is None:
         title = "Open files"
     if parent is not None:
-        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(parent, BaseWidget), f"Parent must inherit from {BaseWidget}"
         parent = parent.qt
     return QtWidgets.QFileDialog.getOpenFileNames(parent, title, path, filter)[0] or None
 
@@ -207,7 +214,7 @@ def filename_save(path=None, *, filter=None, title=None, parent=None):
     if title is None:
         title = "Save file"
     if parent is not None:
-        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(parent, BaseWidget), f"Parent must inherit from {BaseWidget}"
         parent = parent.qt
     return QtWidgets.QFileDialog.getSaveFileName(parent, title, path, filter)[0] or None
 
@@ -227,7 +234,7 @@ def get_number(value=0, *, minimum=None, maximum=None, decimals=0, title=None, l
     if label is None:
         label = ""
     if parent is not None:
-        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(parent, BaseWidget), f"Parent must inherit from {BaseWidget}"
         parent = parent.qt
     value, success = QtWidgets.QInputDialog.getDouble(
         parent, title, label, value, minimum, maximum, decimals
@@ -248,7 +255,7 @@ def get_text(text=None, *, title=None, label=None, parent=None):
     if label is None:
         label = ""
     if parent is not None:
-        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(parent, BaseWidget), f"Parent must inherit from {BaseWidget}"
         parent = parent.qt
     value, success = QtWidgets.QInputDialog.getText(
         parent, title, label, QtWidgets.QLineEdit.Normal, text
@@ -269,7 +276,7 @@ def get_item(items, *, current=0, editable=False, title=None, label=None, parent
     if label is None:
         label = ""
     if parent is not None:
-        assert isinstance(parent, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(parent, BaseWidget), f"Parent must inherit from {BaseWidget}"
         parent = parent.qt
     item, success = QtWidgets.QInputDialog.getItem(
         parent, title, label, items, current, editable

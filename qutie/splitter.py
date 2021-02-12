@@ -1,6 +1,7 @@
-"""Splitter widget.
+"""Splitter module.
 
-For more information on the underlying Qt5 object see [QSplitter](https://doc.qt.io/qt-5/qsplitter.html).
+For more information on the underlying Qt5 object see
+[QSplitter](https://doc.qt.io/qt-5/qsplitter.html).
 """
 
 from .qutie import QtWidgets
@@ -25,6 +26,7 @@ class Splitter(BaseWidget, OrientationMixin):
     def __init__(self, *children, sizes=None, orientation=None,
                  collapsible=True, stretch=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         for child in children:
             self.append(child)
         if sizes is not None:

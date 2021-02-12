@@ -1,6 +1,6 @@
-"""Combo box widget.
+"""Combo box module.
 
-For more information on the underlying Qt5 objects see
+For more information on the underlying Qt5 object see
 [QComboBox](https://doc.qt.io/qt-5/qcombobox.html).
 """
 
@@ -11,6 +11,18 @@ from .widget import BaseWidget
 __all__ = ['ComboBox']
 
 class ComboBox(BaseWidget):
+    """ComboBox
+
+    Properties
+     - current
+     - duplicates_enabled
+     - editable
+     - max_visible_items
+     - minimum_contents_length
+
+    Callbacks
+     - changed
+    """
 
     QtClass = QtWidgets.QComboBox
 
@@ -18,6 +30,7 @@ class ComboBox(BaseWidget):
                  editable=False, max_visible_items=None,
                  minimum_contents_length=None, changed=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if values is not None:
             self.extend(values)
         if current is not None:
@@ -28,9 +41,12 @@ class ComboBox(BaseWidget):
             self.max_visible_items = max_visible_items
         if minimum_contents_length is not None:
             self.minimum_contents_length = minimum_contents_length
+        # Callbacks
         self.changed = changed
         # Connect signals
-        self.qt.currentIndexChanged.connect(self.__handle_changed)
+        def handle_current_index_changed(index):
+            self.emit(self.changed, self[index])
+        self.qt.currentIndexChanged.connect(handle_current_index_changed)
 
     def append(self, value) -> None:
         """Append value to end."""
@@ -61,7 +77,7 @@ class ComboBox(BaseWidget):
         """Return number of occurrences of value."""
         return list(self).count(value)
 
-    def index(self, value):
+    def index(self, value) -> int:
         """Return first index of value. Raises ValueError if the value is not
         present.
         """
@@ -110,18 +126,6 @@ class ComboBox(BaseWidget):
     @minimum_contents_length.setter
     def minimum_contents_length(self, value: int) -> None:
         self.qt.setMinimumContentsLength(value)
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, changed):
-        self.__changed = changed
-
-    def __handle_changed(self, index):
-        if callable(self.changed):
-            self.changed(self[index])
 
     def __getitem__(self, index):
         if index < 0:

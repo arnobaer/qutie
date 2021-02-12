@@ -5,12 +5,6 @@ from PyQt5 import QtWidgets
 
 __all__ = ['Qutie']
 
-def handle_event(event):
-    def handle_event(*args, **kwargs):
-        if callable(event):
-            event(*args, **kwargs)
-    return handle_event
-
 def to_brush(method):
     def to_brush(self, value):
         if value is None:
@@ -99,6 +93,15 @@ class Orientation(Enum):
     QtEnums = {
         'horizontal': Qt.Horizontal,
         'vertical': Qt.Vertical
+    }
+
+class TextFormat(Enum):
+
+    QtEnums = {
+        'plain': Qt.PlainText,
+        'rich': Qt.RichText,
+        'auto': Qt.AutoText,
+        'markdown': Qt.MarkdownText
     }
 
 class ToolButtonStyle(Enum):

@@ -1,6 +1,7 @@
-"""Stack widget.
+"""Stack module.
 
-For more information on the underlying Qt5 object see [QStackedWidget](https://doc.qt.io/qt-5/qstackedwidget.html).
+For more information on the underlying Qt5 object see
+[QStackedWidget](https://doc.qt.io/qt-5/qstackedwidget.html).
 """
 
 from .qutie import QtCore
@@ -14,17 +15,17 @@ class Stack(BaseWidget):
 
     QtClass = QtWidgets.QStackedWidget
 
+    changed = None
+
     def __init__(self, *items, changed=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         for item in items:
             self.append(item)
+        # Callbacks
         self.changed = changed
         # Connect signals
-        self.qt.currentChanged.connect(self.__handle_changed)
-
-    @property
-    def items(self):
-        return list(self)
+        self.qt.currentChanged.connect(lambda index: self.emit(self.changed, index))
 
     def append(self, item):
         self.qt.addWidget(item.qt)
@@ -34,38 +35,29 @@ class Stack(BaseWidget):
             index = max(0, len(self) + index)
         self.qt.insertWidget(index, item.qt)
 
+    def extend(self, iterable):
+        for item in iterable:
+            self.append(item)
+
     def remove(self, item):
         self.qt.removeWidget(item.qt)
 
     @property
     def current(self):
-        item = self.qt.currentIndex()
-        if item is not None:
-            return item.reflection()
-        return item
+        index = self.qt.currentIndex()
+        if index < 0:
+            return None
+        return item.reflection()
 
     @current.setter
     def current(self, item):
-        index = self.qt.indexOf(item.qt)
-        self.qt.setCurrentIndex(index)
+        self.qt.setCurrentIndex(self.index(item))
 
     def index(self, item):
         index = self.qt.indexOf(item.qt)
         if index < 0:
             raise ValueError("item not in stack")
         return index
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, changed):
-        self.__changed = changed
-
-    def __handle_changed(self, index):
-        if callable(self.changed):
-            self.changed(index)
 
     def __getitem__(self, key):
         item = self.qt.widget(key)

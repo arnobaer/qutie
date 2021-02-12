@@ -1,6 +1,7 @@
 """A scrollable area.
 
-For more information on the underlying Qt5 object see [QScrollArea](https://doc.qt.io/qt-5/qscrollarea.html).
+For more information on the underlying Qt5 object see
+[QScrollArea](https://doc.qt.io/qt-5/qscrollarea.html).
 """
 
 from .qutie import QtGui

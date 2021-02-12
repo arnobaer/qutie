@@ -1,10 +1,37 @@
+"""Layout module.
+
+For more information on the underlying Qt5 objects see
+[QLayout](https://doc.qt.io/qt-5/qlayout.html),
+[QBoxLayout](https://doc.qt.io/qt-5/qboxlayout.html),
+[QHBoxLayout](https://doc.qt.io/qt-5/qhboxlayout.html) and
+[QVBoxLayout](https://doc.qt.io/qt-5/qvboxlayout.html).
+"""
+
 from .qutie import QtWidgets
 
 from .widget import BaseWidget
 
 __all__ = ['Column', 'Row', 'Spacer']
 
-class BoxLayout(BaseWidget):
+class Layout(BaseWidget):
+
+    QtLayoutClass = QtWidgets.QLayout
+
+    def __init__(self, *, spacing=None, **kwargs):
+        super().__init__(**kwargs)
+        # Properties
+        if spacing is not None:
+            self.spacing = spacing
+
+    @property
+    def spacing(self) -> int:
+        return self.qt.spacing()
+
+    @spacing.setter
+    def spacing(self, value: int) -> None:
+        self.qt.setSpacing(int(value))
+
+class BoxLayout(Layout):
 
     QtLayoutClass = QtWidgets.QBoxLayout
 

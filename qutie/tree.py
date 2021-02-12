@@ -1,6 +1,8 @@
-"""Simple item based tree view.
+"""Tree module.
 
-For more information on the underlying Qt5 objects see [QTreeWidget](https://doc.qt.io/qt-5/qtreewidget.html) and [QTreeWidgetItem](https://doc.qt.io/qt-5/qtreewidgetitem.html).
+For more information on the underlying Qt5 objects see
+[QTreeWidget](https://doc.qt.io/qt-5/qtreewidget.html) and
+[QTreeWidgetItem](https://doc.qt.io/qt-5/qtreewidgetitem.html).
 """
 
 from .qutie import QtCore
@@ -28,12 +30,19 @@ class Tree(BaseItemView):
 
     QtClass = QtWidgets.QTreeWidget
 
+    activated = None
+    changed = None
+    clicked = None
+    double_clicked = None
+    selected = None
+
     def __init__(self, items=None, *, expands_on_double_click=None, header=None,
                  sortable=False, indentation=None, root_is_decorated=None,
                  uniform_row_heights=None, word_wrap=None, activated=None,
                  changed=None, clicked=None, double_clicked=None, selected=None,
                  **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if items is not None:
             self.items = items
         if expands_on_double_click is not None:
@@ -48,17 +57,39 @@ class Tree(BaseItemView):
             self.uniform_row_heights = uniform_row_heights
         if word_wrap is not None:
             self.word_wrap = word_wrap
+        # Callbacks
         self.activated = activated
         self.changed = changed
         self.clicked = clicked
         self.double_clicked = double_clicked
         self.selected = selected
         # Connect signals
-        self.qt.itemActivated.connect(self.__handle_activated)
-        self.qt.itemChanged.connect(self.__handle_changed)
-        self.qt.itemClicked.connect(self.__handle_clicked)
-        self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
-        self.qt.itemSelectionChanged.connect(self.__handle_selected)
+        def handle_item_activated(item, index):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.emit(self.activated, index, data)
+        self.qt.itemActivated.connect(handle_item_activated)
+        def handle_item_changed(item, index):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.emit(self.changed, index, data)
+        self.qt.itemChanged.connect(handle_item_changed)
+        def handle_item_clicked(item, index):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.emit(self.clicked, index, data)
+        self.qt.itemClicked.connect(handle_item_clicked)
+        def handle_item_double_clicked(item, index):
+            data = item.data(0, item.UserType)
+            if data is not None:
+                self.emit(self.double_clicked, index, data)
+        self.qt.itemDoubleClicked.connect(handle_item_double_clicked)
+        def handle_item_selection_changed():
+            items = self.qt.selectedItems()
+            if items:
+                first = items[0].data(0, items[0].UserType)
+                self.emit(self.selected, first)
+        self.qt.itemSelectionChanged.connect(handle_item_selection_changed)
 
     @property
     def expands_on_double_click(self):
@@ -121,77 +152,6 @@ class Tree(BaseItemView):
     def word_wrap(self, value):
         self.qt.setWordWrap(bool(value))
 
-    @property
-    def activated(self):
-        return self.__activated
-
-    @activated.setter
-    def activated(self, value):
-        self.__activated = value
-
-    def __handle_activated(self, item, index):
-        if callable(self.activated):
-            data = item.data(0, item.UserType)
-            if data is not None:
-                self.activated(index, data)
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, value):
-        self.__changed = value
-
-    def __handle_changed(self, item, index):
-        if callable(self.changed):
-            data = item.data(0, item.UserType)
-            if data is not None:
-                self.changed(index, data)
-
-    @property
-    def clicked(self):
-        return self.__clicked
-
-    @clicked.setter
-    def clicked(self, value):
-        self.__clicked = value
-
-    def __handle_clicked(self, item, index):
-        if callable(self.clicked):
-            data = item.data(0, item.UserType)
-            if data is not None:
-                self.clicked(index, data)
-
-    @property
-    def double_clicked(self):
-        return self.__double_clicked
-
-    @double_clicked.setter
-    def double_clicked(self, value):
-        self.__double_clicked = value
-
-    def __handle_double_clicked(self, item, index):
-        if callable(self.double_clicked):
-            data = item.data(0, item.UserType)
-            if data is not None:
-                self.double_clicked(index, data)
-
-    @property
-    def selected(self):
-        return self.__selected
-
-    @selected.setter
-    def selected(self, value):
-        self.__selected = value
-
-    def __handle_selected(self):
-        if callable(self.selected):
-            items = self.qt.selectedItems()
-            if items:
-                first = items[0].data(0, items[0].UserType)
-                self.selected(first)
-
     def append(self, item):
         """Append item or item labels, returns appended item.
         >>> tree.append(TreeItem(["Spam", "Eggs"]))
@@ -212,15 +172,21 @@ class Tree(BaseItemView):
         """
         if not isinstance(item, TreeItem):
             item = TreeItem(item)
+        if index < 0:
+            index = max(0, len(self) + index)
         self.qt.insertTopLevelItem(index, item.qt)
         item.expanded = True
         return item
 
     def remove(self, item):
-        index = self.qt.indexOfTopLevelItem(item.qt)
-        self.qt.takeTopLevelItem(index)
+        """Remove item from tree. Raises ValueError if the value is not present.
+        """
+        if not isinstance(item, TreeItem):
+            raise TypeError("invalid item type")
+        self.qt.takeTopLevelItem(self.index(item))
 
     def clear(self):
+        """Remove all tree items."""
         self.qt.clear()
 
     @property
@@ -232,12 +198,18 @@ class Tree(BaseItemView):
         return item
 
     @current.setter
-    def current(self, value):
-        assert isinstance(value, TreeItem)
-        self.qt.setCurrentItem(value.qt)
+    def current(self, item):
+        if not isinstance(item, TreeItem):
+            raise TypeError("invalid item type")
+        self.qt.setCurrentItem(item.qt)
 
     def index(self, item):
-        return self.qt.indexOfTopLevelItem(item.qt)
+        """Return index of item. Raises ValueError if the item is not present.
+        """
+        index = self.qt.indexOfTopLevelItem(item.qt)
+        if index < 0:
+            raise ValueError("item not in tree")
+        return index
 
     @property
     def stretch(self):
@@ -256,10 +228,14 @@ class Tree(BaseItemView):
 
     def scroll_to(self, item):
         """Scroll to item to ensure item is visible."""
+        if not isinstance(item, TreeItem):
+            raise TypeError("invalid item type")
         self.qt.scrollToItem(item.qt)
 
     def __getitem__(self, key):
         item = self.qt.topLevelItem(key)
+        if not item:
+            raise IndexError(key)
         return item.data(0, item.UserType)
 
     def __setitem__(self, key, value):
@@ -268,6 +244,8 @@ class Tree(BaseItemView):
 
     def __delitem__(self, key):
         item = self.qt.topLevelItem(key)
+        if not item:
+            raise IndexError(key)
         self.remove(item)
 
     def __len__(self):
@@ -312,6 +290,26 @@ class TreeItem(QutieStub):
             item = TreeItem(item)
         self.qt.insertChild(index, item.qt)
         return item
+
+    def remove(self, item):
+        """Remove child item."""
+        if not isinstance(item, TreeItem):
+            raise TypeError("invalid item type")
+        self.qt.takeChild(self.index(item))
+
+    def clear(self):
+        """Remove all child items."""
+        while len(self.children):
+            self.remove(self.children[0])
+
+    def index(self, item):
+        """Return index of child item."""
+        if not isinstance(item, TreeItem):
+            raise TypeError("invalid item type")
+        index = self.qt.indexOfChild(item.qt)
+        if index < 0:
+            raise ValueError("no such child item")
+        return index
 
     @property
     def checkable(self):

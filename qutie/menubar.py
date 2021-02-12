@@ -48,6 +48,10 @@ class MenuBar(BaseWidget):
             self.qt.insertMenu(before.qt, item.qt)
         return item
 
+    def extend(self, iterable):
+        for item in iterable:
+            self.append(item)
+
     def remove(self, item):
         index = self.index(item)
         self.qt.removeAction(self.qt.actions()[index])

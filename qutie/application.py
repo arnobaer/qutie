@@ -1,3 +1,11 @@
+"""Application module.
+
+For more information on the underlying Qt5 objects see
+[QCoreApplication](https://doc.qt.io/qt-5/qcoreapplication.html),
+[QGuiApplication](https://doc.qt.io/qt-5/qguiapplication.html) and
+[QApplication](https://doc.qt.io/qt-5/qapplication.html).
+"""
+
 import signal
 import sys
 
@@ -11,13 +19,33 @@ from .object import Object
 __all__ = ['CoreApplication', 'GuiApplication', 'Application']
 
 class CoreApplication(Object):
+    """CoreApplication
+
+    Properties
+     - name
+     - version
+     - organization
+     - domain
+
+    Callbacks
+     - name_changed(name)
+     - version_changed(version)
+     - organization_changed(organization)
+     - domain_changed(name)
+    """
 
     QtClass = QtCore.QCoreApplication
+
+    name_changed = None
+    version_changed = None
+    organization_changed = None
+    domain_changed = None
 
     def __init__(self, name=None, *, version=None, organization=None,
                  domain=None, name_changed=None, version_changed=None,
                  organization_changed=None, domain_changed=None, **kwargs):
         super().__init__(qt=(sys.argv,), **kwargs)
+        # Properties
         if name is not None:
             self.name = name
         if version is not None:
@@ -26,15 +54,16 @@ class CoreApplication(Object):
             self.organization = organization
         if domain is not None:
             self.domain = domain
+        # Callbacks
         self.name_changed = name_changed
         self.version_changed = version_changed
         self.organization_changed = organization_changed
         self.domain_changed = domain_changed
         # Connect signals
-        self.qt.applicationNameChanged.connect(self.__handle_name_changed)
-        self.qt.applicationVersionChanged.connect(self.__handle_version_changed)
-        self.qt.organizationNameChanged.connect(self.__handle_organization_changed)
-        self.qt.organizationDomainChanged.connect(self.__handle_domain_changed)
+        self.qt.applicationNameChanged.connect(lambda: self.emit(self.name_changed, self.name))
+        self.qt.applicationVersionChanged.connect(lambda: self.emit(self.version_changed, self.version))
+        self.qt.organizationNameChanged.connect(lambda: self.emit(self.organization_changed, self.organization))
+        self.qt.organizationDomainChanged.connect(lambda: self.emit(self.domain_changed, self.domain))
 
     @classmethod
     def instance(cls):
@@ -43,35 +72,35 @@ class CoreApplication(Object):
         return None
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.qt.applicationName()
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str):
         self.qt.setApplicationName(value)
 
     @property
-    def version(self):
+    def version(self) -> str:
         return self.qt.applicationVersion()
 
     @version.setter
-    def version(self, value):
+    def version(self, value: str):
         self.qt.setApplicationVersion(value)
 
     @property
-    def organization(self):
+    def organization(self) -> str:
         return self.qt.organizationName()
 
     @organization.setter
-    def organization(self, value):
+    def organization(self, value: str):
         self.qt.setOrganizationName(value)
 
     @property
-    def domain(self):
+    def domain(self) -> str:
         return self.qt.organizationDomain()
 
     @domain.setter
-    def domain(self, value):
+    def domain(self, value: str):
         self.qt.setOrganizationDomain(value)
 
     def run(self):
@@ -91,77 +120,44 @@ class CoreApplication(Object):
     def quit(self):
         self.qt.quit()
 
-    @property
-    def name_changed(self):
-        return self.__name_changed
-
-    @name_changed.setter
-    def name_changed(self, value):
-        self.__name_changed = value
-
-    def __handle_name_changed(self):
-        if callable(self.name_changed):
-            self.name_changed(self.name)
-
-    @property
-    def version_changed(self):
-        return self.__version_changed
-
-    @version_changed.setter
-    def version_changed(self, value):
-        self.__version_changed = value
-
-    def __handle_version_changed(self):
-        if callable(self.version_changed):
-            self.version_changed(self.version)
-
-    @property
-    def organization_changed(self):
-        return self.__organization_changed
-
-    @organization_changed.setter
-    def organization_changed(self, value):
-        self.__organization_changed = value
-
-    def __handle_organization_changed(self):
-        if callable(self.organization_changed):
-            self.organization_changed(self.organization)
-
-    @property
-    def domain_changed(self):
-        return self.__domain_changed
-
-    @domain_changed.setter
-    def domain_changed(self, value):
-        self.__domain_changed = value
-
-    def __handle_domain_changed(self):
-        if callable(self.domain_changed):
-            self.domain_changed(self.domain)
-
 class GuiApplication(CoreApplication):
+    """GuiApplication
+
+    Properties
+     - display_name
+     - icon
+
+    Callbacks
+     - display_name_changed(display_name)
+     - last_window_closed()
+    """
 
     QtClass = QtGui.QGuiApplication
+
+    display_name_changed = None
+    last_window_closed = None
 
     def __init__(self, name=None, *, display_name=None, icon=None,
                  display_name_changed=None, last_window_closed=None, **kwargs):
         super().__init__(name=name, **kwargs)
+        # Properties
         if display_name is not None:
             self.display_name = display_name
         if icon is not None:
             self.icon = icon
+        # Callbacks
         self.display_name_changed = display_name_changed
         self.last_window_closed = last_window_closed
         # Connect signals
-        self.qt.applicationDisplayNameChanged.connect(self.__handle_display_name_changed)
-        self.qt.lastWindowClosed.connect(self.__handle_last_window_closed)
+        self.qt.applicationDisplayNameChanged.connect(lambda: self.emit(self.display_name_changed, self.display_name))
+        self.qt.lastWindowClosed.connect(lambda: self.emit(self.last_window_closed))
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         return self.qt.applicationDisplayName()
 
     @display_name.setter
-    def display_name(self, value):
+    def display_name(self, value: str):
         self.qt.setApplicationDisplayName(value)
 
     @property
@@ -180,51 +176,23 @@ class GuiApplication(CoreApplication):
                 value = Icon(value)
             self.qt.setWindowIcon(value.qt)
 
-    @property
-    def display_name_changed(self):
-        return self.__display_name_changed
-
-    @display_name_changed.setter
-    def display_name_changed(self, value):
-        self.__display_name_changed = value
-
-    def __handle_display_name_changed(self):
-        if callable(self.display_name_changed):
-            self.display_name_changed(self.display_name)
-
-    @property
-    def last_window_closed(self):
-        return self.__last_window_closed
-
-    @last_window_closed.setter
-    def last_window_closed(self, value):
-        self.__last_window_closed = value
-
-    def __handle_last_window_closed(self):
-        if callable(self.last_window_closed):
-            self.last_window_closed()
-
 class Application(GuiApplication):
+    """Application
+
+    Callbacks
+     - focus_changed()
+    """
 
     QtClass = QtWidgets.QApplication
 
+    focus_changed = None
+
     def __init__(self, name=None, *, focus_changed=None, **kwargs):
         super().__init__(name=name, **kwargs)
+        # Callbacks
         self.focus_changed = focus_changed
         # Connect signals
-        self.qt.focusChanged.connect(self.__handle_focus_changed)
-
-    @property
-    def focus_changed(self):
-        return self.__focus_changed
-
-    @focus_changed.setter
-    def focus_changed(self, value):
-        self.__focus_changed = value
-
-    def __handle_focus_changed(self, old, now):
-        if callable(self.focus_changed):
-            self.focus_changed(old, now)
+        self.qt.focusChanged.connect(lambda old, now: self.emit(self.focus_changed, old, now))
 
     def quit(self):
         """Request quit application by closing all windows."""
