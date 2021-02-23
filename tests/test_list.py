@@ -7,7 +7,7 @@ class ListTest(QutieTestCase):
 
     def testEmpty(self):
         context = List()
-        self.assertEqual(context.items, [])
+        self.assertEqual(list(context), [])
         self.assertEqual(len(context), 0)
         self.assertEqual(context.view_mode, 'list')
         self.assertEqual(context.resize_mode, 'fixed')
@@ -18,16 +18,16 @@ class ListTest(QutieTestCase):
             view_mode='icon',
             resize_mode='adjust'
         )
-        self.assertEqual([item.value for item in context.items], [2, 4, 7])
+        self.assertEqual([item.value for item in context], [2, 4, 7])
         self.assertEqual(len(context), 3)
         self.assertEqual(context.view_mode, 'icon')
         self.assertEqual(context.resize_mode, 'adjust')
 
     def testProperties(self):
         context = List()
-        context.items = [8, 16]
-        self.assertEqual(context.items[0].value, 8)
-        self.assertEqual([item.value for item in context.items], [8, 16])
+        context.extend([8, 16])
+        self.assertEqual(context[0].value, 8)
+        self.assertEqual([item.value for item in context], [8, 16])
         self.assertEqual(len(context), 2)
         context.view_mode = 'icon'
         self.assertEqual(context.view_mode, 'icon')
@@ -46,11 +46,11 @@ class ListTest(QutieTestCase):
         self.assertEqual(item.background, '#0000ff')
         context.insert(0, 8)
         self.assertEqual(len(context), 3)
-        self.assertEqual([item.value for item in context.items], [8, 16, 4.2])
-        self.assertEqual(context.index(context.items[1]), 1)
+        self.assertEqual([item.value for item in context], [8, 16, 4.2])
+        self.assertEqual(context.index(context[1]), 1)
         context.clear()
         self.assertEqual(len(context), 0)
-        self.assertEqual(context.items, [])
+        self.assertEqual(list(context), [])
 
 
 if __name__ == '__main__':

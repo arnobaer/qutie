@@ -1,29 +1,34 @@
 """Base classes of all user interface objects.
 
-For more information on the underlying Qt5 object see [QWidget](https://doc.qt.io/qt-5/qwidget.html).
+For more information on the underlying Qt5 object see
+[QWidget](https://doc.qt.io/qt-5/qwidget.html).
 """
 
 from .qutie import QtCore
 from .qutie import QtGui
 from .qutie import QtWidgets
+from .qutie import CursorShape
 
 from .icon import Icon
 from .object import Object
 
-__all__ = [
-    'Widget', 'BaseWidget',
-]
+__all__ = ['Widget', 'BaseWidget']
 
 class BaseWidget(Object):
     """Base widget for components without layout."""
 
     QtClass = QtWidgets.QWidget
 
+    close_event = None
+    focus_in = None
+    focus_out = None
+
     def __init__(self, *, title=None, width=None, height=None, enabled=None,
                  visible=None, status_tip=None, stylesheet=None, icon=None,
-                 tool_tip=None, tool_tip_duration=None, parent=None,
+                 tool_tip=None, tool_tip_duration=None, cursor=None, parent=None,
                  close_event=None, focus_in=None, focus_out=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if title is not None:
             self.title = title
         if width is not None:
@@ -44,19 +49,22 @@ class BaseWidget(Object):
             self.tool_tip = tool_tip
         if tool_tip_duration is not None:
             self.tool_tip_duration = tool_tip_duration
+        if cursor is not None:
+            self.cursor = cursor
         if parent is not None:
             self.parent = parent
+        # Callbacks
         self.close_event = close_event
+        self.focus_in = focus_in
+        self.focus_out = focus_out
         # Connect signals
         self.qt.closeEvent = self.__handle_close_event
         # Custom events
-        self.focus_in = focus_in
         self.qt._focusInEvent = self.qt.focusInEvent
         def handle_focus_is(event):
             self.qt._focusInEvent(event)
             self.emit(self.focus_in)
         self.qt.focusInEvent = handle_focus_is
-        self.focus_out = focus_out
         self.qt._focusOutEvent = self.qt.focusOutEvent
         def handle_focus_out(event):
             self.qt._focusOutEvent(event)
@@ -64,31 +72,31 @@ class BaseWidget(Object):
         self.qt.focusOutEvent = handle_focus_out
 
     @property
-    def title(self):
+    def title(self) -> str:
         return self.qt.windowTitle()
 
     @title.setter
-    def title(self, value):
+    def title(self, value: str) -> None:
         self.qt.setWindowTitle(value)
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.qt.width()
 
     @property
-    def minimum_width(self):
+    def minimum_width(self) -> int:
         return self.qt.minimumWidth()
 
     @minimum_width.setter
-    def minimum_width(self, value):
+    def minimum_width(self, value: int) -> None:
         self.qt.setMinimumWidth(value)
 
     @property
-    def maximum_width(self):
+    def maximum_width(self) -> int:
         return self.qt.maximumWidth()
 
     @maximum_width.setter
-    def maximum_width(self, value):
+    def maximum_width(self, value: int) -> None:
         self.qt.setMaximumWidth(value)
 
     @width.setter
@@ -101,23 +109,23 @@ class BaseWidget(Object):
             self.qt.setMaximumWidth(value)
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.qt.height()
 
     @property
-    def minimum_height(self):
+    def minimum_height(self) -> int:
         return self.qt.minimumHeight()
 
     @minimum_height.setter
-    def minimum_height(self, value):
+    def minimum_height(self, value: int) -> None:
         self.qt.setMinimumHeight(value)
 
     @property
-    def maximum_height(self):
+    def maximum_height(self) -> int:
         return self.qt.maximumHeight()
 
     @maximum_height.setter
-    def maximum_height(self, value):
+    def maximum_height(self, value: int) -> int:
         self.qt.setMaximumHeight(value)
 
     @height.setter
@@ -159,49 +167,49 @@ class BaseWidget(Object):
         return self.qt.x(), self.qt.y()
 
     @property
-    def minimized(self):
+    def minimized(self) -> bool:
         return self.qt.isMinimized()
 
     @minimized.setter
-    def minimized(self, value):
+    def minimized(self, value: bool) -> None:
         if value:
             self.qt.showMinimized()
         else:
             self.qt.showNormal()
 
     @property
-    def maximized(self):
+    def maximized(self) -> bool:
         return self.qt.isMaximized()
 
     @maximized.setter
-    def maximized(self, value):
+    def maximized(self, value: bool) -> None:
         if value:
             self.qt.showMaximized()
         else:
             self.qt.showNormal()
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         return self.qt.isEnabled()
 
     @enabled.setter
-    def enabled(self, value):
+    def enabled(self, value: bool) -> None:
         self.qt.setEnabled(value)
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         return self.qt.isVisible()
 
     @visible.setter
-    def visible(self, value):
+    def visible(self, value: bool) -> None:
         self.qt.setVisible(value)
 
     @property
-    def status_tip(self):
+    def status_tip(self) -> bool:
         return self.qt.statusTip()
 
     @status_tip.setter
-    def status_tip(self, value):
+    def status_tip(self, value: bool) -> None:
         self.qt.setStatusTip(value)
 
     @property
@@ -229,57 +237,71 @@ class BaseWidget(Object):
             self.qt.setWindowIcon(value.qt)
 
     @property
-    def tool_tip(self):
+    def tool_tip(self) -> str:
         return self.qt.toolTip()
 
     @tool_tip.setter
-    def tool_tip(self, value):
+    def tool_tip(self, value: str) -> None:
         self.qt.setToolTip(value)
 
     @property
-    def tool_tip_duration(self):
+    def tool_tip_duration(self) -> float:
         """Tooltip duration in seconds. Minimum duration is 1 millisecond."""
         return self.qt.toolTipDuration() / 1000.
 
     @tool_tip_duration.setter
-    def tool_tip_duration(self, value):
+    def tool_tip_duration(self, value: float) -> None:
         self.qt.setToolTipDuration(value * 1000.)
+
+    @property
+    @CursorShape.getter
+    def cursor(self):
+        return self.qt.cursor().shape()
+
+    @cursor.setter
+    @CursorShape.setter
+    def cursor(self, value):
+        if value is None:
+            self.qt.unsetCursor()
+        else:
+            self.qt.setCursor(value)
 
     @property
     def parent(self):
         parent = self.qt.parent()
         if hasattr(parent, 'reflection'):
             return parent.reflection()
+        return None
 
     @parent.setter
     def parent(self, value):
-        assert isinstance(value, BaseWidget), "Parent must inherit from BaseWidget"
+        assert isinstance(value, BaseWidget), f"Parent must inherit from {BaseWidget}"
         self.qt.setParent(value.qt)
 
-    def close(self):
+    def close(self) -> None:
         """Close widget, return True if widget was closed."""
         return self.qt.close()
 
-    def show(self):
+    def show(self) -> None:
         """Show widget and all child widgets."""
         self.qt.show()
 
-    def hide(self):
+    def hide(self) -> None:
         """Hide widget and all child widgets."""
         self.qt.hide()
 
-    def down(self):
+    def down(self) -> None:
         """Lower widget to bottom of parent widget's stack."""
         self.qt.lower()
 
-    def up(self):
+    def up(self) -> None:
         """Raise widget to top of parent widget's stack."""
         self.qt.raise_()
 
-    def resize(self, width, height):
+    def resize(self, width: int, height: int) -> None:
         self.qt.resize(width, height)
 
-    def move(self, x, y):
+    def move(self, x: int, y: int) -> None:
         self.qt.move(x, y)
 
     def __handle_close_event(self, event):
@@ -288,7 +310,7 @@ class BaseWidget(Object):
             if not self.close_event():
                 event.ignore()
                 return
-        super(self.qt.__class__, self.qt).closeEvent(event)
+        super(type(self.qt), self.qt).closeEvent(event)
 
 class Widget(BaseWidget):
     """Widget for components with layout."""
@@ -298,6 +320,7 @@ class Widget(BaseWidget):
     def __init__(self, *, layout=None, modal=None, **kwargs):
         super().__init__(**kwargs)
         self.qt.setLayout(self.QtLayoutClass())
+        # Properties
         if layout is not None:
             self.layout = layout
         if modal is not None:

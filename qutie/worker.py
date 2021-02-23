@@ -36,104 +36,56 @@ class StopRequest(Exception):
 class Worker(Object):
     """Worker thread class using python `threading`."""
 
+    target = None
+    started = None
+    finished = None
+    failed = None
+
     def __init__(self, *, target=None, started=None, finished=None, failed=None,
                  **kwargs):
         super().__init__(**kwargs)
+        # Callbacks
         self.target = target
         self.started = started
         self.finished = finished
         self.failed = failed
+        # Helpers
         self.__lock = threading.RLock()
         self.__thread = None
-        self.__stop_requested = False
+        self.__stop_requested = threading.Event()
         self.__values = {}
-
-    @property
-    def target(self):
-        return self.__target
-
-    @target.setter
-    def target(self, value):
-        self.__target = value
-
-    @property
-    def started(self):
-        return self.__started
-
-    @started.setter
-    def started(self, value):
-        self.__started = value
-
-    @property
-    def finished(self):
-        return self.__finished
-
-    @finished.setter
-    def finished(self, value):
-        self.__finished = value
-
-    @property
-    def failed(self):
-        """Event triggered if exception is thrown from worker thread. Provides
-        arguments exception _e_ and traceback _tb_.
-
-        >>> worker.failed = lambda e, tb: ...
-        """
-        return self.__failed
-
-    @failed.setter
-    def failed(self, value):
-        self.__failed = value
 
     def set(self, key, value):
         """Set thread safe copy of value."""
-        self.__set(key, value)
-
-    def __set(self, key, value):
         with self.__lock:
             self.__values[key] = copy.deepcopy(value)
 
     def get(self, key, default=None):
         """Return thread safe copy of value."""
-        return self.__get(key, default)
-
-    def __get(self, key, default=None):
         with self.__lock:
             return copy.deepcopy(self.__values.get(key, default))
 
     def keys(self):
         """Return keys of available thread safe values."""
-        return self.__keys()
-
-    def __keys(self):
         with self.__lock:
             return tuple(self.__values.keys())
 
     def start(self):
         """Start worker thread."""
-        self.__start()
-
-    def __start(self):
         with self.__lock:
             if not self.__thread:
                 self.__thread = threading.Thread(target=self.__run)
-            self.__stop_requested = False
+            self.__stop_requested.clear()
             self.__thread.start()
 
     def stop(self):
         """Stop worker. This will only work when using properties `stopping`
         or `running` in `target`.
         """
-        self.__stop()
-
-    def __stop(self):
-        self.__stop_requested = True
+        self.__stop_requested.set()
 
     def join(self):
         """Join thread, blocking until finished."""
-        self.__join()
-
-    def __join(self):
         try:
             self.__thread.join()
         except AttributeError:
@@ -142,12 +94,12 @@ class Worker(Object):
     @property
     def stopping(self):
         """Return `True` when stopping."""
-        return self.__stop_requested
+        return self.__stop_requested.is_set()
 
     @property
     def running(self):
         """Return `True` while not stopping."""
-        return not self.__stop_requested
+        return not self.stopping
 
     @property
     def alive(self):
@@ -158,23 +110,23 @@ class Worker(Object):
         return False
 
     def __run(self):
-        self.emit('started')
+        self.emit(self.started)
         try:
-            if self.target is None:
-                self.run()
-            else:
+            if callable(self.target):
                 self.target(self)
+            else:
+                self.run()
         except StopRequest:
             pass
         except Exception as e:
             tb = traceback.format_exc()
             logging.error("%s %s: %s", self, type(e).__name__, e)
-            self.emit('failed', e, tb)
+            self.emit(self.failed, e, tb)
         finally:
             with self.__lock:
-                self.__stop_requested = False
+                self.__stop_requested.clear()
                 self.__thread = None
-                self.emit('finished')
+                self.emit(self.finished)
 
     def run(self):
         pass

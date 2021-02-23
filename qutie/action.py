@@ -1,3 +1,9 @@
+"""Action module.
+
+For more information on the underlying Qt5 object see
+[QAction](https://doc.qt.io/qt-5/qaction.html).
+"""
+
 from .qutie import QtGui
 from .qutie import QtWidgets
 
@@ -7,17 +13,41 @@ from .icon import Icon
 __all__ = ['Action']
 
 class Action(Object):
+    """
+    Properties
+     - text
+     - checkable
+     - checked
+     - tool_tip
+     - status_tip
+     - shortcut
+     - icon
+     - separator
+
+    Callbacks
+     - changed()
+     - hovered()
+     - toggled(checked)
+     - triggered()
+    """
 
     QtClass = QtWidgets.QAction
 
+    changed = None
+    hovered = None
+    toggled = None
+    triggered = None
+
     def __init__(self, text=None, *, checkable=None, checked=False, tool_tip=None,
                  status_tip=None, shortcut=None, icon=None, separator=None,
-                 triggered=None, toggled=None, **kwargs):
+                 changed=None, hovered=None, toggled=None, triggered=None,
+                 **kwargs):
         super().__init__(**kwargs)
         # Create separator from text
         if isinstance(text, str) and text.startswith("---"):
             text = None
             separator = True
+        # Properties
         if text is not None:
             self.text = text
         if checkable is not None:
@@ -33,50 +63,55 @@ class Action(Object):
             self.icon = icon
         if separator is not None:
             self.separator = separator
-        self.triggered = triggered
+        # Callbacks
+        self.changed = changed
+        self.hovered = hovered
         self.toggled = toggled
+        self.triggered = triggered
         # Connect signals
-        self.qt.triggered.connect(self.__handle_triggered)
-        self.qt.toggled.connect(self.__handle_toggled)
+        self.qt.changed.connect(lambda: self.emit(self.changed))
+        self.qt.hovered.connect(lambda: self.emit(self.hovered))
+        self.qt.toggled.connect(lambda checked: self.emit(self.toggled, checked))
+        self.qt.triggered.connect(lambda: self.emit(self.triggered))
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self.qt.text()
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str):
         self.qt.setText(value)
 
     @property
-    def checked(self):
+    def checked(self) -> bool:
         return self.qt.isChecked()
 
     @checked.setter
-    def checked(self, value):
+    def checked(self, value: bool):
         self.qt.setChecked(value)
 
     @property
-    def checkable(self):
+    def checkable(self) -> bool:
         return self.qt.isCheckable()
 
     @checkable.setter
-    def checkable(self, value):
+    def checkable(self, value: bool):
         self.qt.setCheckable(value)
 
     @property
-    def tool_tip(self):
+    def tool_tip(self) -> str:
         return self.qt.toolTip()
 
     @tool_tip.setter
-    def tool_tip(self, value):
+    def tool_tip(self, value: str):
         self.qt.setToolTip(value)
 
     @property
-    def status_tip(self):
+    def status_tip(self) -> str:
         return self.qt.statusTip()
 
     @status_tip.setter
-    def status_tip(self, value):
+    def status_tip(self, value: str):
         self.qt.setStatusTip(value)
 
     @property
@@ -113,30 +148,6 @@ class Action(Object):
     @separator.setter
     def separator(self, value):
         self.qt.setSeparator(value)
-
-    @property
-    def triggered(self):
-        return self.__triggered
-
-    @triggered.setter
-    def triggered(self, value):
-        self.__triggered = value
-
-    def __handle_triggered(self):
-        if callable(self.triggered):
-            self.triggered()
-
-    @property
-    def toggled(self):
-        return self.__toggled
-
-    @toggled.setter
-    def toggled(self, value):
-        self.__toggled = value
-
-    def __handle_toggled(self, checked):
-        if callable(self.toggled):
-            self.toggled(checked)
 
     def trigger(self):
         self.qt.trigger()

@@ -1,6 +1,8 @@
 """Simple item based table view.
 
-For more information on the underlying Qt5 objects see [QTableWidget](https://doc.qt.io/qt-5/qtablewidget.html) and [QTableWidgetItem](https://doc.qt.io/qt-5/qtablewidgetitem.html).
+For more information on the underlying Qt5 objects see
+[QTableWidget](https://doc.qt.io/qt-5/qtablewidget.html) and
+[QTableWidgetItem](https://doc.qt.io/qt-5/qtablewidgetitem.html).
 """
 
 from .qutie import QtCore
@@ -27,12 +29,19 @@ class Table(BaseItemView):
 
     QtClass = QtWidgets.QTableWidget
 
+    activated = None
+    changed = None
+    clicked = None
+    double_clicked = None
+    selected = None
+
     def __init__(self, rows=None, *, header=None, stretch=True, sortable=False,
                  vertical_header=False, activated=None, changed=None,
                  clicked=None, double_clicked=None, selected=None, **kwargs):
         super().__init__(**kwargs)
         self.qt.horizontalHeader().setHighlightSections(False)
         self.qt.verticalHeader().setHighlightSections(False)
+        # Properties
         self.header = header or []
         for row in rows or []:
             self.append(row)
@@ -41,17 +50,44 @@ class Table(BaseItemView):
         self.vertical_header = vertical_header
         self.selection_mode = 'single'
         self.selection_behavior = 'rows'
+        # Callbacks
         self.activated = activated
         self.changed = changed
         self.clicked = clicked
         self.double_clicked = double_clicked
         self.selected = selected
         # Connect signals
-        self.qt.itemActivated.connect(self.__handle_activated)
-        self.qt.itemChanged.connect(self.__handle_changed)
-        self.qt.itemClicked.connect(self.__handle_clicked)
-        self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
-        self.qt.itemSelectionChanged.connect(self.__handle_selected)
+        def handle_item_activated(item):
+            if callable(self.activated):
+                data = item.data(item.UserType)
+                if data is not None:
+                    self.emit(self.activated, data)
+        self.qt.itemActivated.connect(handle_item_activated)
+        def handle_item_changed(item):
+            if callable(self.changed):
+                data = item.data(item.UserType)
+                if data is not None:
+                    self.emit(self.changed, data)
+        self.qt.itemChanged.connect(handle_item_changed)
+        def handle_item_clicked(item):
+            if callable(self.clicked):
+                data = item.data(item.UserType)
+                if data is not None:
+                    self.emit(self.clicked, data)
+        self.qt.itemClicked.connect(handle_item_clicked)
+        def handle_item_double_clicked(item):
+            if callable(self.double_clicked):
+                data = item.data(item.UserType)
+                if data is not None:
+                    self.emit(self.double_clicked, data)
+        self.qt.itemDoubleClicked.connect(handle_item_double_clicked)
+        def handle_item_selected():
+            if callable(self.selected):
+                data = self.qt.selectedItems()
+                if data:
+                    first = data[0].data(data[0].UserType)
+                    self.emit(self.selected, first)
+        self.qt.itemSelectionChanged.connect(handle_item_selected)
 
     @property
     def header(self):
@@ -121,77 +157,6 @@ class Table(BaseItemView):
         }[value])
 
     @property
-    def activated(self):
-        return self.__activated
-
-    @activated.setter
-    def activated(self, value):
-        self.__activated = value
-
-    def __handle_activated(self, item):
-        if callable(self.activated):
-            data = item.data(item.UserType)
-            if data is not None:
-                self.activated(data)
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, value):
-        self.__changed = value
-
-    def __handle_changed(self, item):
-        if callable(self.changed):
-            data = item.data(item.UserType)
-            if data is not None:
-                self.changed(data)
-
-    @property
-    def clicked(self):
-        return self.__clicked
-
-    @clicked.setter
-    def clicked(self, value):
-        self.__clicked = value
-
-    def __handle_clicked(self, item):
-        if callable(self.clicked):
-            data = item.data(item.UserType)
-            if data is not None:
-                self.clicked(data)
-
-    @property
-    def double_clicked(self):
-        return self.__double_clicked
-
-    @double_clicked.setter
-    def double_clicked(self, value):
-        self.__double_clicked = value
-
-    def __handle_double_clicked(self, item):
-        if callable(self.double_clicked):
-            data = item.data(item.UserType)
-            if data is not None:
-                self.double_clicked(data)
-
-    @property
-    def selected(self):
-        return self.__selected
-
-    @selected.setter
-    def selected(self, value):
-        self.__selected = value
-
-    def __handle_selected(self):
-        if callable(self.selected):
-            data = self.qt.selectedItems()
-            if data:
-                first = data[0].data(data[0].UserType)
-                self.selected(first)
-
-    @property
     def row_count(self):
         """Return row count."""
         return self.qt.rowCount()
@@ -219,7 +184,7 @@ class Table(BaseItemView):
         row = self.row_count
         return self.insert(row, items)
 
-    def insert(self, row, items):
+    def insert(self, row: int, items):
         """Insert items at row, returns inserted items.
 
         >>> table.insert(0, [TableItem(value="Spam"), TableItem(value="Eggs")])
@@ -320,6 +285,7 @@ class TableItem(QutieStub):
         self.__default_foreground = self.qt.foreground()
         self.__default_background = self.qt.background()
         self.qt.setData(self.qt.UserType, self)
+        # Properties
         self.value = value
         self.color = color
         self.background = background

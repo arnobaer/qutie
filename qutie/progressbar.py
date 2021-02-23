@@ -1,6 +1,7 @@
 """Progress bar.
 
-For more information on the underlying Qt5 object see [QProgressBar](https://doc.qt.io/qt-5/qprogressbar.html).
+For more information on the underlying Qt5 object see
+[QProgressBar](https://doc.qt.io/qt-5/qprogressbar.html).
 """
 
 from .qutie import QtWidgets
@@ -14,10 +15,13 @@ class ProgressBar(BaseWidget, OrientationMixin):
 
     QtClass = QtWidgets.QProgressBar
 
+    value_changed = None
+
     def __init__(self, value=0, *, minimum=0, maximum=100, format=None,
                  inverted_appearance=False, orientation=None,
                  text_visible=None, value_changed=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         self.minimum = minimum
         self.maximum = maximum
         if format is not None:
@@ -28,9 +32,10 @@ class ProgressBar(BaseWidget, OrientationMixin):
         if text_visible is not None:
             self.text_visible = text_visible
         self.value = value
+        # Callbacks
         self.value_changed = value_changed
         # Connect signals
-        self.qt.valueChanged.connect(self.__handle_value_changed)
+        self.qt.valueChanged.connect(lambda value: self.emit(self.value_changed, value))
 
     @property
     def value(self):
@@ -96,18 +101,6 @@ class ProgressBar(BaseWidget, OrientationMixin):
     def range(self, value):
         self.minimum = value[0]
         self.maximum = value[1]
-
-    @property
-    def value_changed(self):
-        return self.__value_changed
-
-    @value_changed.setter
-    def value_changed(self, value):
-        self.__value_changed = value
-
-    def __handle_value_changed(self, value):
-        if callable(self.value_changed):
-            self.value_changed(value)
 
     def reset(self):
         self.qt.reset()

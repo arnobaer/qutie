@@ -1,11 +1,30 @@
+"""Object module.
+
+For more information on the underlying Qt5 object see
+[QObject](https://doc.qt.io/qt-5/qobject.html).
+"""
+
 from .qutie import QtCore
 from .qutie import Qutie
 
 __all__ = ['Object']
 
 class Object(Qutie):
+    """Object
+
+    Properties
+    - object_name
+    - parent
+
+    Callbacks
+    - destroyed()
+    - object_name_changed(object_name)
+    """
 
     QtClass = QtCore.QObject
+
+    destroyed = None
+    object_name_changed = None
 
     def __init__(self, *, object_name=None, parent=None, destroyed=None,
                  object_name_changed=None, **kwargs):
@@ -16,11 +35,15 @@ class Object(Qutie):
             self.object_name = object_name
         if parent is not None:
             self.parent = parent
+        # Callbacks
         self.destroyed = destroyed
         self.object_name_changed = object_name_changed
         # Connect signals
-        self.qt.destroyed.connect(self.__handle_destroyed)
-        self.qt.objectNameChanged.connect(self.__handle_object_name_changed)
+        def handle_destroyed():
+            if callable(self.destroyed):
+                self.destroyed()
+        self.qt.destroyed.connect(handle_destroyed) # can't reference already destroyed object
+        self.qt.objectNameChanged.connect(lambda object_name: self.emit(self.object_name_changed, self.object_name))
         self.qt.handleEvent.connect(lambda event: event())
 
     @property
@@ -41,30 +64,6 @@ class Object(Qutie):
     def parent(self, value):
         assert isinstance(value, Object), "Parent must inherit from Object"
         self.qt.setParent(value.qt)
-
-    @property
-    def destroyed(self) -> object:
-        return self.__destroyed
-
-    @destroyed.setter
-    def destroyed(self, value: object):
-        self.__destroyed = value
-
-    def __handle_destroyed(self, obj: object):
-        if callable(self.destroyed):
-            self.destroyed()
-
-    @property
-    def object_name_changed(self) -> object:
-        return self.__object_name_changed
-
-    @object_name_changed.setter
-    def object_name_changed(self, value: object):
-        self.__object_name_changed = value
-
-    def __handle_object_name_changed(self):
-        if callable(self.object_name_changed):
-            self.object_name_changed(self.object_name)
 
     def emit(self, *args, **kwargs):
         """Emit an event.

@@ -1,17 +1,33 @@
 """Simple item based list view.
 
-For more information on the underlying Qt5 objects see [QListWidget](https://doc.qt.io/qt-5/qlistwidget.html) and [QListWidgetItem](https://doc.qt.io/qt-5/qlistwidgetitem.html).
+For more information on the underlying Qt5 objects see
+[QListWidget](https://doc.qt.io/qt-5/qlistwidget.html) and
+[QListWidgetItem](https://doc.qt.io/qt-5/qlistwidgetitem.html).
 """
 
 from .qutie import QtCore
 from .qutie import QtGui
 from .qutie import QtWidgets
-from .qutie import Qutie, QutieStub
+from .qutie import Qutie, QutieStub, Enum
 
 from .icon import Icon
 from .widget import BaseWidget
 
 __all__ = ['List', 'ListItem']
+
+class ViewMode(Enum):
+
+    QtEnums = {
+        'list': QtWidgets.QListView.ListMode,
+        'icon': QtWidgets.QListView.IconMode
+    }
+
+class ResizeMode(Enum):
+
+    QtEnums = {
+        'fixed': QtWidgets.QListView.Fixed,
+        'adjust': QtWidgets.QListView.Adjust
+    }
 
 class BaseItemView(BaseWidget):
 
@@ -37,12 +53,18 @@ class List(BaseItemView):
 
     QtClass = QtWidgets.QListWidget
 
+    changed = None
+    selected = None
+    clicked = None
+    double_clicked = None
+
     def __init__(self, items=None, *, view_mode=None, resize_mode=None,
                  changed=None, selected=None, clicked=None, double_clicked=None,
                  **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if items is not None:
-            self.items = items
+            self.extend(items)
         if view_mode is not None:
             self.view_mode = view_mode
         if resize_mode is not None:
@@ -50,53 +72,54 @@ class List(BaseItemView):
         # HACK: adjust default icons size
         if 'icon_size' not in kwargs:
             self.icon_size = 16
+        # Callbacks
         self.changed = changed
         self.selected = selected
         self.clicked = clicked
         self.double_clicked = double_clicked
         # Connect signals
-        self.qt.currentItemChanged.connect(self.__handle_changed)
-        self.qt.currentRowChanged[int].connect(self.__handle_selected)
-        self.qt.itemClicked.connect(self.__handle_clicked)
-        self.qt.itemDoubleClicked.connect(self.__handle_double_clicked)
+        def handle_current_item_changed(current, _):
+            index = self.qt.row(current)
+            item = self[index]
+            self.emit(self.changed, item.value, index)
+        self.qt.currentItemChanged.connect(handle_current_item_changed)
+        def handle_current_row_changed(index):
+            if index >= 0:
+                value = self[index]
+                self.emit(self.selected, value, index)
+        self.qt.currentRowChanged[int].connect(handle_current_row_changed)
+        def handle_item_clicked(item):
+            data = item.data(ListItem.QtPropertyRole)
+            if data is not None:
+                index = self.qt.row(item)
+                self.emit(self.clicked, index, data)
+        self.qt.itemClicked.connect(handle_item_clicked)
+        def handle_item_double_clicked(item):
+            data = item.data(ListItem.QtPropertyRole)
+            if data is not None:
+                index = self.qt.row(item)
+                self.emit(self.double_clicked, index, data)
+        self.qt.itemDoubleClicked.connect(handle_item_double_clicked)
 
     @property
-    def items(self):
-        return list(self)
-
-    @items.setter
-    def items(self, items):
-        self.clear()
-        for item in items:
-            self.append(item)
-
-    @property
+    @ViewMode.getter
     def view_mode(self):
-        return {
-            QtWidgets.QListView.ListMode: 'list',
-            QtWidgets.QListView.IconMode: 'icon'
-        }[self.qt.viewMode()]
+        return self.qt.viewMode()
 
     @view_mode.setter
+    @ViewMode.setter
     def view_mode(self, value):
-        self.qt.setViewMode({
-            'list': QtWidgets.QListView.ListMode,
-            'icon': QtWidgets.QListView.IconMode
-        }[value])
+        self.qt.setViewMode(value)
 
     @property
+    @ResizeMode.getter
     def resize_mode(self):
-        return {
-            QtWidgets.QListView.Fixed: 'fixed',
-            QtWidgets.QListView.Adjust: 'adjust'
-        }[self.qt.resizeMode()]
+        return self.qt.resizeMode()
 
     @resize_mode.setter
+    @ResizeMode.setter
     def resize_mode(self, value):
-        self.qt.setResizeMode({
-            'fixed': QtWidgets.QListView.Fixed,
-            'adjust': QtWidgets.QListView.Adjust
-        }[value])
+        self.qt.setResizeMode(value)
 
     @property
     def current(self):
@@ -112,22 +135,15 @@ class List(BaseItemView):
             raise IndexError(item)
         self.qt.setCurrentItem(item.qt)
 
-    def index(self, item):
-        index = self.qt.row(item.qt)
-        if index < 0:
-            raise ValueError("item not in list")
-        return index
-
-    def clear(self):
-        self.qt.clear()
-
     def append(self, item):
+        """Append item to end."""
         if not isinstance(item, ListItem):
             item = ListItem(item)
         self.qt.addItem(item.qt)
         return item
 
-    def insert(self, index, item):
+    def insert(self, index: int, item) -> None:
+        """Insert item before index. Permits negative indexing."""
         if index < 0:
             index = max(0, len(self) + index)
         if not isinstance(item, ListItem):
@@ -135,74 +151,36 @@ class List(BaseItemView):
         self.qt.insertItem(index, item.qt)
         return item
 
-    def remove(self, item):
-        if item is None:
-            raise IndexError(item)
+    def extend(self, iterable) -> None:
+        """Extend list by appending items from the iterable."""
+        for item in iterable:
+            self.append(item)
+
+    def remove(self, item) -> None:
+        """Remove first occurrence of value. Raises ValueError if the value is
+        not present.
+        """
+        self.qt.takeItem(self.index(item))
+
+    def clear(self) -> None:
+        """Remove all item from widget."""
+        self.qt.clear()
+
+    def count(self, value) -> int:
+        """Return number of occurrences of value."""
+        return list(self).count(value)
+
+    def index(self, item):
+        """Return first index of item. Raises ValueError if the item is not
+        present.
+        """
         index = self.qt.row(item.qt)
         if index < 0:
-            raise IndexError(item)
-        self.qt.takeItem(index)
+            raise ValueError("value not in list")
+        return index
 
     def scroll_to(self, item):
         self.qt.scrollToItem(item.qt)
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, value):
-        self.__changed = value
-
-    def __handle_changed(self, current, _):
-        if callable(self.changed):
-            index = self.qt.row(current)
-            item = self[index]
-            self.changed(item.value, index)
-
-    @property
-    def selected(self):
-        return self.__selected
-
-    @selected.setter
-    def selected(self, value):
-        self.__selected = value
-
-    def __handle_selected(self, index):
-        if callable(self.selected):
-            if index >= 0:
-                value = self[index]
-                self.selected(value, index)
-
-    @property
-    def clicked(self):
-        return self.__clicked
-
-    @clicked.setter
-    def clicked(self, value):
-        self.__clicked = value
-
-    def __handle_clicked(self, item):
-        if callable(self.clicked):
-            data = item.data(ListItem.QtPropertyRole)
-            if data is not None:
-                index = self.qt.row(item)
-                self.clicked(index, data)
-
-    @property
-    def double_clicked(self):
-        return self.__double_clicked
-
-    @double_clicked.setter
-    def double_clicked(self, value):
-        self.__double_clicked = value
-
-    def __handle_double_clicked(self, item):
-        if callable(self.double_clicked):
-            data = item.data(ListItem.QtPropertyRole)
-            if data is not None:
-                index = self.qt.row(item)
-                self.double_clicked(index, data)
 
     def __getitem__(self, key):
         item = self.qt.item(key)

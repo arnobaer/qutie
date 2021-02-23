@@ -11,11 +11,15 @@ class Number(BaseWidget):
     prefix_format = "{} "
     suffix_format = " {}"
 
+    changed = None
+    editing_finished = None
+
     def __init__(self, value=0, *, minimum=None, maximum=None, step=1.0,
                  decimals=0, prefix=None, suffix=None, readonly=False,
                  adaptive=False, special_value=None, changed=None,
                  editing_finished=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         self.minimum = -float('inf') if minimum is None else minimum
         self.maximum = float('inf') if maximum is None else maximum
         self.step = step
@@ -27,11 +31,12 @@ class Number(BaseWidget):
         if special_value is not None:
             self.special_value = special_value
         self.value = value
+        # Callbacks
         self.changed = changed
         self.editing_finished = editing_finished
         # Connect signals
-        self.qt.valueChanged.connect(self.__handle_changed)
-        self.qt.editingFinished.connect(self.__handle_editing_finished)
+        self.qt.valueChanged.connect(lambda value: self.emit(self.changed, value))
+        self.qt.editingFinished.connect(lambda: self.emit(self.editing_finished))
 
     @property
     def value(self):
@@ -129,27 +134,3 @@ class Number(BaseWidget):
     @special_value.setter
     def special_value(self, value):
         self.qt.setSpecialValueText(value)
-
-    @property
-    def changed(self):
-        return self.__changed
-
-    @changed.setter
-    def changed(self, value):
-        self.__changed = value
-
-    def __handle_changed(self, value):
-        if callable(self.changed):
-            self.changed(value)
-
-    @property
-    def editing_finished(self):
-        return self.__editing_finished
-
-    @editing_finished.setter
-    def editing_finished(self, value):
-        self.__editing_finished = value
-
-    def __handle_editing_finished(self):
-        if callable(self.editing_finished):
-            self.editing_finished()

@@ -1,20 +1,35 @@
+"""Tool bar module.
+
+For more information on the underlying Qt5 object see
+[QToolBar](https://doc.qt.io/qt-5/qtoolbar.html).
+"""
+
 from .qutie import QtCore
 from .qutie import QtWidgets
+from .qutie import Orientation
+from .qutie import ToolButtonStyle
 
 from .action import Action
 from .menu import Menu
+from .mixins import OrientationMixin
 from .widget import BaseWidget
 
 __all__ = ['ToolBar']
 
-class ToolBar(BaseWidget):
+class ToolBar(BaseWidget, OrientationMixin):
 
     QtClass = QtWidgets.QToolBar
 
+    action_triggered = None
+    orientation_changed = None
+    tool_button_style_changed = None
+
     def __init__(self, *items, floatable=None, movable=None, orientation=None,
-                 tool_button_style=None, orientation_changed=None,
-                 tool_button_style_changed=None, **kwargs):
+                 tool_button_style=None, action_triggered=None,
+                 orientation_changed=None, tool_button_style_changed=None,
+                 **kwargs):
         super().__init__(**kwargs)
+        # Properties
         if floatable is not None:
             self.floatable = floatable
         if movable is not None:
@@ -25,10 +40,23 @@ class ToolBar(BaseWidget):
             self.tool_button_style = tool_button_style
         for item in items:
             self.append(item)
+        # Callbacks
+        self.action_triggered = action_triggered
         self.orientation_changed = orientation_changed
         self.tool_button_style_changed = tool_button_style_changed
         # Connect signals
-        self.qt.orientationChanged.connect(self.__handle_orientation_changed)
+        def handle_action_triggered(action):
+            if isinstance(action, Action):
+                self.emit(self.action_triggered, action)
+        self.qt.actionTriggered.connect(handle_action_triggered)
+        def handle_orientation_changed(orientation):
+            orientation = Orientation.to_key(orientation)
+            self.emit(self.orientation_changed, orientation)
+        self.qt.orientationChanged.connect(handle_orientation_changed)
+        def handle_tool_button_style_changed(tool_button_style):
+            tool_button_style = ToolButtonStyle.to_key(tool_button_style)
+            self.emit(self.tool_button_style_changed, tool_button_style)
+        self.qt.toolButtonStyleChanged.connect(handle_tool_button_style_changed)
 
     @property
     def floatable(self):
@@ -47,38 +75,14 @@ class ToolBar(BaseWidget):
         self.qt.setMovable(bool(value))
 
     @property
-    def orientation(self):
-        return {
-            QtCore.Qt.Horizontal: 'horizontal',
-            QtCore.Qt.Vertical: 'vertical'
-        }[self.qt.orientation()]
-
-    @orientation.setter
-    def orientation(self, value):
-        self.qt.setOrientation({
-            'horizontal': QtCore.Qt.Horizontal,
-            'vertical': QtCore.Qt.Vertical
-        }[value])
-
-    @property
+    @ToolButtonStyle.getter
     def tool_button_style(self):
-        return {
-            QtCore.Qt.ToolButtonIconOnly: 'icon_only',
-            QtCore.Qt.ToolButtonTextOnly: 'text_only',
-            QtCore.Qt.ToolButtonTextBesideIcon: 'text_beside_icon',
-            QtCore.Qt.ToolButtonTextUnderIcon: 'text_under_icon',
-            QtCore.Qt.ToolButtonFollowStyle: 'follow_style'
-        }[self.qt.toolButtonStyle()]
+        return self.qt.toolButtonStyle()
 
     @tool_button_style.setter
+    @ToolButtonStyle.setter
     def tool_button_style(self, value):
-        self.qt.setToolButtonStyle({
-            'icon_only': QtCore.Qt.ToolButtonIconOnly,
-            'text_only': QtCore.Qt.ToolButtonTextOnly,
-            'text_beside_icon': QtCore.Qt.ToolButtonTextBesideIcon,
-            'text_under_icon': QtCore.Qt.ToolButtonTextUnderIcon,
-            'follow_style': QtCore.Qt.ToolButtonFollowStyle
-        }[value])
+        self.qt.setToolButtonStyle(value)
 
     def index(self, item):
         for index, action in enumerate(self):
@@ -113,6 +117,10 @@ class ToolBar(BaseWidget):
             self.qt.insertAction(before.qt, item.qt)
         return item
 
+    def extend(self, iterable):
+        for item in iterable:
+            self.append(item)
+
     def remove(self, item):
         index = self.index(item)
         self.qt.removeAction(self.qt.actions()[index])
@@ -131,15 +139,3 @@ class ToolBar(BaseWidget):
 
     def __len__(self):
         return len(self.qt.actions())
-
-    @property
-    def orientation_changed(self):
-        return self.__orientation_changed
-
-    @orientation_changed.setter
-    def orientation_changed(self, value):
-        self.__orientation_changed = value
-
-    def __handle_orientation_changed(self, value):
-        if callable(self.orientation_changed):
-            self.orientation_changed(value)

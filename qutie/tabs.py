@@ -50,27 +50,39 @@ class Tabs(BaseWidget):
 
     QtClass = QtWidgets.QTabWidget
 
-    def __init__(self, *items, changed=None, **kwargs):
+    changed = None
+    tab_close_request = None
+
+    def __init__(self, *items, tabs_closable=False, changed=None,
+                 tab_close_request=None, **kwargs):
         super().__init__(**kwargs)
+        # Properties
         for item in items:
             self.append(item)
+        self.tabs_closable = tabs_closable
+        # Callbacks
         self.changed = changed
+        self.tab_close_request = tab_close_request
         # Connect signals
-        self.qt.currentChanged.connect(self.__handle_changed)
+        self.qt.currentChanged.connect(lambda index: self.emit(self.changed, index))
+        self.qt.tabCloseRequested.connect(lambda index: self.emit(self.tab_close_request, index))
 
     @property
-    def items(self):
-        """Return list of tab items."""
-        return list(self)
+    def tabs_closable(self) -> bool:
+        return self.qt.tabsClosable()
 
-    def append(self, tab):
+    @tabs_closable.setter
+    def tabs_closable(self, value: bool) -> None:
+        self.qt.setTabsClosable(value)
+
+    def append(self, tab) -> None:
         """Append tab item to tab widget.
 
         >>> tabs.append(Tab(title="Spam"))
         """
         self.qt.addTab(tab.qt, tab.title)
 
-    def insert(self, index, tab):
+    def insert(self, index: int, tab) -> None:
         """Insert tab item at index to tab widget.
 
         >>> tabs.insert(0, Tab(title="Spam"))
@@ -78,6 +90,10 @@ class Tabs(BaseWidget):
         if index < 0:
             index = max(0, len(self) + index)
         self.qt.insertTab(index, tab.qt, tab.title)
+
+    def extend(self, iterable):
+        for item in iterable:
+            self.append(item)
 
     def remove(self, tab):
         """Remove tab item from tab widget.
@@ -96,6 +112,8 @@ class Tabs(BaseWidget):
         <Tab ...>
         """
         index = self.qt.currentIndex()
+        if index < 0:
+            return None
         return self[index]
 
     @current.setter
@@ -117,23 +135,8 @@ class Tabs(BaseWidget):
 
     def clear(self):
         """Remove all tab items."""
-        while 0 != len(self):
+        while len(self):
             self.remove(self.current)
-
-    @property
-    def changed(self):
-        """Event triggered if current tab item changed, either by clicking on a
-        tab or setting property `current`.
-        """
-        return self.__changed
-
-    @changed.setter
-    def changed(self, changed):
-        self.__changed = changed
-
-    def __handle_changed(self, index):
-        if callable(self.changed):
-            self.changed(index)
 
     def __getitem__(self, key):
         widget = self.qt.widget(key)

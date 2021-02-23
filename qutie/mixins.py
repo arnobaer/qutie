@@ -1,22 +1,16 @@
 from .qutie import QtCore
+from .qutie import Orientation
 
 __all__ = ['OrientationMixin']
 
 class OrientationMixin:
 
-    horizontal = 'horizontal'
-    vertical = 'vertical'
-
     @property
+    @Orientation.getter
     def orientation(self):
-        return {
-            QtCore.Qt.Horizontal: OrientationMixin.horizontal,
-            QtCore.Qt.Vertical: OrientationMixin.vertical
-        }[self.qt.orientation()]
+        return self.qt.orientation()
 
     @orientation.setter
+    @Orientation.setter
     def orientation(self, value):
-        self.qt.setOrientation({
-            OrientationMixin.horizontal: QtCore.Qt.Horizontal,
-            OrientationMixin.vertical: QtCore.Qt.Vertical
-        }[value])
+        self.qt.setOrientation(value)

@@ -1,3 +1,10 @@
+"""Main window module.
+
+For more information on the underlying Qt5 objects see
+[QStatusBar](https://doc.qt.io/qt-5/qstatusbar.html) and
+[QMainWindow](https://doc.qt.io/qt-5/qmainwindow.html).
+"""
+
 import weakref
 
 from .qutie import QtCore
@@ -9,18 +16,69 @@ from .menubar import MenuBar
 from .toolbar import ToolBar
 from .widget import BaseWidget
 
-__all__ = ['MainWindow']
+__all__ = ['MainWindow', 'StatusBar']
 
 class StatusBar(BaseWidget):
 
     QtClass = QtWidgets.QStatusBar
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    message_changed = None
 
-    def append(self, widget):
+    def __init__(self, *, size_grip_enabled=True, message_changed=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        # Properties
+        self.size_grip_enabled = size_grip_enabled
+        # Callbacks
+        self.message_changed = message_changed
+        # Connect signals
+        def handle_message_changed(message):
+            self.emit(self.message_changed, message)
+        self.qt.messageChanged.connect(handle_message_changed)
+
+    @property
+    def size_grip_enabled(self) -> bool:
+        return self.qt.isSizeGripEnabled()
+
+    @size_grip_enabled.setter
+    def size_grip_enabled(self, value: bool):
+        self.qt.setSizeGripEnabled(value)
+
+    @property
+    def current_message(self) -> str:
+        return self.qt.currentMessage()
+
+    def show_message(self, message: str, *, timeout=0) -> None:
+        self.qt.showMessage(message, timeout * 1000.)
+
+    def clear_message(self) -> None:
+        self.qt.clearMessage()
+
+    def append(self, widget) -> None:
         self.qt.addPermanentWidget(widget.qt)
-        return widget
+
+    def insert(self, index: int, widget) -> None:
+        """Insert widget before index. Permits negative indexing."""
+        if index < 0:
+            index = max(0, len(self) + index)
+        self.qt.insertPermanentWidget(index, widget.qt)
+
+    def extend(self, iterable) -> None:
+        """Extend list by appending values from the iterable."""
+        for widget in iterable:
+            self.append(widget)
+
+    def remove(self, widget) -> None:
+        self.qt.removeWidget(widget.qt)
+
+    def index(self, widget) -> int:
+        index = self.qt.layout().indexOf(widget.qt)
+        if index < 0:
+            raise ValueError("widget not in layout")
+        return index
+
+    def __len__(self) -> int:
+        return self.qt.layout().count()
 
 class MainWindow(BaseWidget):
 
@@ -60,7 +118,7 @@ class MainWindow(BaseWidget):
         self.qt.setMenuBar(MenuBar().qt)
         self.qt.setStatusBar(StatusBar().qt)
         self.layout = layout
-        self.__toolbars = self.ToolBars(self.qt)
+        self.qt.__toolbars = self.ToolBars(self.qt)
 
     @property
     def layout(self):
@@ -88,4 +146,4 @@ class MainWindow(BaseWidget):
 
     @property
     def toolbars(self):
-        return self.__toolbars
+        return self.qt.__toolbars

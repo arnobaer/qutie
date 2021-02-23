@@ -1,3 +1,9 @@
+"""Icon module.
+
+For more information on the underlying Qt5 object see
+[QIcon](https://doc.qt.io/qt-5/qicon.html).
+"""
+
 from .qutie import QtGui
 from .qutie import QutieStub
 

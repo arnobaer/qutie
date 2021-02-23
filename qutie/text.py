@@ -1,6 +1,7 @@
 """Single line text input.
 
-For more information on the underlying Qt5 object see [QLineEdit](https://doc.qt.io/qt-5/qlineedit.html).
+For more information on the underlying Qt5 object see
+[QLineEdit](https://doc.qt.io/qt-5/qlineedit.html).
 """
 
 from .qutie import QtWidgets
@@ -23,18 +24,25 @@ class Text(BaseWidget):
 
     QtClass = QtWidgets.QLineEdit
 
+    changed = None
+    edited = None
+    editing_finished = None
+
     def __init__(self, value=None, *, readonly=False, clearable=False,
-                 changed=None, editing_finished=None, **kwargs):
+                 changed=None, edited=None, editing_finished=None, **kwargs):
         super().__init__(**kwargs)
         self.readonly = readonly
         self.clearable = clearable
         if value is not None:
             self.value = value
+        # Callbacks
         self.changed = changed
+        self.edited = edited
         self.editing_finished = editing_finished
         # Connect signals
-        self.qt.textChanged.connect(self.__handle_changed)
-        self.qt.editingFinished.connect(self.__handle_editing_finished)
+        self.qt.textChanged.connect(lambda text: self.emit(self.changed, text))
+        self.qt.textEdited.connect(lambda text: self.emit(self.edited, text))
+        self.qt.editingFinished.connect(lambda: self.emit(self.editing_finished))
 
     @property
     def value(self):
@@ -73,30 +81,12 @@ class Text(BaseWidget):
         self.qt.setClearButtonEnabled(bool(value))
 
     @property
-    def changed(self):
-        """Event called when value changed."""
-        return self.__changed
+    def modified(self) -> bool:
+        return self.qt.modified()
 
-    @changed.setter
-    def changed(self, value):
-        self.__changed = value
-
-    def __handle_changed(self, text):
-        if callable(self.changed):
-            self.changed(text)
-
-    @property
-    def editing_finished(self):
-        """Event called when editing finished."""
-        return self.__editing_finished
-
-    @editing_finished.setter
-    def editing_finished(self, value):
-        self.__editing_finished = value
-
-    def __handle_editing_finished(self):
-        if callable(self.editing_finished):
-            self.editing_finished()
+    @modified.setter
+    def modified(self, value: bool) -> None:
+        self.qt.setModified(value)
 
     def append(self, text):
         """Append text to current value.
@@ -107,6 +97,10 @@ class Text(BaseWidget):
         'lorem ipsum'
         """
         self.value = ''.join((self.value, format(text)))
+
+    def extend(self, iterable):
+        for text in iterable:
+            self.append(text)
 
     def clear(self):
         """Clear current value.

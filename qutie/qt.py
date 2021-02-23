@@ -1,4 +1,4 @@
-# Provide backward compatibility for qutie<1.6.0
+"""This module provides backward compatibility for qutie < 1.6.0"""
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
