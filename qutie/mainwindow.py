@@ -57,12 +57,14 @@ class StatusBar(BaseWidget):
     def append(self, widget) -> None:
         self.qt.addPermanentWidget(widget.qt)
 
-    def insert(self, index, widget) -> None:
+    def insert(self, index: int, widget) -> None:
+        """Insert widget before index. Permits negative indexing."""
         if index < 0:
             index = max(0, len(self) + index)
         self.qt.insertPermanentWidget(index, widget.qt)
 
     def extend(self, iterable) -> None:
+        """Extend list by appending values from the iterable."""
         for widget in iterable:
             self.append(widget)
 

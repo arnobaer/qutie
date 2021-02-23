@@ -21,7 +21,7 @@ class MenuBar(BaseWidget):
                 return index
         raise ValueError("item not in list")
 
-    def clear(self):
+    def clear(self) -> None:
         while len(self):
             self.remove(self[0])
 
@@ -34,7 +34,8 @@ class MenuBar(BaseWidget):
             self.qt.addMenu(item.qt)
         return item
 
-    def insert(self, index, item):
+    def insert(self, index: int, item) -> None:
+        """Insert value before index. Permits negative indexing."""
         if index < 0:
             index = max(0, len(self) + index)
         if isinstance(item, str):
@@ -48,7 +49,8 @@ class MenuBar(BaseWidget):
             self.qt.insertMenu(before.qt, item.qt)
         return item
 
-    def extend(self, iterable):
+    def extend(self, iterable) -> None:
+        """Extend list by appending values from the iterable."""
         for item in iterable:
             self.append(item)
 

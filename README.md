@@ -14,7 +14,7 @@ window = ui.Widget(
     width=320,
     height=240,
     layout=ui.Column(
-        ui.Label("Hello world!", color='blue'),
+        ui.Label("Hello world!"),
         ui.Row(
             ui.Button("Go!", clicked=lambda: ui.show_info(text="Hello world!")),
             ui.Button("Quit", clicked=app.quit)
@@ -268,8 +268,8 @@ import qutie as ui
 
 class Dialog(ui.Dialog):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         # Create worker
         self.worker = ui.Worker(target=self.calculate)
         self.worker.finished = self.close

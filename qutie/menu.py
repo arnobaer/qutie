@@ -78,7 +78,8 @@ class Menu(BaseWidget):
             raise ValueError(item)
         return item
 
-    def insert(self, index, item):
+    def insert(self, index: int, item) -> None:
+        """Insert item before index. Permits negative indexing."""
         if index < 0:
             index = max(0, len(self) + index)
         if isinstance(item, str):

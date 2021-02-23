@@ -46,7 +46,8 @@ class MessageBox(BaseWidget):
     }
 
     def __init__(self, *, icon=None, title=None, text=None, details=None,
-                 informative=None, buttons=None, width=None, **kwargs):
+                 informative=None, buttons=None, width=None, parent=None,
+                 **kwargs):
         super().__init__(**kwargs)
         if icon is not None:
             self.icon = icon
@@ -60,6 +61,8 @@ class MessageBox(BaseWidget):
             self.informative = informative
         if buttons is not None:
             self.buttons = buttons
+        if parent is not None:
+            self.parent = parent
         # Workaround to resize message box
         layout = self.qt.layout()
         rows = layout.rowCount()

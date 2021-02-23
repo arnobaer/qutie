@@ -271,6 +271,7 @@ class BaseWidget(Object):
         parent = self.qt.parent()
         if hasattr(parent, 'reflection'):
             return parent.reflection()
+        return None
 
     @parent.setter
     def parent(self, value):

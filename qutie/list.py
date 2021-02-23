@@ -142,7 +142,7 @@ class List(BaseItemView):
         self.qt.addItem(item.qt)
         return item
 
-    def insert(self, index: int, item):
+    def insert(self, index: int, item) -> None:
         """Insert item before index. Permits negative indexing."""
         if index < 0:
             index = max(0, len(self) + index)

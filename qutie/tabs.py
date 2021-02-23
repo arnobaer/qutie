@@ -75,14 +75,14 @@ class Tabs(BaseWidget):
     def tabs_closable(self, value: bool) -> None:
         self.qt.setTabsClosable(value)
 
-    def append(self, tab):
+    def append(self, tab) -> None:
         """Append tab item to tab widget.
 
         >>> tabs.append(Tab(title="Spam"))
         """
         self.qt.addTab(tab.qt, tab.title)
 
-    def insert(self, index, tab):
+    def insert(self, index: int, tab) -> None:
         """Insert tab item at index to tab widget.
 
         >>> tabs.insert(0, Tab(title="Spam"))
@@ -91,9 +91,9 @@ class Tabs(BaseWidget):
             index = max(0, len(self) + index)
         self.qt.insertTab(index, tab.qt, tab.title)
 
-    def extend(self, tabs):
-        for tab in tabs:
-            self.append(tab)
+    def extend(self, iterable):
+        for item in iterable:
+            self.append(item)
 
     def remove(self, tab):
         """Remove tab item from tab widget.

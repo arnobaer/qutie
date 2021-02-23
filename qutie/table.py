@@ -184,7 +184,7 @@ class Table(BaseItemView):
         row = self.row_count
         return self.insert(row, items)
 
-    def insert(self, row, items):
+    def insert(self, row: int, items):
         """Insert items at row, returns inserted items.
 
         >>> table.insert(0, [TableItem(value="Spam"), TableItem(value="Eggs")])
