@@ -84,9 +84,9 @@ class BoxLayout(Layout):
 
     def count(self, widget) -> int:
         """Return number of occurrences of widget."""
-        return list(self).count(value)
+        return list(self).count(widget)
 
-    def index(self, widet):
+    def index(self, widget):
         """Return first index of widget. Raises ValueError if the widget is not
         present.
         """

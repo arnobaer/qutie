@@ -1,9 +1,10 @@
-from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 __all__ = ['Qutie']
+
+Qt = QtCore.Qt
 
 def to_brush(method):
     def to_brush(self, value):
@@ -24,7 +25,7 @@ def from_brush(method):
 
 class Enum:
 
-    QtEnums = NotImplemented
+    QtEnums = {}
 
     @classmethod
     def setter(cls, method):
@@ -119,7 +120,7 @@ class QutieStub:
     QtClass = NotImplemented
 
     def __init__(self, qt=None):
-        class QtClassWrapper(self.QtClass):
+        class QtClassWrapper(type(self).QtClass):
 
             def reflection(self):
                 return self._reflection
@@ -142,7 +143,7 @@ class Qutie:
     QtClass = NotImplemented
 
     def __init__(self, qt=None):
-        class QtClassWrapper(self.QtClass):
+        class QtClassWrapper(type(self).QtClass):
 
             handleEvent = QtCore.pyqtSignal(object)
 

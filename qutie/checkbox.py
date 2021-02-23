@@ -7,11 +7,11 @@ For more information on the underlying Qt5 object see
 from .qutie import QtCore
 from .qutie import QtWidgets
 
-from .widget import BaseWidget
+from .button import AbstractButton
 
 __all__ = ['CheckBox']
 
-class CheckBox(BaseWidget):
+class CheckBox(AbstractButton):
     """CheckBox
 
     Properties
@@ -24,7 +24,6 @@ class CheckBox(BaseWidget):
 
     QtClass = QtWidgets.QCheckBox
 
-    checked = None
     changed = None
 
     def __init__(self, text=None, *, checked=False, changed=None, **kwargs):
@@ -32,8 +31,8 @@ class CheckBox(BaseWidget):
         # Properties
         if text is not None:
             self.text = text
-        # Callbacks
         self.checked = checked
+        # Callbacks
         self.changed = changed
         # Connect signals
         def handle_state_changed(state):

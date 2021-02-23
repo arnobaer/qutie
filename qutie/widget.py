@@ -310,7 +310,7 @@ class BaseWidget(Object):
             if not self.close_event():
                 event.ignore()
                 return
-        super(self.qt.__class__, self.qt).closeEvent(event)
+        super(type(self.qt), self.qt).closeEvent(event)
 
 class Widget(BaseWidget):
     """Widget for components with layout."""

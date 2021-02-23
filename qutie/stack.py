@@ -56,7 +56,7 @@ class Stack(BaseWidget):
         index = self.qt.currentIndex()
         if index < 0:
             return None
-        return item.reflection()
+        return self[index]
 
     @current.setter
     def current(self, item):
